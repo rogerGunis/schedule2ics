@@ -1,12 +1,12 @@
 package de.gunis.roger;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.imports.CsvFileLoader;
 import de.gunis.roger.jobsToDo.Job;
 import de.gunis.roger.jobsToDo.JobDescription;
+import de.gunis.roger.jobsToDo.LaborMarket;
 import de.gunis.roger.workersAvailable.JobCenter;
 import de.gunis.roger.workersAvailable.Worker;
-import de.gunis.roger.imports.CsvFileLoader;
-import de.gunis.roger.jobsToDo.LaborMarket;
 import groovy.util.logging.Slf4j;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
@@ -41,8 +41,16 @@ public class Start {
         LocalDate myDay = LocalDate.of(2017, Month.MARCH, 27);
         LocalDate endDay = LocalDate.of(2017, Month.MARCH, 29);
 
-        combineJobAndWorker(jobCenter, holidays, workers, jobDescriptions, myDay, endDay);
+        combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
+        writeIcsFile(jobDescriptions);
+
+
+        logger.info("Finished");
+        jobCenter.stop();
+    }
+
+    static void writeIcsFile(List<JobDescription> jobDescriptions) {
         jobDescriptions.stream().forEach(jobDescription -> {
                     Calendar calendar = jobDescription.getCalendar();
                     String name = jobDescription.getName();
@@ -59,42 +67,40 @@ public class Start {
                     }
                 }
         );
-
-
-        logger.info("Finished");
-        jobCenter.stop();
     }
 
-    static void combineJobAndWorker(JobCenter jobCenter,
-                                    Set<Holiday> holidays,
-                                    List<Worker> workers,
-                                    List<JobDescription> jobDescriptions,
-                                    LocalDate myDay,
-                                    LocalDate endDay) {
+    static void combineJobAndWorkerAndRegisterOnDescription(Set<Holiday> holidays,
+                                                            List<Worker> workers,
+                                                            List<JobDescription> jobDescriptions,
+                                                            LocalDate myDay,
+                                                            LocalDate endDay) {
         LaborMarket laborMarket = new LaborMarket(jobDescriptions);
+        JobCenter jobCenter = JobCenter.instance();
         jobCenter.addWorkers(workers);
 
         while (!myDay.isEqual(endDay)) {
 
             List<JobDescription> jobQueue = laborMarket.getJobDescriptions(myDay);
             if (jobQueue.isEmpty()) {
-                logger.info("No work for day: %s", myDay);
+                logger.debug("No work for day: %s", myDay.toString());
+                myDay = myDay.plusDays(1L);
                 continue;
             }
 
-            if (holidays.stream().filter(holiday -> holiday.match(myDay)).findFirst().isPresent()) {
-                logger.debug("Found holiday: %s ", myDay);
-                myDay.plusDays(1L);
+            LocalDate finalMyDay = myDay;
+            if (holidays.stream().filter(holiday -> holiday.match(finalMyDay)).findFirst().isPresent()) {
+                logger.debug("Found holiday: %s ", myDay.toString());
+                myDay = myDay.plusDays(1L);
                 continue;
             }
 
             // foreach necessary pool get person to do this
             for (JobDescription jobDescription : jobQueue) {
                 Worker foundWorker = jobCenter.getWorkerForJob(myDay, new Job(jobDescription.getName()));
-                jobDescription.registerEvent(myDay, foundWorker);
+                jobDescription.registerWorkerOnDate(myDay, foundWorker);
             }
 
-            myDay.plusDays(1L);
+            myDay = myDay.plusDays(1L);
         }
     }
 

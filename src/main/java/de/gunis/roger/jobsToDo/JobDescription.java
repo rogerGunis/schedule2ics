@@ -19,35 +19,40 @@ import java.util.Set;
 public class JobDescription {
     private static final Logger logger = LoggerFactory.getLogger("JobDescription.class");
 
-    String name = "";
-    Set<DayOfWeek> dayOfWeeks;
-    Integer duration = 0;
-    Calendar calendar = new Calendar();
+    private final String name;
+    private final Set<DayOfWeek> dayOfWeeks;
+    private final Integer duration;
+    private final Calendar calendar;
 
     public JobDescription(String name, Set<DayOfWeek> dayOfWeeks, Integer duration) {
         this.name = name;
         this.dayOfWeeks = dayOfWeeks;
         this.duration = duration;
+
+        calendar = new Calendar();
+        calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
+        calendar.getProperties().add(Version.VERSION_2_0);
+        calendar.getProperties().add(CalScale.GREGORIAN);
     }
 
-    public boolean hasToBeDoneOn(LocalDate day) {
-        return dayOfWeeks.contains(day.getDayOfWeek().getValue());
+    public Integer getDuration() {
+        return duration;
+    }
+
+    boolean hasToBeDoneOn(LocalDate day) {
+        return dayOfWeeks.contains(day.getDayOfWeek());
     }
 
     public String getName() {
         return name;
     }
 
-    public void registerEvent(LocalDate day, Worker foundWorker) {
+    public void registerWorkerOnDate(LocalDate day, Worker foundWorker) {
 
         try {
-            VEvent vEvent = new VEvent(new Date(day.toEpochDay()), foundWorker.getName());
+            VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), foundWorker.getName());
             UidGenerator ug = new UidGenerator("1");
             vEvent.getProperties().add(ug.generateUid());
-
-            calendar.getProperties().add(new ProdId("-//FischstäbchenMuc//iCal4j 1.0//EN"));
-            calendar.getProperties().add(Version.VERSION_2_0);
-            calendar.getProperties().add(CalScale.GREGORIAN);
 
             calendar.getComponents().add(vEvent);
         } catch (SocketException e) {
