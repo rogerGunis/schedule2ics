@@ -11,7 +11,8 @@ because we do not struggle the work order of the people.
 
 ## Features
 
-see cli below
+* see cli below
+* caution the csv files are expected to always start with a headline, this first line is always ignored!
 
 ## Getting started
 
@@ -24,7 +25,7 @@ Usage: <main class> [options]
 
       Default: false
   * --holidays, -hs
-      File for Holidays <YYYYMMDD,event>
+      File for Holidays <dd.MM.yyyy,dd.MM.yyyy,event>
   * --jobDescriptions, -js
       File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>
   * --workers, -ws
@@ -48,7 +49,7 @@ Usage: <main class> [options]
 
       Default: false
   * --holidays, -hs
-      File for Holidays <YYYYMMDD,event>
+      File for Holidays <dd.MM.yyyy,dd.MM.yyyy,event>
   * --jobDescriptions, -js
       File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>
   * --workers, -ws

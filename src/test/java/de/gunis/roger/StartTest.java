@@ -34,7 +34,7 @@ public class StartTest {
 
     @Test
     public void combineJobAndWorker() throws Exception {
-        Set<Holiday> holidays = Stream.of(new Holiday(LocalDate.now().minusDays(1L), "myHoliday"))
+        Set<Holiday> holidays = Stream.of(new Holiday(LocalDate.now().minusDays(1L), LocalDate.now().minusDays(1L), "myHoliday"))
                 .collect(Collectors.toSet());
         List<Worker> workers = Stream.of(
                 new Worker("asdf",

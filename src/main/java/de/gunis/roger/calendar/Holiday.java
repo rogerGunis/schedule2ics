@@ -3,16 +3,19 @@ package de.gunis.roger.calendar;
 import java.time.LocalDate;
 
 public class Holiday {
-    LocalDate holiday;
+    LocalDate startDate;
+    LocalDate endDate;
     String name;
 
-    public Holiday(LocalDate holiday, String name) {
-        this.holiday = holiday;
+    public Holiday(LocalDate startDate, LocalDate endDate, String name) {
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.name = name;
     }
 
-    public boolean match(LocalDate day) {
-        return day.equals(holiday);
+    public boolean isWithRange(LocalDate testDate) {
+        return testDate.toEpochDay() >= startDate.toEpochDay() &&
+                testDate.toEpochDay() <= endDate.toEpochDay();
     }
 
     @Override
@@ -22,11 +25,11 @@ public class Holiday {
 
         Holiday holiday1 = (Holiday) o;
 
-        return holiday.equals(holiday1.holiday);
+        return startDate.equals(holiday1.startDate);
     }
 
     @Override
     public int hashCode() {
-        return holiday.hashCode();
+        return startDate.hashCode();
     }
 }

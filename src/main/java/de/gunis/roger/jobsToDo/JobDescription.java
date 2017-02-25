@@ -3,6 +3,7 @@ package de.gunis.roger.jobsToDo;
 import de.gunis.roger.workersAvailable.Worker;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
+import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.ProdId;
@@ -25,12 +26,15 @@ public class JobDescription {
     private final Calendar calendar;
     private final LocalDate begin;
     private final LocalDate end;
+    private final Dur durationByCal;
     private UidGenerator ug = null;
 
     public JobDescription(String name, Set<DayOfWeek> dayOfWeeks, Integer duration, LocalDate begin, LocalDate end) {
         this.name = name;
         this.dayOfWeeks = dayOfWeeks;
         this.duration = duration;
+        this.durationByCal = new Dur(duration, 0, 0, 0);
+        ;
         this.begin = begin;
         this.end = end;
 
@@ -73,7 +77,8 @@ public class JobDescription {
 
     public void registerWorkerOnDate(LocalDate day, Worker foundWorker) {
 
-        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), foundWorker.getName());
+//        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), foundWorker.getName());
+        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), durationByCal, foundWorker.getName());
         vEvent.getProperties().add(ug.generateUid());
 
         calendar.getComponents().add(vEvent);

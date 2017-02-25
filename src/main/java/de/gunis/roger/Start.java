@@ -27,18 +27,27 @@ import java.util.Set;
 public class Start {
     private static final Logger logger = LoggerFactory.getLogger("Start.class");
 
-    @Parameter(required = true, names = {"--holidays", "-hs"}, description = "File for Holidays <YYYYMMDD,event>")
+    @SuppressWarnings("unused")
+    @Parameter(required = true, names = {"--holidays", "-hs"}, description = "File for Holidays <dd.MM.yyyy,dd.MM.yyyy,event>")
     private String inputFilePathHolidays;
 
+    @SuppressWarnings("unused")
     @Parameter(required = true, names = {"--workers", "-ws"}, description = "File for Workers <Name,JobA JobB..,Holidays>")
     private String inputFilePathWorkers;
 
+    @SuppressWarnings("unused")
     @Parameter(required = true, names = {"--jobDescriptions", "-js"}, description = "File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>")
     private String inputFilePathJobDescriptions;
 
+    @SuppressWarnings("unused FieldCanBeLocal")
+    @Parameter(required = true, names = {"--dateFormat", "-dateFormat"}, description = "Format of the Dates in all files [yyyy-MM-dd|dd.MM.yyyy|...]")
+    private String dateFormat = "dd.MM.yyyy";
+
+    @SuppressWarnings("unused")
     @Parameter(names = {"-log", "-verbose"}, description = "Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]")
     private String verbose;
 
+    @SuppressWarnings("FieldCanBeLocal")
     @Parameter(names = {"--help", "-h"}, help = true)
     private boolean help = false;
 
@@ -91,7 +100,8 @@ public class Start {
                 continue;
             }
 
-            if (holidays.contains(myDay)) {
+            LocalDate finalMyDay1 = myDay;
+            if (holidays.parallelStream().anyMatch(holiday -> holiday.isWithRange(finalMyDay1))) {
                 logger.debug("Found holiday: {}", myDay.toString());
                 myDay = myDay.plusDays(1L);
                 continue;
@@ -131,10 +141,11 @@ public class Start {
         setLoggingLevel(verbose);
 
         JobCenter jobCenter = JobCenter.start();
+        CsvFileLoader csvFileLoader = new CsvFileLoader(dateFormat);
 
-        Set<Holiday> holidays = CsvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
-        List<Worker> workers = CsvFileLoader.importWorkerFromFile(inputFilePathWorkers);
-        List<JobDescription> jobDescriptions = CsvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
+        Set<Holiday> holidays = csvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
+        List<Worker> workers = csvFileLoader.importWorkerFromFile(inputFilePathWorkers);
+        List<JobDescription> jobDescriptions = csvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
 
         int startOffset = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min().getAsInt();
         int endOffset = jobDescriptions.stream().mapToInt(job -> (int) job.getEnd().toEpochDay()).max().getAsInt();

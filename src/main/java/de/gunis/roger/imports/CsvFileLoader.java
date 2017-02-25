@@ -21,8 +21,8 @@ public class CsvFileLoader {
     private static final Logger logger = LoggerFactory.getLogger("CsvFileLoader.class");
     static Function<String, String> trimLine =
             line -> line.replaceAll("(,\\p{javaSpaceChar}+)|(\\p{javaSpaceChar}+,)", ",");
-    private static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final Function<String, JobDescription> mapToJobDescription = line -> {
+    static DateTimeFormatter dateFormatter;
+    static final Function<String, JobDescription> mapToJobDescription = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines
         Set<DayOfWeek> dayOfWeeks = Arrays.stream(p[1].split(" "))
                 .map(String::trim)
@@ -35,9 +35,9 @@ public class CsvFileLoader {
     private static final Function<String, Holiday> mapToHoliday = line -> {
         String[] p = line.split(",");
 
-        return new Holiday(LocalDate.parse(p[0], dateFormatter), p[1]);
+        return new Holiday(LocalDate.parse(p[0], dateFormatter), LocalDate.parse(p[1], dateFormatter), p[2]);
     };
-    private static final Function<String, Worker> mapToWorker = line -> {
+    static final Function<String, Worker> mapToWorker = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines
 
         Set<Job> jobs = Arrays.stream(p[1].split("\\s+")).map(Job::new).collect(Collectors.toSet());
@@ -51,10 +51,11 @@ public class CsvFileLoader {
         return new Worker(p[0], jobs, vacations);
     };
 
-    private CsvFileLoader() {
+    public CsvFileLoader(String datePattern) {
+        dateFormatter = DateTimeFormatter.ofPattern(datePattern);
     }
 
-    public static List<Worker> importWorkerFromFile(String inputFilePath) {
+    public List<Worker> importWorkerFromFile(String inputFilePath) {
         logger.info("Loading {}", inputFilePath);
         List<Worker> inputList = new ArrayList<>();
         try (
@@ -70,7 +71,7 @@ public class CsvFileLoader {
         return inputList;
     }
 
-    public static List<JobDescription> importJobDescriptionFromFile(String inputFilePath) {
+    public List<JobDescription> importJobDescriptionFromFile(String inputFilePath) {
         List<JobDescription> inputList = new ArrayList<>();
         try (
                 InputStream inputFS = new FileInputStream(new File(inputFilePath));
@@ -85,7 +86,7 @@ public class CsvFileLoader {
         return inputList;
     }
 
-    public static Set<Holiday> importHolidaysFromFile(String inputFilePath) {
+    public Set<Holiday> importHolidaysFromFile(String inputFilePath) {
         Set<Holiday> inputList = new HashSet<>();
         try (
                 InputStream inputFS = new FileInputStream(new File(inputFilePath));
