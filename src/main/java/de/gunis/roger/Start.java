@@ -1,5 +1,6 @@
 package de.gunis.roger;
 
+import ch.qos.logback.classic.Level;
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.imports.CsvFileLoader;
 import de.gunis.roger.jobsToDo.Job;
@@ -25,21 +26,25 @@ import java.util.Set;
 public class Start {
     private static final Logger logger = LoggerFactory.getLogger("Start.class");
 
+
     private Start() {
     }
 
     public static void main(String[] args) {
         logger.info("starting");
+        setLoggingLevel(ch.qos.logback.classic.Level.TRACE);
+
         JobCenter jobCenter = JobCenter.start();
 
-        Set<Holiday> holidays = CsvFileLoader.importHolidaysFromFile("asdfsadf");
+        Set<Holiday> holidays = CsvFileLoader.importHolidaysFromFile("/home/vagrant/scheduler2ics/internal/Holidays.csv");
 
-        List<Worker> workers = CsvFileLoader.importWorkerFromFile("blubber");
-        List<JobDescription> jobDescriptions = CsvFileLoader.importJobDescriptionFromFile("blubber");
+        List<Worker> workers = CsvFileLoader.importWorkerFromFile("/home/vagrant/scheduler2ics/internal/Workers.csv");
+        List<JobDescription> jobDescriptions = CsvFileLoader.importJobDescriptionFromFile("/home/vagrant/scheduler2ics/internal/JobDescription.csv");
 
         // fetch the day of the week and check for workday
-        LocalDate myDay = LocalDate.of(2017, Month.MARCH, 27);
-        LocalDate endDay = LocalDate.of(2017, Month.MARCH, 29);
+        LocalDate day = LocalDate.of(2017, Month.JANUARY, 11);
+        LocalDate myDay = day;
+        LocalDate endDay = day.plusDays(30);
 
         combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
@@ -79,30 +84,41 @@ public class Start {
         jobCenter.addWorkers(workers);
 
         while (!myDay.isEqual(endDay)) {
+            logger.debug("Day: {}", myDay.toString());
 
             List<JobDescription> jobQueue = laborMarket.getJobDescriptions(myDay);
             if (jobQueue.isEmpty()) {
-                logger.debug("No work for day: %s", myDay.toString());
+                logger.debug("No work for day: {}", myDay.toString());
                 myDay = myDay.plusDays(1L);
                 continue;
             }
 
-            LocalDate finalMyDay = myDay;
-            if (holidays.stream().filter(holiday -> holiday.match(finalMyDay)).findFirst().isPresent()) {
-                logger.debug("Found holiday: %s ", myDay.toString());
+            if (holidays.contains(myDay)) {
+                logger.debug("Found holiday: {}", myDay.toString());
                 myDay = myDay.plusDays(1L);
                 continue;
             }
 
             // foreach necessary pool get person to do this
-            for (JobDescription jobDescription : jobQueue) {
-                Worker foundWorker = jobCenter.getWorkerForJob(myDay, new Job(jobDescription.getName()));
-                jobDescription.registerWorkerOnDate(myDay, foundWorker);
-            }
+            LocalDate finalMyDay = myDay;
+            jobQueue.parallelStream().forEach(jobDescription -> {
+                Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, new Job(jobDescription.getName()));
+                logger.trace("Found {} for {} @ {}", foundWorker, jobDescription.getName(), finalMyDay);
+                jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
+                logger.trace("registering done");
+            });
 
             myDay = myDay.plusDays(1L);
         }
     }
 
+    private static void setLoggingLevel(ch.qos.logback.classic.Level level) {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        root.setLevel(level);
+
+        // we suppress calendar TRACE level, because not needed for me
+        ch.qos.logback.classic.Logger cal = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("net.fortuna.ical4j.data.FoldingWriter");
+        cal.setLevel(Level.DEBUG);
+    }
 
 }

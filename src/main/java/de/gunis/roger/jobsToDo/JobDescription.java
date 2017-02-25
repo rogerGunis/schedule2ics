@@ -23,6 +23,7 @@ public class JobDescription {
     private final Set<DayOfWeek> dayOfWeeks;
     private final Integer duration;
     private final Calendar calendar;
+    private UidGenerator ug = null;
 
     public JobDescription(String name, Set<DayOfWeek> dayOfWeeks, Integer duration) {
         this.name = name;
@@ -33,6 +34,15 @@ public class JobDescription {
         calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
+
+        try {
+            logger.trace("Generating UID (timeConsuming ...)");
+            ug = new UidGenerator("1");
+            logger.trace("Generating UID (DONE)");
+        } catch (SocketException e) {
+            logger.warn("Exception: " + e.getMessage());
+        }
+
     }
 
     public Integer getDuration() {
@@ -49,15 +59,10 @@ public class JobDescription {
 
     public void registerWorkerOnDate(LocalDate day, Worker foundWorker) {
 
-        try {
-            VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), foundWorker.getName());
-            UidGenerator ug = new UidGenerator("1");
-            vEvent.getProperties().add(ug.generateUid());
+        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), foundWorker.getName());
+        vEvent.getProperties().add(ug.generateUid());
 
-            calendar.getComponents().add(vEvent);
-        } catch (SocketException e) {
-            logger.warn("Exception: " + e);
-        }
+        calendar.getComponents().add(vEvent);
     }
 
     public Calendar getCalendar() {

@@ -44,7 +44,7 @@ public class JobCenter {
         jobs.addAll(jobsOfWorker);
         workerToJobs.put(worker, jobs);
 
-        jobs.stream().forEach(job -> {
+        jobs.forEach(job -> {
                     List<Worker> workers = jobToWorker.getOrDefault(job, Stream.of(worker).collect(Collectors.toList()));
                     if (!workers.contains(worker)) {
                         workers.add(worker);
@@ -56,6 +56,7 @@ public class JobCenter {
     }
 
     public Worker getWorkerForJob(LocalDate day, Job job) {
+        logger.trace("starting worker search");
         Optional<Worker> maybeWorker = jobToWorker.getOrDefault(job, Collections.emptyList())
                 .stream()
 //                .filter(worker -> worker.isAvailable(day))
@@ -74,8 +75,8 @@ public class JobCenter {
         } else {
             if (jobToWorker.getOrDefault(job, Collections.emptyList()).stream().findAny().isPresent()
                     && jobToWorker.getOrDefault(job, Collections.emptyList())
-                    .stream().filter(worker -> worker.isAvailable(day)).findFirst().isPresent()) {
-                logger.info("Round over, starting over next one");
+                    .stream().anyMatch(worker -> worker.isAvailable(day))) {
+                logger.info("Round over, starting over next one: {}", job);
                 jobToWorker.get(job).forEach(worker -> worker.resetJobDone(job));
                 return getWorkerForJob(day, job);
             } else {
@@ -88,10 +89,11 @@ public class JobCenter {
 
         }
 
+        logger.trace("finished worker search");
         return maybeWorker.orElse(null);
     }
 
     public void addWorkers(List<Worker> workers) {
-        workers.stream().forEach(this::addWorker);
+        workers.forEach(this::addWorker);
     }
 }
