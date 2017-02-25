@@ -23,12 +23,16 @@ public class JobDescription {
     private final Set<DayOfWeek> dayOfWeeks;
     private final Integer duration;
     private final Calendar calendar;
+    private final LocalDate begin;
+    private final LocalDate end;
     private UidGenerator ug = null;
 
-    public JobDescription(String name, Set<DayOfWeek> dayOfWeeks, Integer duration) {
+    public JobDescription(String name, Set<DayOfWeek> dayOfWeeks, Integer duration, LocalDate begin, LocalDate end) {
         this.name = name;
         this.dayOfWeeks = dayOfWeeks;
         this.duration = duration;
+        this.begin = begin;
+        this.end = end;
 
         calendar = new Calendar();
         calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
@@ -45,12 +49,22 @@ public class JobDescription {
 
     }
 
+    public LocalDate getBegin() {
+        return begin;
+    }
+
+    public LocalDate getEnd() {
+        return end;
+    }
+
     public Integer getDuration() {
         return duration;
     }
 
     boolean hasToBeDoneOn(LocalDate day) {
-        return dayOfWeeks.contains(day.getDayOfWeek());
+        return dayOfWeeks.contains(day.getDayOfWeek()) &&
+                (begin.isBefore(day) || begin.isEqual(day)) &&
+                (end.isAfter(day) || end.isEqual(day));
     }
 
     public String getName() {

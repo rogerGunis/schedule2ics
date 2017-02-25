@@ -1,57 +1,62 @@
-# scheduler2ics
-Assign jobs to workers and write the information who is doing when which job as ics file
-
 ![Logo of the project](https://url.toproject.com/path/to/logo.png)
 
-# Name of the project
-> Additional info or tagline
+# scheduler2ics
+> Assign jobs to workers and write the information who is doing when which job as ics file
 
-A brief description of the project.
-Why did we created it? What it is used for?
+The project was intended to have jobs, which must be assigned to a group of people. This will be done by
+round robin.
+The jobs can be configured, when they have to be done.
+If the workers are on holiday on their specific time they won't re-work the missing work. This is done
+because we do not struggle the work order of the people.
 
 ## Features
 
-What's all the bells and whistles this project can perform?
-* What's the main functionality
-* You can also do another thing
-* If you get really randy, you can even do this
+see cli below
 
 ## Getting started
 
-A quick introduction of the minimal setup you need to get the app
-running.
+TODO
 
 ```shell
-packagemanager install awesome-project
-awesome-project start
-awesome-project "Do something!"  # prints "Nah."
+Usage: <main class> [options]
+  Options:
+    --help, -h
+
+      Default: false
+  * --holidays, -hs
+      File for Holidays <YYYYMMDD,event>
+  * --jobDescriptions, -js
+      File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>
+  * --workers, -ws
+      File for Workers <Name,JobA JobB..,Holidays>
+    -log, -verbose
+      Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]
+      Default: <empty string>
 ```
 
 Here you should say what actually happens when you execute the code above.
 
 
-## APP Setup / Basic Usage
+## Basic Usage
 
-Here you should write what are all of the configurations a user can enter when
-using the project.
+Following commands must/can be added to cli. holidays, jobDescriptions, workers is required
 
-#### Argument 1
-Type: `String`  
-Default: `'default value'`
-
-State what an argument does and how you can use it. If needed, you can provide
-an example below.
-
-Example:
 ```bash
-awesome-project "Some other value"  # Prints "You're nailing this readme!"
+Usage: <main class> [options]
+  Options:
+    --help, -h
+
+      Default: false
+  * --holidays, -hs
+      File for Holidays <YYYYMMDD,event>
+  * --jobDescriptions, -js
+      File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>
+  * --workers, -ws
+      File for Workers <Name,JobA JobB..,Holidays>
+    -log, -verbose
+      Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]
+      Default: <empty string>
 ```
-
-#### Argument 2
-Type: `Number|Boolean`  
-Default: 100
-
-Copy-paste as many of these as you need.
 
 ## Developing
 
@@ -112,8 +117,4 @@ consideration, it is common to separate this section to its own file called
 
 ## Licensing
 
-One really important part: Give your project a proper license. Here you should
-state what the license is and how to find the text version of the license.
-Something like:
-
-"The code in this project is licensed under MIT license."
+see LICENSE file in repository

@@ -45,7 +45,8 @@ public class StartTest {
         List<JobDescription> jobDescriptions = Stream.of(
                 new JobDescription("help",
                         Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
-                        1)
+                        1,
+                        LocalDate.now(), LocalDate.now())
         ).collect(Collectors.toList());
 
         LocalDate myDay = LocalDate.now();

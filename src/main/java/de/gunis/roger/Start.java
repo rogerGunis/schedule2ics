@@ -1,6 +1,8 @@
 package de.gunis.roger;
 
 import ch.qos.logback.classic.Level;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.imports.CsvFileLoader;
 import de.gunis.roger.jobsToDo.Job;
@@ -18,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 import java.util.Set;
 
@@ -26,33 +27,30 @@ import java.util.Set;
 public class Start {
     private static final Logger logger = LoggerFactory.getLogger("Start.class");
 
+    @Parameter(required = true, names = {"--holidays", "-hs"}, description = "File for Holidays <YYYYMMDD,event>")
+    private String inputFilePathHolidays;
+
+    @Parameter(required = true, names = {"--workers", "-ws"}, description = "File for Workers <Name,JobA JobB..,Holidays>")
+    private String inputFilePathWorkers;
+
+    @Parameter(required = true, names = {"--jobDescriptions", "-js"}, description = "File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>")
+    private String inputFilePathJobDescriptions;
+
+    @Parameter(names = {"-log", "-verbose"}, description = "Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]")
+    private String verbose;
+
+    @Parameter(names = {"--help", "-h"}, help = true)
+    private boolean help = false;
 
     private Start() {
     }
 
     public static void main(String[] args) {
-        logger.info("starting");
-        setLoggingLevel(ch.qos.logback.classic.Level.TRACE);
 
-        JobCenter jobCenter = JobCenter.start();
+        Start main = new Start();
+        JCommander jCommander = new JCommander(main, args);
+        main.run(jCommander);
 
-        Set<Holiday> holidays = CsvFileLoader.importHolidaysFromFile("/home/vagrant/scheduler2ics/internal/Holidays.csv");
-
-        List<Worker> workers = CsvFileLoader.importWorkerFromFile("/home/vagrant/scheduler2ics/internal/Workers.csv");
-        List<JobDescription> jobDescriptions = CsvFileLoader.importJobDescriptionFromFile("/home/vagrant/scheduler2ics/internal/JobDescription.csv");
-
-        // fetch the day of the week and check for workday
-        LocalDate day = LocalDate.of(2017, Month.JANUARY, 11);
-        LocalDate myDay = day;
-        LocalDate endDay = day.plusDays(30);
-
-        combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
-
-        writeIcsFile(jobDescriptions);
-
-
-        logger.info("Finished");
-        jobCenter.stop();
     }
 
     static void writeIcsFile(List<JobDescription> jobDescriptions) {
@@ -102,23 +100,56 @@ public class Start {
             // foreach necessary pool get person to do this
             LocalDate finalMyDay = myDay;
             jobQueue.parallelStream().forEach(jobDescription -> {
-                Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, new Job(jobDescription.getName()));
-                logger.trace("Found {} for {} @ {}", foundWorker, jobDescription.getName(), finalMyDay);
+                String jobDescriptionName = jobDescription.getName();
+                Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, new Job(jobDescriptionName));
+                logger.trace("Found {} for {} @ {}", foundWorker, jobDescriptionName, finalMyDay);
                 jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
-                logger.trace("registering done");
+                logger.trace("registration done: {} {} @ {}", finalMyDay, foundWorker, jobDescriptionName);
             });
 
             myDay = myDay.plusDays(1L);
         }
     }
 
-    private static void setLoggingLevel(ch.qos.logback.classic.Level level) {
+    private static void setLoggingLevel(String level) {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-        root.setLevel(level);
+        root.setLevel(Level.toLevel(level, Level.DEBUG));
 
         // we suppress calendar TRACE level, because not needed for me
         ch.qos.logback.classic.Logger cal = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("net.fortuna.ical4j.data.FoldingWriter");
         cal.setLevel(Level.DEBUG);
+    }
+
+    private void run(JCommander jCommander) {
+
+        if (help) {
+            jCommander.usage();
+            System.exit(2);
+        }
+
+        logger.info("starting with: {}, {}, {}", inputFilePathHolidays, inputFilePathWorkers, inputFilePathJobDescriptions);
+        setLoggingLevel(verbose);
+
+        JobCenter jobCenter = JobCenter.start();
+
+        Set<Holiday> holidays = CsvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
+        List<Worker> workers = CsvFileLoader.importWorkerFromFile(inputFilePathWorkers);
+        List<JobDescription> jobDescriptions = CsvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
+
+        int startOffset = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min().getAsInt();
+        int endOffset = jobDescriptions.stream().mapToInt(job -> (int) job.getEnd().toEpochDay()).max().getAsInt();
+
+        LocalDate myDay = LocalDate.ofEpochDay(startOffset);
+        LocalDate endDay = LocalDate.ofEpochDay(endOffset);
+
+        logger.info("Searching, between {} -> {} (days: {})", myDay, endDay, endDay.toEpochDay() - myDay.toEpochDay());
+        combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
+
+        writeIcsFile(jobDescriptions);
+
+
+        logger.info("Finished");
+        jobCenter.stop();
     }
 
 }

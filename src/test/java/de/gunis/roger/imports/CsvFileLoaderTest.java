@@ -22,7 +22,7 @@ public class CsvFileLoaderTest {
 
     @Test
     public void testJobDescription() throws Exception {
-        List<JobDescription> jobDescriptions = Stream.of("rescue, 1, 7")
+        List<JobDescription> jobDescriptions = Stream.of("rescue, 1, 7, 2016-01-01, 2017-01-01")
                 .map(trimLine).map(mapToJobDescription).collect(Collectors.toList());
         Assert.assertTrue(jobDescriptions.size() > 0);
     }
