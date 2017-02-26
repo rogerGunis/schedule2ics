@@ -3,9 +3,9 @@ package de.gunis.roger.calendar;
 import java.time.LocalDate;
 
 public class Holiday {
-    LocalDate startDate;
-    LocalDate endDate;
-    String name;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private String name;
 
     public Holiday(LocalDate startDate, LocalDate endDate, String name) {
         this.startDate = startDate;
@@ -13,7 +13,7 @@ public class Holiday {
         this.name = name;
     }
 
-    public boolean isWithRange(LocalDate testDate) {
+    public boolean isWithinRange(LocalDate testDate) {
         return testDate.toEpochDay() >= startDate.toEpochDay() &&
                 testDate.toEpochDay() <= endDate.toEpochDay();
     }
@@ -23,13 +23,26 @@ public class Holiday {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Holiday holiday1 = (Holiday) o;
+        Holiday holiday = (Holiday) o;
 
-        return startDate.equals(holiday1.startDate);
+        if (startDate != null ? !startDate.equals(holiday.startDate) : holiday.startDate != null) return false;
+        if (endDate != null ? !endDate.equals(holiday.endDate) : holiday.endDate != null) return false;
+        return name != null ? name.equals(holiday.name) : holiday.name == null;
     }
 
     @Override
     public int hashCode() {
-        return startDate.hashCode();
+        int result = startDate != null ? startDate.hashCode() : 0;
+        result = 31 * result + (endDate != null ? endDate.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
     }
 }

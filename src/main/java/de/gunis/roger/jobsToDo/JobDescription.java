@@ -1,5 +1,6 @@
 package de.gunis.roger.jobsToDo;
 
+import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.workersAvailable.Worker;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
@@ -21,7 +22,7 @@ public class JobDescription {
     private static final Logger logger = LoggerFactory.getLogger("JobDescription.class");
 
     private final String name;
-    private final Set<DayOfWeek> dayOfWeeks;
+    private final Set<DayOfWeek> daysInWeek;
     private final Integer duration;
     private final Calendar calendar;
     private final LocalDate begin;
@@ -29,9 +30,9 @@ public class JobDescription {
     private final Dur durationByCal;
     private UidGenerator ug = null;
 
-    public JobDescription(String name, Set<DayOfWeek> dayOfWeeks, Integer duration, LocalDate begin, LocalDate end) {
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end) {
         this.name = name;
-        this.dayOfWeeks = dayOfWeeks;
+        this.daysInWeek = daysInWeek;
         this.duration = duration;
         this.durationByCal = new Dur(duration, 0, 0, 0);
         ;
@@ -65,10 +66,22 @@ public class JobDescription {
         return duration;
     }
 
-    boolean hasToBeDoneOn(LocalDate day) {
-        return dayOfWeeks.contains(day.getDayOfWeek()) &&
-                (begin.isBefore(day) || begin.isEqual(day)) &&
-                (end.isAfter(day) || end.isEqual(day));
+    boolean hasToBeDoneOn(LocalDate testDate) {
+
+        return isWithinRange(testDate);
+    }
+
+    boolean hasToBeDoneOn(LocalDate testDate, Holiday holiday) {
+        LocalDate endDate = testDate.plusDays(duration);
+
+        boolean durationIsWithinHolidays = holiday.isWithinRange(testDate) && holiday.isWithinRange(endDate);
+        return daysInWeek.contains(testDate.getDayOfWeek()) && !durationIsWithinHolidays;
+    }
+
+    private boolean isWithinRange(LocalDate testDate) {
+        return daysInWeek.contains(testDate.getDayOfWeek()) &&
+                testDate.toEpochDay() >= begin.toEpochDay() &&
+                testDate.toEpochDay() <= end.toEpochDay();
     }
 
     public String getName() {
@@ -77,7 +90,6 @@ public class JobDescription {
 
     public void registerWorkerOnDate(LocalDate day, Worker foundWorker) {
 
-//        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), foundWorker.getName());
         VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), durationByCal, foundWorker.getName());
         vEvent.getProperties().add(ug.generateUid());
 
@@ -87,4 +99,5 @@ public class JobDescription {
     public Calendar getCalendar() {
         return calendar;
     }
+
 }

@@ -54,7 +54,7 @@ public class StartTest {
 
         combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
-        writeIcsFile(jobDescriptions);
+        writeIcsFile(jobDescriptions, "/tmp");
     }
 
 

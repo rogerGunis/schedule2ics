@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
@@ -39,8 +41,12 @@ public class Start {
     @Parameter(required = true, names = {"--jobDescriptions", "-js"}, description = "File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>")
     private String inputFilePathJobDescriptions;
 
+    @SuppressWarnings("unused")
+    @Parameter(required = true, names = {"--outputFilePath", "-out"}, description = "Path for ics file created per JobDescription")
+    private String outputFilePath;
+
     @SuppressWarnings("unused FieldCanBeLocal")
-    @Parameter(required = true, names = {"--dateFormat", "-dateFormat"}, description = "Format of the Dates in all files [yyyy-MM-dd|dd.MM.yyyy|...]")
+    @Parameter(names = {"--dateFormat", "-dateFormat"}, description = "Format of the Dates in all files [yyyy-MM-dd|dd.MM.yyyy|...]")
     private String dateFormat = "dd.MM.yyyy";
 
     @SuppressWarnings("unused")
@@ -48,7 +54,7 @@ public class Start {
     private String verbose;
 
     @SuppressWarnings("FieldCanBeLocal")
-    @Parameter(names = {"--help", "-h"}, help = true)
+    @Parameter(names = {"--help", "-h"}, description = "This help", help = true)
     private boolean help = false;
 
     private Start() {
@@ -62,14 +68,15 @@ public class Start {
 
     }
 
-    static void writeIcsFile(List<JobDescription> jobDescriptions) {
+    static void writeIcsFile(List<JobDescription> jobDescriptions, String outputFilePath) {
         jobDescriptions.stream().forEach(jobDescription -> {
                     Calendar calendar = jobDescription.getCalendar();
                     String name = jobDescription.getName();
-                    try (
-                            FileOutputStream fout = new FileOutputStream(Paths.get("/tmp/" + name + ".ics").toFile())
-                    ) {
+                    Path path = Paths.get(outputFilePath, name + ".ics");
+                    try {
 
+                        Files.createDirectories(path.getParent());
+                        FileOutputStream fout = new FileOutputStream(path.toString());
                         CalendarOutputter outputter = new CalendarOutputter();
                         outputter.setValidating(false);
                         outputter.output(calendar, fout);
@@ -86,7 +93,7 @@ public class Start {
                                                             List<JobDescription> jobDescriptions,
                                                             LocalDate myDay,
                                                             LocalDate endDay) {
-        LaborMarket laborMarket = new LaborMarket(jobDescriptions);
+        LaborMarket laborMarket = new LaborMarket(jobDescriptions, holidays);
         JobCenter jobCenter = JobCenter.instance();
         jobCenter.addWorkers(workers);
 
@@ -94,20 +101,13 @@ public class Start {
             logger.debug("Day: {}", myDay.toString());
 
             List<JobDescription> jobQueue = laborMarket.getJobDescriptions(myDay);
+
             if (jobQueue.isEmpty()) {
                 logger.debug("No work for day: {}", myDay.toString());
                 myDay = myDay.plusDays(1L);
                 continue;
             }
 
-            LocalDate finalMyDay1 = myDay;
-            if (holidays.parallelStream().anyMatch(holiday -> holiday.isWithRange(finalMyDay1))) {
-                logger.debug("Found holiday: {}", myDay.toString());
-                myDay = myDay.plusDays(1L);
-                continue;
-            }
-
-            // foreach necessary pool get person to do this
             LocalDate finalMyDay = myDay;
             jobQueue.parallelStream().forEach(jobDescription -> {
                 String jobDescriptionName = jobDescription.getName();
@@ -134,6 +134,7 @@ public class Start {
 
         if (help) {
             jCommander.usage();
+            System.out.print("-------------\nAll elements marked with * are required\n-------------\n");
             System.exit(2);
         }
 
@@ -156,7 +157,7 @@ public class Start {
         logger.info("Searching, between {} -> {} (days: {})", myDay, endDay, endDay.toEpochDay() - myDay.toEpochDay());
         combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
-        writeIcsFile(jobDescriptions);
+        writeIcsFile(jobDescriptions, outputFilePath);
 
 
         logger.info("Finished");
