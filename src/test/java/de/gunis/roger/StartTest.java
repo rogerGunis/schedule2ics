@@ -46,7 +46,7 @@ public class StartTest {
                 new JobDescription("help",
                         Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                         1,
-                        LocalDate.now(), LocalDate.now())
+                        LocalDate.now(), LocalDate.now(), null)
         ).collect(Collectors.toList());
 
         LocalDate myDay = LocalDate.now();
@@ -54,7 +54,7 @@ public class StartTest {
 
         combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
-        writeIcsFile(jobDescriptions, "/tmp");
+        Start.documentJobsAndWork(jobDescriptions, "/tmp");
     }
 
 

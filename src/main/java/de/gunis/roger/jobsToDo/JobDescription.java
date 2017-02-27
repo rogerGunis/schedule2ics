@@ -23,6 +23,7 @@ public class JobDescription {
 
     private final String name;
     private final Set<DayOfWeek> daysInWeek;
+    private final DayOfWeek infoInDayOfWeek;
     private final Integer duration;
     private final Calendar calendar;
     private final LocalDate begin;
@@ -30,14 +31,15 @@ public class JobDescription {
     private final Dur durationByCal;
     private UidGenerator ug = null;
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end) {
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek infoInDayOfWeek) {
         this.name = name;
         this.daysInWeek = daysInWeek;
         this.duration = duration;
         this.durationByCal = new Dur(duration, 0, 0, 0);
-        ;
         this.begin = begin;
         this.end = end;
+
+        this.infoInDayOfWeek = infoInDayOfWeek;
 
         calendar = new Calendar();
         calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
@@ -62,10 +64,6 @@ public class JobDescription {
         return end;
     }
 
-    public Integer getDuration() {
-        return duration;
-    }
-
     boolean hasToBeDoneOn(LocalDate testDate) {
 
         return isWithinRange(testDate);
@@ -88,16 +86,31 @@ public class JobDescription {
         return name;
     }
 
-    public void registerWorkerOnDate(LocalDate day, Worker foundWorker) {
-
-        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), durationByCal, foundWorker.getName());
-        vEvent.getProperties().add(ug.generateUid());
+    public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker) {
+        VEvent vEvent;
+        if (infoInDayOfWeek != null) {
+            LocalDate info2ThisDay = day.with(infoInDayOfWeek);
+            Dur duration1Day = new Dur(1, 0, 0, 0);
+            vEvent = getNewEvent(info2ThisDay, duration1Day, foundWorker);
+        } else {
+            vEvent = getNewEvent(day, durationByCal, foundWorker);
+        }
 
         calendar.getComponents().add(vEvent);
+        return vEvent;
+    }
+
+    public VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker) {
+        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), duration, foundWorker.getName());
+        vEvent.getProperties().add(ug.generateUid());
+        return vEvent;
     }
 
     public Calendar getCalendar() {
         return calendar;
     }
 
+    public DayOfWeek getInfoInDayOfWeek() {
+        return infoInDayOfWeek;
+    }
 }

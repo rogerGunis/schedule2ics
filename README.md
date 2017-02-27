@@ -116,6 +116,10 @@ guide), you should link it here. If there's a lot of things to take into
 consideration, it is common to separate this section to its own file called
 `CONTRIBUTING.md` (or similar). If so, you should say that it exists here.
 
+## Post processing
+
+https://www.w3.org/Tools/Ical2html/
+
 ## Licensing
 
 see LICENSE file in repository

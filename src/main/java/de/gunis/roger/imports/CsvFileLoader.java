@@ -29,8 +29,17 @@ public class CsvFileLoader {
                 .map(nr -> DayOfWeek.of(Integer.valueOf(nr)))
                 .collect(Collectors.toSet());
 
+        DayOfWeek info2DayOfWeek = null;
+        if (p.length == 6) {
+            Integer dayOfWeekInt = Integer.valueOf(p[5]);
+            if (dayOfWeekInt > 0) {
+                info2DayOfWeek = DayOfWeek.of(dayOfWeekInt);
+            }
+        }
+
         return new JobDescription(p[0], dayOfWeeks, Integer.parseInt(p[2]),
-                LocalDate.parse(p[3], dateFormatter), LocalDate.parse(p[4], dateFormatter));
+                LocalDate.parse(p[3], dateFormatter), LocalDate.parse(p[4], dateFormatter),
+                info2DayOfWeek);
     };
     private static final Function<String, Holiday> mapToHoliday = line -> {
         String[] p = line.split(",");
