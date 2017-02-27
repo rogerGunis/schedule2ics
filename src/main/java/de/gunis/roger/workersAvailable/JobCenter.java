@@ -25,6 +25,7 @@ public class JobCenter {
 
     private Map<Worker, Set<Job>> workerToJobs = new HashMap<>();
     private Map<Job, List<Worker>> jobToWorker = new HashMap<>();
+    private Map<JobDescription, Integer> roundOfJobsCounter = new HashMap<>();
     private Calendar allCalendarEntries;
 
     private JobCenter(Calendar allCalendarEntries, Uid uid) {
@@ -67,7 +68,7 @@ public class JobCenter {
         return instance;
     }
 
-    public void addWorker(Worker worker) {
+    void addWorker(Worker worker) {
         Set<Job> jobsOfWorker = worker.getJobs();
         Set<Job> jobs = workerToJobs.getOrDefault(worker, jobsOfWorker);
         jobs.addAll(jobsOfWorker);
@@ -84,8 +85,11 @@ public class JobCenter {
 
     }
 
-    public Worker getWorkerForJob(LocalDate day, Job job) {
+    Worker getWorkerForJob(LocalDate day, JobDescription jobDescription) {
         logger.trace("starting worker search");
+        Job job = new Job(jobDescription.getJobName());
+        roundOfJobsCounter.putIfAbsent(jobDescription, 1);
+
         Optional<Worker> maybeWorker = jobToWorker.getOrDefault(job, Collections.emptyList())
                 .stream()
                 .filter(worker -> !worker.hasJobDone(job))
@@ -96,7 +100,7 @@ public class JobCenter {
                 // on vacation, mark done and ask again (keep same order of list)
                 // some kind of business logic
                 maybeWorker.get().doJob(job);
-                return getWorkerForJob(day, job);
+                return getWorkerForJob(day, jobDescription);
             } else {
                 maybeWorker.get().doJob(job);
             }
@@ -104,9 +108,12 @@ public class JobCenter {
             if (jobToWorker.getOrDefault(job, Collections.emptyList()).stream().findAny().isPresent()
                     && jobToWorker.getOrDefault(job, Collections.emptyList())
                     .stream().noneMatch(worker -> worker.isOnHoliday(day))) {
+
                 logger.info("Round over, starting over next one: {}", job);
+                roundOfJobsCounter.compute(jobDescription, (k, v) -> v == null ? 1 : v + 1);
+
                 jobToWorker.get(job).forEach(worker -> worker.resetJobDone(job));
-                return getWorkerForJob(day, job);
+                return getWorkerForJob(day, jobDescription);
             } else {
                 try {
                     throw new IllegalJobException("No workers found for this job or all on vacation");
@@ -121,7 +128,7 @@ public class JobCenter {
         return maybeWorker.orElse(null);
     }
 
-    public void addWorkers(List<Worker> workers) {
+    private void addWorkers(List<Worker> workers) {
         workers.forEach(this::addWorker);
     }
 
@@ -172,10 +179,15 @@ public class JobCenter {
             LocalDate finalMyDay = myDay;
             jobQueue.parallelStream().forEach(jobDescription -> {
                 String jobDescriptionName = jobDescription.getJobName();
-                Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, new Job(jobDescriptionName));
+                Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, jobDescription);
                 logger.trace("Found {} for {} @ {}", foundWorker, jobDescriptionName, finalMyDay);
 
                 VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
+
+                Categories roundInfoAsCategory = new Categories("round-" + roundOfJobsCounter.get(jobDescription));
+                vEvent.getProperties().add(roundInfoAsCategory);
+
+
                 allCalendarEntries.getComponents().add(vEvent);
 
                 logger.trace("registration done: {} {} @ {}", finalMyDay, foundWorker, jobDescriptionName);
