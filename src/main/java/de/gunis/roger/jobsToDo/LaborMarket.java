@@ -17,15 +17,13 @@ public class LaborMarket {
         this.holidays = holidays;
     }
 
-    public List<JobDescription> getJobDescriptions(LocalDate day) {
-        Optional<Holiday> holidayRange = holidays.parallelStream().filter(holiday -> holiday.isWithinRange(day)).findFirst();
+    public List<JobDescription> getJobDescriptions(LocalDate day, Optional<Holiday> mayBeHoliday) {
 
         List<JobDescription> jobQueue;
-        if (holidayRange.isPresent()) {
-            jobQueue = jobs.parallelStream().filter(job -> job.hasToBeDoneOn(day, holidayRange.get())).collect(Collectors.toList());
+        if (mayBeHoliday.isPresent()) {
+            jobQueue = jobs.parallelStream().filter(job -> job.hasToBeDoneOnHoliday(day, mayBeHoliday.get())).collect(Collectors.toList());
         } else {
-
-            jobQueue = jobs.parallelStream().filter(job -> job.hasToBeDoneOn(day)).collect(Collectors.toList());
+            jobQueue = jobs.parallelStream().filter(job -> job.hasToBeDoneOnNormalDay(day)).collect(Collectors.toList());
         }
 
         return jobQueue;

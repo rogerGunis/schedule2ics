@@ -1,5 +1,7 @@
 package de.gunis.roger.calendar;
 
+import net.fortuna.ical4j.model.Dur;
+
 import java.time.LocalDate;
 
 public class Holiday {
@@ -53,5 +55,13 @@ public class Holiday {
 
     public LocalDate getEndDate() {
         return endDate;
+    }
+
+    public Dur getDuration() {
+        return new Dur(Math.toIntExact(endDate.toEpochDay() - startDate.toEpochDay()), 0, 0, 0);
+    }
+
+    public String getName() {
+        return name;
     }
 }

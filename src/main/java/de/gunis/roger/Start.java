@@ -102,8 +102,12 @@ public class Start {
         JobCenter.instance().combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
         CalendarWriter.documentJobsAndWork(jobDescriptions, outputFilePath);
-        CalendarWriter.writeCalendar(JobCenter.instance().getAllCalendarEntries(),
-                Paths.get(outputFilePath, "allEvents.ics").toString());
+        try {
+            CalendarWriter.writeCalendar(JobCenter.instance().getAllCalendarEntries(),
+                    Paths.get(outputFilePath, "allEvents.ics").toString());
+        } catch (Exception e) {
+            logger.error("Buggy Calender export, please try again {}", e);
+        }
 
         logger.info("Finished");
         JobCenter.stop();

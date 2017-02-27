@@ -7,6 +7,7 @@ import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Categories;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.util.UidGenerator;
@@ -21,7 +22,7 @@ import java.util.Set;
 public class JobDescription {
     private static final Logger logger = LoggerFactory.getLogger("JobDescription.class");
 
-    private final String name;
+    private final String jobName;
     private final Set<DayOfWeek> daysInWeek;
     private final DayOfWeek infoInDayOfWeek;
     private final Integer duration;
@@ -31,8 +32,8 @@ public class JobDescription {
     private final Dur durationByCal;
     private UidGenerator ug = null;
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek infoInDayOfWeek) {
-        this.name = name;
+    public JobDescription(String jobName, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek infoInDayOfWeek) {
+        this.jobName = jobName;
         this.daysInWeek = daysInWeek;
         this.duration = duration;
         this.durationByCal = new Dur(duration, 0, 0, 0);
@@ -42,7 +43,7 @@ public class JobDescription {
         this.infoInDayOfWeek = infoInDayOfWeek;
 
         calendar = new Calendar();
-        calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
+        calendar.getProperties().add(new ProdId("-//" + jobName + "//iCal4j 1.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
 
@@ -64,16 +65,17 @@ public class JobDescription {
         return end;
     }
 
-    boolean hasToBeDoneOn(LocalDate testDate) {
+    boolean hasToBeDoneOnNormalDay(LocalDate testDate) {
 
         return isWithinRange(testDate);
     }
 
-    boolean hasToBeDoneOn(LocalDate testDate, Holiday holiday) {
+    boolean hasToBeDoneOnHoliday(LocalDate testDate, Holiday holiday) {
         LocalDate endDate = testDate.plusDays(duration);
 
         boolean durationIsWithinHolidays = holiday.isWithinRange(testDate) && holiday.isWithinRange(endDate);
-        return daysInWeek.contains(testDate.getDayOfWeek()) && !durationIsWithinHolidays;
+        boolean doIfWorkIsOnlyForThisDay = duration != 1;
+        return daysInWeek.contains(testDate.getDayOfWeek()) && doIfWorkIsOnlyForThisDay && !durationIsWithinHolidays;
     }
 
     private boolean isWithinRange(LocalDate testDate) {
@@ -82,8 +84,8 @@ public class JobDescription {
                 testDate.toEpochDay() <= end.toEpochDay();
     }
 
-    public String getName() {
-        return name;
+    public String getJobName() {
+        return jobName;
     }
 
     public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker) {
@@ -96,6 +98,8 @@ public class JobDescription {
             vEvent = getNewEvent(day, durationByCal, foundWorker);
         }
 
+        Categories categories = new Categories(jobName + "," + foundWorker.getName());
+        vEvent.getProperties().add(categories);
         calendar.getComponents().add(vEvent);
         return vEvent;
     }

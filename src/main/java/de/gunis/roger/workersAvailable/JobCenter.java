@@ -6,12 +6,12 @@ import de.gunis.roger.jobsToDo.JobDescription;
 import de.gunis.roger.jobsToDo.LaborMarket;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.*;
+import net.fortuna.ical4j.util.UidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.SocketException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,13 +21,15 @@ public class JobCenter {
 
     private static final Logger logger = LoggerFactory.getLogger("JobCenter.class");
     private static volatile JobCenter instance;
+    private final Uid uid;
 
     private Map<Worker, Set<Job>> workerToJobs = new HashMap<>();
     private Map<Job, List<Worker>> jobToWorker = new HashMap<>();
     private Calendar allCalendarEntries;
 
-    private JobCenter(Calendar allCalendarEntries) {
+    private JobCenter(Calendar allCalendarEntries, Uid uid) {
         this.allCalendarEntries = allCalendarEntries;
+        this.uid = uid;
     }
 
     public static synchronized JobCenter start() {
@@ -38,8 +40,16 @@ public class JobCenter {
         calendar.getProperties().add(new ProdId("-//allEvents//iCal4j 1.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
+        Uid uid = null;
+        try {
+            UidGenerator uidGenerator = new UidGenerator("1");
+            uid = uidGenerator.generateUid();
+        } catch (SocketException e) {
+            logger.error("Exception {}", e);
+        }
 
-        instance = new JobCenter(calendar);
+
+        instance = new JobCenter(calendar, uid);
         logger.info("Instance started");
 
         return instance;
@@ -129,22 +139,42 @@ public class JobCenter {
         JobCenter jobCenter = JobCenter.instance();
         jobCenter.addWorkers(workers);
 
+        Set<Holiday> holidaysSeen = new HashSet<>();
         while (!myDay.isEqual(endDay)) {
             logger.debug("Day: {}", myDay.toString());
 
-            List<JobDescription> jobQueue = laborMarket.getJobDescriptions(myDay);
+            LocalDate finalMyDay1 = myDay;
+            Optional<Holiday> mayBeHoliday = holidays.parallelStream().filter(holiday -> holiday.isWithinRange(finalMyDay1)).findFirst();
+            List<JobDescription> jobQueue = laborMarket.getJobDescriptions(myDay, mayBeHoliday);
+
+            if (mayBeHoliday.isPresent() && !holidaysSeen.contains(mayBeHoliday.get())) {
+                Holiday foundHoliday = mayBeHoliday.get();
+                logger.info("Found holiday {} adding to calendar", foundHoliday);
+                VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(myDay.toEpochDay() * 86400 * 1000),
+                        foundHoliday.getDuration(), foundHoliday.getName());
+                vEvent.getProperties().add(uid);
+
+                Categories holiday = new Categories("holiday");
+                vEvent.getProperties().add(holiday);
+
+                allCalendarEntries.getComponents().add(vEvent);
+
+                holidaysSeen.add(foundHoliday);
+            }
 
             if (jobQueue.isEmpty()) {
                 logger.debug("No work for day: {}", myDay.toString());
+
                 myDay = myDay.plusDays(1L);
                 continue;
             }
 
             LocalDate finalMyDay = myDay;
             jobQueue.parallelStream().forEach(jobDescription -> {
-                String jobDescriptionName = jobDescription.getName();
+                String jobDescriptionName = jobDescription.getJobName();
                 Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, new Job(jobDescriptionName));
                 logger.trace("Found {} for {} @ {}", foundWorker, jobDescriptionName, finalMyDay);
+
                 VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
                 allCalendarEntries.getComponents().add(vEvent);
 

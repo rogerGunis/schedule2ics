@@ -43,7 +43,7 @@ public class CalendarWriter {
     public static void documentJobsAndWork(List<JobDescription> jobDescriptions, String outputFilePath) {
         jobDescriptions.forEach(jobDescription -> {
                     Calendar calendar = jobDescription.getCalendar();
-                    String name = jobDescription.getName();
+                    String name = jobDescription.getJobName();
                     Path path = Paths.get(outputFilePath, name + ".ics");
                     writeCalendar(calendar, path.toString());
                 }
