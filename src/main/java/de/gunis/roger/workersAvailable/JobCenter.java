@@ -78,12 +78,11 @@ public class JobCenter {
         logger.trace("starting worker search");
         Optional<Worker> maybeWorker = jobToWorker.getOrDefault(job, Collections.emptyList())
                 .stream()
-//                .filter(worker -> worker.isAvailable(day))
                 .filter(worker -> !worker.hasJobDone(job))
                 .min(Comparator.comparing(worker -> worker.hasJobDone(job)));
 
         if (maybeWorker.isPresent()) {
-            if (!maybeWorker.get().isAvailable(day)) {
+            if (maybeWorker.get().isOnHoliday(day)) {
                 // on vacation, mark done and ask again (keep same order of list)
                 // some kind of business logic
                 maybeWorker.get().doJob(job);
@@ -94,7 +93,7 @@ public class JobCenter {
         } else {
             if (jobToWorker.getOrDefault(job, Collections.emptyList()).stream().findAny().isPresent()
                     && jobToWorker.getOrDefault(job, Collections.emptyList())
-                    .stream().anyMatch(worker -> worker.isAvailable(day))) {
+                    .stream().noneMatch(worker -> worker.isOnHoliday(day))) {
                 logger.info("Round over, starting over next one: {}", job);
                 jobToWorker.get(job).forEach(worker -> worker.resetJobDone(job));
                 return getWorkerForJob(day, job);

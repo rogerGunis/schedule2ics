@@ -38,6 +38,15 @@ public class Holiday {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "Holiday{" +
+                "startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", name='" + name + '\'' +
+                '}';
+    }
+
     public LocalDate getStartDate() {
         return startDate;
     }

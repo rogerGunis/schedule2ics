@@ -22,6 +22,7 @@ public class CsvFileLoader {
     static Function<String, String> trimLine =
             line -> line.replaceAll("(,\\p{javaSpaceChar}+)|(\\p{javaSpaceChar}+,)", ",");
     static DateTimeFormatter dateFormatter;
+
     static final Function<String, JobDescription> mapToJobDescription = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines
         Set<DayOfWeek> dayOfWeeks = Arrays.stream(p[1].split(" "))
@@ -50,14 +51,26 @@ public class CsvFileLoader {
         String[] p = line.split(",");// a CSV has comma separated lines
 
         Set<Job> jobs = Arrays.stream(p[1].split("\\s+")).map(Job::new).collect(Collectors.toSet());
-        List<LocalDate> vacations = null;
+        List<Holiday> vacations = null;
+        String nameOfWorker = p[0];
         if (p.length == 3) {
             vacations = Arrays.stream(p[2].split("\\s+"))
-                    .map(date -> LocalDate.parse(date, dateFormatter))
+                    .map(possibleDates -> {
+                        String[] dates = possibleDates.split("\\s+-\\s+");
+                        if (dates.length == 1) {
+                            String date = dates[0];
+                            dates = new String[2];
+                            dates[0] = date;
+                            dates[1] = date;
+                        }
+                        LocalDate begin = LocalDate.parse(dates[0], dateFormatter);
+                        LocalDate end = LocalDate.parse(dates[1], dateFormatter);
+                        return new Holiday(begin, end, "Vacation: " + nameOfWorker);
+                    })
                     .collect(Collectors.toList());
         }
 
-        return new Worker(p[0], jobs, vacations);
+        return new Worker(nameOfWorker, jobs, vacations);
     };
 
     public CsvFileLoader(String datePattern) {

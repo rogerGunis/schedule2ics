@@ -1,5 +1,6 @@
 package de.gunis.roger.workersAvailable;
 
+import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.jobsToDo.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,21 +11,21 @@ import java.util.*;
 public class Worker {
     private static final Logger logger = LoggerFactory.getLogger("Worker.class");
     String name;
-    private List<LocalDate> vacation;
+    private List<Holiday> vacations;
     private Set<Job> jobs = new HashSet<>();
     private Map<Job, Boolean> hasJobDone = new HashMap<>();
 
-    public Worker(String name, Set<Job> jobs, List<LocalDate> vacation) {
+    public Worker(String name, Set<Job> jobs, List<Holiday> vacations) {
         this.name = name;
         this.jobs = jobs;
-        this.vacation = validate(vacation);
+        this.vacations = validate(vacations);
     }
 
-    private List<LocalDate> validate(List<LocalDate> vacation) {
+    private List<Holiday> validate(List<Holiday> vacation) {
         return vacation == null ? Collections.emptyList() : vacation;
     }
 
-    public void doJob(Job job) {
+    void doJob(Job job) {
         if (!jobs.contains(job)) {
             try {
                 throw new IllegalJobException("This job cannot be done by me");
@@ -35,7 +36,7 @@ public class Worker {
         hasJobDone.put(job, Boolean.TRUE);
     }
 
-    public Boolean hasJobDone(Job job) {
+    Boolean hasJobDone(Job job) {
         return hasJobDone.getOrDefault(job, Boolean.FALSE);
     }
 
@@ -43,9 +44,17 @@ public class Worker {
     public String toString() {
         return "Worker{" +
                 "jobs=" + jobs +
-                ", vacation=" + vacation +
+                ", vacations=" + vacations +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    Set<Job> getJobs() {
+        return jobs;
+    }
+
+    boolean isOnHoliday(LocalDate day) {
+        return vacations.stream().anyMatch(vacation -> vacation.isWithinRange(day));
     }
 
     @Override
@@ -55,28 +64,15 @@ public class Worker {
 
         Worker worker = (Worker) o;
 
-        if (jobs != null ? !jobs.equals(worker.jobs) : worker.jobs != null) return false;
-        if (vacation != null ? !vacation.equals(worker.vacation) : worker.vacation != null) return false;
         return name != null ? name.equals(worker.name) : worker.name == null;
     }
 
     @Override
     public int hashCode() {
-        int result = jobs != null ? jobs.hashCode() : 0;
-        result = 31 * result + (vacation != null ? vacation.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 
-    public Set<Job> getJobs() {
-        return jobs;
-    }
-
-    public boolean isAvailable(LocalDate day) {
-        return !vacation.contains(day);
-    }
-
-    public void resetJobDone(Job job) {
+    void resetJobDone(Job job) {
         hasJobDone.put(job, Boolean.FALSE);
     }
 

@@ -16,8 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static de.gunis.roger.Start.combineJobAndWorkerAndRegisterOnDescription;
-import static de.gunis.roger.Start.writeIcsFile;
+import static de.gunis.roger.exports.CalendarWriter.documentJobsAndWork;
 
 public class StartTest {
     JobCenter jobCenter = null;
@@ -34,7 +33,8 @@ public class StartTest {
 
     @Test
     public void combineJobAndWorker() throws Exception {
-        Set<Holiday> holidays = Stream.of(new Holiday(LocalDate.now().minusDays(1L), LocalDate.now().minusDays(1L), "myHoliday"))
+        LocalDate newYear = LocalDate.of(2017, 01, 01);
+        Set<Holiday> holidays = Stream.of(new Holiday(newYear.minusDays(1L), newYear.minusDays(1L), "myHoliday"))
                 .collect(Collectors.toSet());
         List<Worker> workers = Stream.of(
                 new Worker("asdf",
@@ -46,15 +46,15 @@ public class StartTest {
                 new JobDescription("help",
                         Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                         1,
-                        LocalDate.now(), LocalDate.now(), null)
+                        newYear, newYear, null)
         ).collect(Collectors.toList());
 
-        LocalDate myDay = LocalDate.now();
-        LocalDate endDay = LocalDate.now().plusDays(15L);
+        LocalDate myDay = newYear;
+        LocalDate endDay = newYear.plusDays(15L);
 
-        combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
+        JobCenter.instance().combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
-        Start.documentJobsAndWork(jobDescriptions, "/tmp");
+        documentJobsAndWork(jobDescriptions, "/tmp");
     }
 
 

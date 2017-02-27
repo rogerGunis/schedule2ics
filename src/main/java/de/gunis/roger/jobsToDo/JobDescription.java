@@ -100,7 +100,7 @@ public class JobDescription {
         return vEvent;
     }
 
-    public VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker) {
+    private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker) {
         VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), duration, foundWorker.getName());
         vEvent.getProperties().add(ug.generateUid());
         return vEvent;
