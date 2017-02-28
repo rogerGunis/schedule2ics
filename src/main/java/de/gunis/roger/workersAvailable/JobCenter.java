@@ -184,7 +184,8 @@ public class JobCenter {
 
                 VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
 
-                Categories roundInfoAsCategory = new Categories("round-" + roundOfJobsCounter.get(jobDescription));
+                String category = jobDescriptionName+"Round-" + roundOfJobsCounter.get(jobDescription);
+                Categories roundInfoAsCategory = new Categories(category);
                 vEvent.getProperties().add(roundInfoAsCategory);
 
 
