@@ -2,11 +2,13 @@ package de.gunis.roger.workersAvailable;
 
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.jobsToDo.Job;
+import de.gunis.roger.jobsToDo.JobDescription;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,6 +16,7 @@ import java.util.stream.Stream;
 public class JobCenterTest {
 
     JobCenter jobCenter = null;
+    JobDescription jobCleaning;
 
     @After
     public void tearDown() throws Exception {
@@ -23,6 +26,12 @@ public class JobCenterTest {
     @Before
     public void setUp() throws Exception {
         jobCenter = JobCenter.start();
+
+        LocalDate monday = LocalDate.of(2017, 2, 27);
+        jobCleaning = new JobDescription("cleaning",
+                Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
+                7, monday, monday,
+                DayOfWeek.SUNDAY);
     }
 
     @Test
@@ -30,7 +39,7 @@ public class JobCenterTest {
         Job cleaning = new Job("cleaning");
         Worker worker = createWorker("John", cleaning);
         jobCenter.addWorker(worker);
-        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), cleaning);
+        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), jobCleaning);
 
         Assert.assertEquals(worker, workerForJob);
     }
@@ -42,7 +51,7 @@ public class JobCenterTest {
                 Stream.of(cleaning).collect(Collectors.toSet()),
                 Stream.of(new Holiday(LocalDate.now(), LocalDate.now(), "blub")).collect(Collectors.toList()));
         jobCenter.addWorker(worker);
-        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now(), cleaning);
+        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now(), jobCleaning);
 
         Assert.assertEquals(null, workerForJob);
     }
@@ -54,8 +63,8 @@ public class JobCenterTest {
         Worker jim = createWorker("Jim", cleaning);
         jobCenter.addWorker(john);
         jobCenter.addWorker(jim);
-        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), cleaning);
-        Worker workerForJobSameDay = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), cleaning);
+        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), jobCleaning);
+        Worker workerForJobSameDay = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), jobCleaning);
 
         Assert.assertEquals(john, workerForJob);
         Assert.assertEquals(jim, workerForJobSameDay);
@@ -68,9 +77,9 @@ public class JobCenterTest {
         Worker jim = createWorker("Jim", cleaning);
         jobCenter.addWorker(john);
         jobCenter.addWorker(jim);
-        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), cleaning);
-        Worker workerForJobSameDay = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), cleaning);
-        Worker nextRound = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), cleaning);
+        Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), jobCleaning);
+        Worker workerForJobSameDay = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), jobCleaning);
+        Worker nextRound = jobCenter.getWorkerForJob(LocalDate.now().plusDays(1L), jobCleaning);
 
         Assert.assertEquals(john, workerForJob);
         Assert.assertEquals(jim, workerForJobSameDay);
@@ -89,9 +98,9 @@ public class JobCenterTest {
         jobCenter.addWorker(john);
         jobCenter.addWorker(jim);
         jobCenter.addWorker(tom);
-        Worker workerForNewYear = jobCenter.getWorkerForJob(newYear, cleaning);
-        Worker workerForJobNewYearAndOneDay = jobCenter.getWorkerForJob(newYear.plusDays(1L), cleaning);
-        Worker workerForJobNewSameDay = jobCenter.getWorkerForJob(newYear.plusDays(1L), cleaning);
+        Worker workerForNewYear = jobCenter.getWorkerForJob(newYear, jobCleaning);
+        Worker workerForJobNewYearAndOneDay = jobCenter.getWorkerForJob(newYear.plusDays(1L), jobCleaning);
+        Worker workerForJobNewSameDay = jobCenter.getWorkerForJob(newYear.plusDays(1L), jobCleaning);
 
         Assert.assertEquals(jim, workerForNewYear);
         Assert.assertEquals(tom, workerForJobNewYearAndOneDay);

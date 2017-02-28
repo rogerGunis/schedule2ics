@@ -1,6 +1,7 @@
 package de.gunis.roger;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.jobsToDo.Job;
 import de.gunis.roger.jobsToDo.JobDescription;
 import de.gunis.roger.workersAvailable.JobCenter;
@@ -54,7 +55,7 @@ public class StartTest {
 
         JobCenter.instance().combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
-        documentJobsAndWork(jobDescriptions, "/tmp");
+        documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job).collect(Collectors.toList()), "/tmp");
     }
 
 

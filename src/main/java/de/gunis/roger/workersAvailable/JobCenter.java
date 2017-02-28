@@ -87,7 +87,7 @@ public class JobCenter {
 
     Worker getWorkerForJob(LocalDate day, JobDescription jobDescription) {
         logger.trace("starting worker search");
-        Job job = new Job(jobDescription.getJobName());
+        Job job = new Job(jobDescription.getName());
         roundOfJobsCounter.putIfAbsent(jobDescription, 1);
 
         Optional<Worker> maybeWorker = jobToWorker.getOrDefault(job, Collections.emptyList())
@@ -178,7 +178,7 @@ public class JobCenter {
 
             LocalDate finalMyDay = myDay;
             jobQueue.parallelStream().forEach(jobDescription -> {
-                String jobDescriptionName = jobDescription.getJobName();
+                String jobDescriptionName = jobDescription.getName();
                 Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, jobDescription);
                 logger.trace("Found {} for {} @ {}", foundWorker, jobDescriptionName, finalMyDay);
 

@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.exports.CalendarWriter;
 import de.gunis.roger.imports.CsvFileLoader;
 import de.gunis.roger.jobsToDo.JobDescription;
@@ -17,6 +18,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class Start {
@@ -101,7 +103,9 @@ public class Start {
 
         JobCenter.instance().combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
 
-        CalendarWriter.documentJobsAndWork(jobDescriptions, outputFilePath);
+        CalendarWriter.documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job).collect(Collectors.toList()), outputFilePath);
+        CalendarWriter.documentJobsAndWork(workers.stream().map(worker -> (ICalendarAccess) worker).collect(Collectors.toList()), outputFilePath);
+
         try {
             CalendarWriter.writeCalendar(JobCenter.instance().getAllCalendarEntries(),
                     Paths.get(outputFilePath, "allEvents.ics").toString());

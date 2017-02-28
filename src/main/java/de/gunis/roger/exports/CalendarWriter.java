@@ -1,6 +1,6 @@
 package de.gunis.roger.exports;
 
-import de.gunis.roger.jobsToDo.JobDescription;
+import de.gunis.roger.calendar.ICalendarAccess;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import org.slf4j.Logger;
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.util.List;
 
 public class CalendarWriter {
@@ -40,11 +41,13 @@ public class CalendarWriter {
         }
     }
 
-    public static void documentJobsAndWork(List<JobDescription> jobDescriptions, String outputFilePath) {
-        jobDescriptions.forEach(jobDescription -> {
-                    Calendar calendar = jobDescription.getCalendar();
-                    String name = jobDescription.getJobName();
-                    Path path = Paths.get(outputFilePath, name + ".ics");
+    public static void documentJobsAndWork(List<ICalendarAccess> calendarAccesses, String outputFilePath) {
+        calendarAccesses.forEach(calendarAccess -> {
+                    Calendar calendar = calendarAccess.getCalendar();
+                    String name = calendarAccess.getName();
+                    name = Normalizer.normalize(name, Normalizer.Form.NFD);
+                    String resultString = name.replaceAll("[^\\x00-\\x7F]", "").replaceAll("\\s+", "-");
+                    Path path = Paths.get(outputFilePath, resultString + ".ics");
                     writeCalendar(calendar, path.toString());
                 }
         );

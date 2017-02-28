@@ -15,7 +15,7 @@ public class Holiday {
         this.name = name;
     }
 
-    public boolean isWithinRange(LocalDate testDate) {
+    public boolean  isWithinRange(LocalDate testDate) {
         return testDate.toEpochDay() >= startDate.toEpochDay() &&
                 testDate.toEpochDay() <= endDate.toEpochDay();
     }

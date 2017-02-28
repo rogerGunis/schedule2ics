@@ -1,5 +1,6 @@
 package de.gunis.roger.jobsToDo;
 
+import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.workersAvailable.Worker;
 import net.fortuna.ical4j.model.Calendar;
@@ -19,10 +20,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Set;
 
-public class JobDescription {
+public class JobDescription implements ICalendarAccess {
     private static final Logger logger = LoggerFactory.getLogger("JobDescription.class");
 
-    private final String jobName;
+    private final String name;
     private final Set<DayOfWeek> daysInWeek;
     private final DayOfWeek infoInDayOfWeek;
     private final Integer duration;
@@ -32,8 +33,8 @@ public class JobDescription {
     private final Dur durationByCal;
     private UidGenerator ug = null;
 
-    public JobDescription(String jobName, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek infoInDayOfWeek) {
-        this.jobName = jobName;
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek infoInDayOfWeek) {
+        this.name = name;
         this.daysInWeek = daysInWeek;
         this.duration = duration;
         this.durationByCal = new Dur(duration, 0, 0, 0);
@@ -43,7 +44,7 @@ public class JobDescription {
         this.infoInDayOfWeek = infoInDayOfWeek;
 
         calendar = new Calendar();
-        calendar.getProperties().add(new ProdId("-//" + jobName + "//iCal4j 1.0//EN"));
+        calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
 
@@ -84,8 +85,8 @@ public class JobDescription {
                 testDate.toEpochDay() <= end.toEpochDay();
     }
 
-    public String getJobName() {
-        return jobName;
+    public String getName() {
+        return name;
     }
 
     public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker) {
@@ -98,9 +99,12 @@ public class JobDescription {
             vEvent = getNewEvent(day, durationByCal, foundWorker);
         }
 
-        Categories categories = new Categories(jobName + "," + foundWorker.getName());
+        Categories categories = new Categories(name + "," + foundWorker.getName());
         vEvent.getProperties().add(categories);
         calendar.getComponents().add(vEvent);
+
+        foundWorker.registerJobOnDate(day, durationByCal, name);
+
         return vEvent;
     }
 
@@ -110,6 +114,7 @@ public class JobDescription {
         return vEvent;
     }
 
+    @Override
     public Calendar getCalendar() {
         return calendar;
     }
