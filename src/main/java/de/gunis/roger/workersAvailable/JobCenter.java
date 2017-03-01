@@ -33,9 +33,9 @@ public class JobCenter {
         this.uid = uid;
     }
 
-    public static synchronized JobCenter start() {
+    public static synchronized JobCenter open() {
         if (instance != null) {
-            throw new RuntimeException("start called, but already started");
+            throw new RuntimeException("open called, but already opened");
         }
         Calendar calendar = new Calendar();
         calendar.getProperties().add(new ProdId("-//allEvents//iCal4j 1.0//EN"));
@@ -56,9 +56,9 @@ public class JobCenter {
         return instance;
     }
 
-    public static synchronized void stop() {
+    public static synchronized void close() {
         instance = null;
-        logger.info("Instance stopped");
+        logger.info("JobCenter closed");
     }
 
     public static JobCenter instance() {
@@ -137,16 +137,16 @@ public class JobCenter {
         return allCalendarEntries;
     }
 
-    public void combineJobAndWorkerAndRegisterOnDescription(Set<Holiday> holidays,
-                                                            List<Worker> workers,
-                                                            List<JobDescription> jobDescriptions,
-                                                            LocalDate myDay,
-                                                            LocalDate endDay) {
+    public void combineJobAndWorkerAndSubscribe(Set<Holiday> holidays,
+                                                List<Worker> workers,
+                                                List<JobDescription> jobDescriptions,
+                                                LocalDate myDay,
+                                                LocalDate endDay) {
         LaborMarket laborMarket = new LaborMarket(jobDescriptions, holidays);
         JobCenter jobCenter = JobCenter.instance();
         jobCenter.addWorkers(workers);
 
-        Set<Holiday> holidaysSeen = new HashSet<>();
+        Set<Holiday> holidayAlreadyAddressed = new HashSet<>();
         while (!myDay.isEqual(endDay)) {
             logger.debug("Day: {}", myDay.toString());
 
@@ -154,7 +154,7 @@ public class JobCenter {
             Optional<Holiday> mayBeHoliday = holidays.parallelStream().filter(holiday -> holiday.isWithinRange(finalMyDay1)).findFirst();
             List<JobDescription> jobQueue = laborMarket.getJobDescriptions(myDay, mayBeHoliday);
 
-            if (mayBeHoliday.isPresent() && !holidaysSeen.contains(mayBeHoliday.get())) {
+            if (mayBeHoliday.isPresent() && !holidayAlreadyAddressed.contains(mayBeHoliday.get())) {
                 Holiday foundHoliday = mayBeHoliday.get();
                 logger.info("Found holiday {} adding to calendar", foundHoliday);
                 VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(myDay.toEpochDay() * 86400 * 1000),
@@ -166,7 +166,7 @@ public class JobCenter {
 
                 allCalendarEntries.getComponents().add(vEvent);
 
-                holidaysSeen.add(foundHoliday);
+                holidayAlreadyAddressed.add(foundHoliday);
             }
 
             if (jobQueue.isEmpty()) {
@@ -184,7 +184,7 @@ public class JobCenter {
 
                 VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
 
-                String category = jobDescriptionName+"Round-" + roundOfJobsCounter.get(jobDescription);
+                String category = jobDescriptionName + "Round-" + roundOfJobsCounter.get(jobDescription);
                 Categories roundInfoAsCategory = new Categories(category);
                 vEvent.getProperties().add(roundInfoAsCategory);
 

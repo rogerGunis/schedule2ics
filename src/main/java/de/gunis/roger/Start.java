@@ -52,7 +52,7 @@ public class Start {
     @Parameter(names = {"--help", "-h"}, description = "This help", help = true)
     private boolean help = false;
 
-    private Start() {
+    Start() {
     }
 
     public static void main(String[] args) {
@@ -74,7 +74,7 @@ public class Start {
     }
 
 
-    private void run(JCommander jCommander) {
+    void run(JCommander jCommander) {
 
 
         if (help) {
@@ -86,7 +86,7 @@ public class Start {
         logger.info("starting with: {}, {}, {}", inputFilePathHolidays, inputFilePathWorkers, inputFilePathJobDescriptions);
         setLoggingLevel(verbose);
 
-        JobCenter.start();
+        JobCenter.open();
         CsvFileLoader csvFileLoader = new CsvFileLoader(dateFormat);
 
         Set<Holiday> holidays = csvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
@@ -101,7 +101,7 @@ public class Start {
 
         logger.info("Searching, between {} -> {} (days: {})", myDay, endDay, endDay.toEpochDay() - myDay.toEpochDay());
 
-        JobCenter.instance().combineJobAndWorkerAndRegisterOnDescription(holidays, workers, jobDescriptions, myDay, endDay);
+        JobCenter.instance().combineJobAndWorkerAndSubscribe(holidays, workers, jobDescriptions, myDay, endDay);
 
         CalendarWriter.documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job).collect(Collectors.toList()), outputFilePath);
         CalendarWriter.documentJobsAndWork(workers.stream().map(worker -> (ICalendarAccess) worker).collect(Collectors.toList()), outputFilePath);
@@ -114,7 +114,7 @@ public class Start {
         }
 
         logger.info("Finished");
-        JobCenter.stop();
+        JobCenter.close();
     }
 
 }

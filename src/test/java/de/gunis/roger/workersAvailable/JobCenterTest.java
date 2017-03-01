@@ -20,12 +20,12 @@ public class JobCenterTest {
 
     @After
     public void tearDown() throws Exception {
-        jobCenter.stop();
+        jobCenter.close();
     }
 
     @Before
     public void setUp() throws Exception {
-        jobCenter = JobCenter.start();
+        jobCenter = JobCenter.open();
 
         LocalDate monday = LocalDate.of(2017, 2, 27);
         jobCleaning = new JobDescription("cleaning",

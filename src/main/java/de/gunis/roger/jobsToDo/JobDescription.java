@@ -1,7 +1,7 @@
 package de.gunis.roger.jobsToDo;
 
-import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.workersAvailable.Worker;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
@@ -30,14 +30,14 @@ public class JobDescription implements ICalendarAccess {
     private final Calendar calendar;
     private final LocalDate begin;
     private final LocalDate end;
-    private final Dur durationByCal;
+    private final Dur jobDuration;
     private UidGenerator ug = null;
 
     public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek infoInDayOfWeek) {
         this.name = name;
         this.daysInWeek = daysInWeek;
         this.duration = duration;
-        this.durationByCal = new Dur(duration, 0, 0, 0);
+        this.jobDuration = new Dur(duration, 0, 0, 0);
         this.begin = begin;
         this.end = end;
 
@@ -56,6 +56,11 @@ public class JobDescription implements ICalendarAccess {
             logger.warn("Exception: " + e.getMessage());
         }
 
+    }
+
+    private static LocalDate getManuallyPlacedCalendarDay(LocalDate day, DayOfWeek infoInDayOfWeek) {
+        LocalDate manuallySetDay = day.with(infoInDayOfWeek);
+        return infoInDayOfWeek == DayOfWeek.SATURDAY ? manuallySetDay : manuallySetDay.minusDays(7);
     }
 
     public LocalDate getBegin() {
@@ -91,19 +96,20 @@ public class JobDescription implements ICalendarAccess {
 
     public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker) {
         VEvent vEvent;
+        LocalDate placedCalendarDay;
+        Dur duration1Day = new Dur(1, 0, 0, 0);
         if (infoInDayOfWeek != null) {
-            LocalDate info2ThisDay = day.with(infoInDayOfWeek);
-            Dur duration1Day = new Dur(1, 0, 0, 0);
-            vEvent = getNewEvent(info2ThisDay, duration1Day, foundWorker);
+            placedCalendarDay = getManuallyPlacedCalendarDay(day, infoInDayOfWeek);
         } else {
-            vEvent = getNewEvent(day, durationByCal, foundWorker);
+            placedCalendarDay = day;
         }
+        vEvent = getNewEvent(placedCalendarDay, (infoInDayOfWeek != null ? duration1Day : jobDuration), foundWorker);
 
         Categories categories = new Categories(name + "," + foundWorker.getName());
         vEvent.getProperties().add(categories);
         calendar.getComponents().add(vEvent);
 
-        foundWorker.registerJobOnDate(day, durationByCal, name);
+        foundWorker.registerJobOnDate(day, jobDuration, name);
 
         return vEvent;
     }
