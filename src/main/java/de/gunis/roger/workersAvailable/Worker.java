@@ -1,11 +1,13 @@
 package de.gunis.roger.workersAvailable;
 
-import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.jobsToDo.Job;
+import de.gunis.roger.jobsToDo.JobDescription;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.util.UidGenerator;
@@ -66,6 +68,16 @@ public class Worker implements ICalendarAccess {
     public void registerJobOnDate(LocalDate day, Dur duration, String jobName) {
         VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(day.toEpochDay() * 86400 * 1000), duration, jobName);
         vEvent.getProperties().add(ug.generateUid());
+
+        Optional<Job> maybeJobInfoFromWorker = jobs.stream().filter(job -> job.getName().equals(jobName)).findFirst();
+
+        if (maybeJobInfoFromWorker.isPresent()) {
+            Description calDescription = new Description();
+            calDescription.setValue(maybeJobInfoFromWorker.get().getJobProposal());
+            vEvent.getProperties().add(calDescription);
+
+        }
+
         this.calendar.getComponents().add(vEvent);
     }
 
@@ -105,11 +117,18 @@ public class Worker implements ICalendarAccess {
         return name != null ? name.hashCode() : 0;
     }
 
+
     void resetJobDone(Job job) {
         hasJobDone.put(job, Boolean.FALSE);
     }
 
     public String getName() {
         return name;
+    }
+
+    public String askForProposal(JobDescription jobName) {
+        Optional<Job> maybeJobInfoFromWorker = jobs.stream().filter(job -> job.getName().equals(jobName.getName())).findFirst();
+
+        return maybeJobInfoFromWorker.map(Job::getJobProposal).orElse(null);
     }
 }

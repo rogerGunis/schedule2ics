@@ -2,9 +2,23 @@ package de.gunis.roger.jobsToDo;
 
 public class Job {
     String name = "";
+    private String jobProposal = "";
 
     public Job(String name) {
         this.name = name;
+    }
+
+    public Job(String name, String jobProposal) {
+        this.name = name;
+        this.jobProposal = jobProposal;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getJobProposal() {
+        return jobProposal;
     }
 
     @Override
@@ -24,8 +38,13 @@ public class Job {
 
     @Override
     public String toString() {
+        String addProposal = "";
+        if (!jobProposal.equals("")) {
+
+            addProposal = ", jobProposal='" + jobProposal + '\'';
+        }
         return "Job{" +
-                "name='" + name + '\'' +
+                "name='" + name + '\'' + addProposal +
                 '}';
     }
 }

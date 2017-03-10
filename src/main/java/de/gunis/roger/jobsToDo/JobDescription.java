@@ -7,10 +7,7 @@ import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.Categories;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.*;
 import net.fortuna.ical4j.util.UidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +91,7 @@ public class JobDescription implements ICalendarAccess {
         return name;
     }
 
-    public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker) {
+    public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker, JobDescription jobDescription) {
         VEvent vEvent;
         LocalDate placedCalendarDay;
         Dur duration1Day = new Dur(1, 0, 0, 0);
@@ -103,10 +100,13 @@ public class JobDescription implements ICalendarAccess {
         } else {
             placedCalendarDay = day;
         }
-        vEvent = getNewEvent(placedCalendarDay, (infoInDayOfWeek != null ? duration1Day : jobDuration), foundWorker);
+        vEvent = getNewEvent(placedCalendarDay, (infoInDayOfWeek != null ? duration1Day : jobDuration), foundWorker, jobDescription);
 
         Categories categories = new Categories(name + "," + foundWorker.getName());
         vEvent.getProperties().add(categories);
+
+        askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
+
         calendar.getComponents().add(vEvent);
 
         foundWorker.registerJobOnDate(day, jobDuration, name);
@@ -114,9 +114,21 @@ public class JobDescription implements ICalendarAccess {
         return vEvent;
     }
 
-    private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker) {
+    private void askWorkerForJobProposalAndSubscribe(Worker foundWorker, JobDescription jobDescription, VEvent vEvent) {
+        String jobProposal = foundWorker.askForProposal(jobDescription);
+
+        if (jobProposal != null) {
+            Description calDescription = new Description();
+            calDescription.setValue(jobProposal);
+            vEvent.getProperties().add(calDescription);
+
+        }
+    }
+
+    private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker, JobDescription jobDescription) {
         VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), duration, foundWorker.getName());
         vEvent.getProperties().add(ug.generateUid());
+        askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
         return vEvent;
     }
 

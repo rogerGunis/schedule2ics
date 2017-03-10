@@ -50,7 +50,17 @@ public class CsvFileLoader {
     static final Function<String, Worker> mapToWorker = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines
 
-        Set<Job> jobs = Arrays.stream(p[1].split("\\s+")).map(Job::new).collect(Collectors.toSet());
+        Set<Job> jobs = Arrays.stream(p[1].split("\\s+")).map(job -> {
+            if (job.matches(".*\\(.*")) {
+                String jobProposal = job;
+                jobProposal = jobProposal.replaceAll(".*\\(|\\)", "");
+                job = job.replaceAll("\\(.*", "");
+                return new Job(job, jobProposal);
+            } else {
+                return new Job(job);
+            }
+        }).collect(Collectors.toSet());
+
         List<Holiday> vacations = null;
         String nameOfWorker = p[0];
         if (p.length == 3) {

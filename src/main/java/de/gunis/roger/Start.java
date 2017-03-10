@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,11 +66,15 @@ public class Start {
 
 
     private static void setLoggingLevel(String level) {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(
+                ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME
+        );
         root.setLevel(Level.toLevel(level, Level.DEBUG));
 
         // we suppress calendar TRACE level, because not needed for me
-        ch.qos.logback.classic.Logger cal = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("net.fortuna.ical4j.data.FoldingWriter");
+        ch.qos.logback.classic.Logger cal = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(
+                "net.fortuna.ical4j.data.FoldingWriter"
+        );
         cal.setLevel(Level.DEBUG);
     }
 
@@ -79,42 +84,48 @@ public class Start {
 
         if (help) {
             jCommander.usage();
-            System.out.print("-------------\nAll elements marked with * are required\n-------------\n");
-            System.exit(2);
+            setLoggingLevel("INFO");
+            logger.info("-------------\nAll elements marked with * are required\n-------------\n");
+        } else {
+
+            logger.info("starting with: {}, {}, {}", inputFilePathHolidays, inputFilePathWorkers, inputFilePathJobDescriptions);
+            setLoggingLevel(verbose);
+
+            JobCenter.open();
+            CsvFileLoader csvFileLoader = new CsvFileLoader(dateFormat);
+
+            Set<Holiday> holidays = csvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
+            List<Worker> workers = csvFileLoader.importWorkerFromFile(inputFilePathWorkers);
+            List<JobDescription> jobDescriptions = csvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
+
+            OptionalInt optionalMin = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min();
+            int startOffset = optionalMin.isPresent() ? optionalMin.getAsInt() : 0;
+
+            OptionalInt optionalMax = jobDescriptions.stream().mapToInt(job -> (int) job.getEnd().toEpochDay()).max();
+            int endOffset = optionalMax.isPresent() ? optionalMax.getAsInt() : 0;
+
+            LocalDate beginOfJobSearch = LocalDate.ofEpochDay(startOffset);
+            LocalDate endOfJobSearch = LocalDate.ofEpochDay(endOffset);
+
+            logger.info("Searching, between {} -> {} (days: {})", beginOfJobSearch, endOfJobSearch, endOfJobSearch.toEpochDay() - beginOfJobSearch.toEpochDay());
+
+            JobCenter.instance().combineJobAndWorkerAndSubscribe(holidays, workers, jobDescriptions, beginOfJobSearch, endOfJobSearch);
+
+            CalendarWriter.documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job)
+                    .collect(Collectors.toList()), outputFilePath);
+            CalendarWriter.documentJobsAndWork(workers.stream().map(worker -> (ICalendarAccess) worker)
+                    .collect(Collectors.toList()), outputFilePath);
+
+            try {
+                CalendarWriter.writeCalendar(JobCenter.instance().getAllCalendarEntries(),
+                        Paths.get(outputFilePath, "allEvents.ics").toString());
+            } catch (Exception e) {
+                logger.error("Buggy Calender export, please try again {}", e);
+            }
+
+            logger.info("Finished");
+            JobCenter.close();
         }
-
-        logger.info("starting with: {}, {}, {}", inputFilePathHolidays, inputFilePathWorkers, inputFilePathJobDescriptions);
-        setLoggingLevel(verbose);
-
-        JobCenter.open();
-        CsvFileLoader csvFileLoader = new CsvFileLoader(dateFormat);
-
-        Set<Holiday> holidays = csvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
-        List<Worker> workers = csvFileLoader.importWorkerFromFile(inputFilePathWorkers);
-        List<JobDescription> jobDescriptions = csvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
-
-        int startOffset = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min().getAsInt();
-        int endOffset = jobDescriptions.stream().mapToInt(job -> (int) job.getEnd().toEpochDay()).max().getAsInt();
-
-        LocalDate myDay = LocalDate.ofEpochDay(startOffset);
-        LocalDate endDay = LocalDate.ofEpochDay(endOffset);
-
-        logger.info("Searching, between {} -> {} (days: {})", myDay, endDay, endDay.toEpochDay() - myDay.toEpochDay());
-
-        JobCenter.instance().combineJobAndWorkerAndSubscribe(holidays, workers, jobDescriptions, myDay, endDay);
-
-        CalendarWriter.documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job).collect(Collectors.toList()), outputFilePath);
-        CalendarWriter.documentJobsAndWork(workers.stream().map(worker -> (ICalendarAccess) worker).collect(Collectors.toList()), outputFilePath);
-
-        try {
-            CalendarWriter.writeCalendar(JobCenter.instance().getAllCalendarEntries(),
-                    Paths.get(outputFilePath, "allEvents.ics").toString());
-        } catch (Exception e) {
-            logger.error("Buggy Calender export, please try again {}", e);
-        }
-
-        logger.info("Finished");
-        JobCenter.close();
     }
 
 }

@@ -161,7 +161,7 @@ public class JobCenter {
                         foundHoliday.getDuration(), foundHoliday.getName());
                 vEvent.getProperties().add(uid);
 
-                Categories holiday = new Categories("holiday");
+                Categories holiday = new Categories("Holiday");
                 vEvent.getProperties().add(holiday);
 
                 allCalendarEntries.getComponents().add(vEvent);
@@ -182,12 +182,11 @@ public class JobCenter {
                 Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, jobDescription);
                 logger.trace("Found {} for {} @ {}", foundWorker, jobDescriptionName, finalMyDay);
 
-                VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
+                VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker, jobDescription);
 
                 String category = jobDescriptionName + "Round-" + roundOfJobsCounter.get(jobDescription);
                 Categories roundInfoAsCategory = new Categories(category);
                 vEvent.getProperties().add(roundInfoAsCategory);
-
 
                 allCalendarEntries.getComponents().add(vEvent);
 
