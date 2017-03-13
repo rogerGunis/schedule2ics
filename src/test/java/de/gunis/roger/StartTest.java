@@ -24,7 +24,7 @@ public class StartTest {
                 "-js", "/home/vagrant/scheduler2ics/internal/JobDescription.csv",
                 "-ws", "/home/vagrant/scheduler2ics/internal/Workers.csv", "-log", "DEBUG", "-out", "/var/tmp/scheduler"};
         JCommander jCommander = new JCommander(main, argv);
-        main.run(jCommander);
+        main.runEmploymentAgency(jCommander);
 
     }
 

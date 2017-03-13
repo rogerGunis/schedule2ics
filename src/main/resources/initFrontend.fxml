@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.gunis.roger.MyController">
+    <children>
+        <Region prefHeight="376.0" prefWidth="580.0"/>
+        <Button fx:id="holidays" layoutX="140.0" layoutY="95.0" mnemonicParsing="false"
+                onAction="#getCsvFileAndInformPath" text="Holidays"/>
+        <Button id="createAgenda" fx:id="createAgenda" layoutX="370.0" layoutY="175.0" mnemonicParsing="false"
+                text="Create Agenda (ics files)"/>
+        <TextField fx:id="information" layoutX="15.0" layoutY="256.0" prefHeight="26.0" prefWidth="580.0"/>
+        <Button id="workers" fx:id="workers" layoutX="170.0" layoutY="175.0" mnemonicParsing="false"
+                onAction="#getCsvFileAndInformPath" text="Workers"/>
+        <Button id="jobDescriptions" fx:id="jobDescriptions" layoutX="41.0" layoutY="174.0" mnemonicParsing="false"
+                onAction="#getCsvFileAndInformPath" text="JobDescriptions"/>
+        <Button id="outputPath" fx:id="outputPath" layoutX="412.0" layoutY="14.0" mnemonicParsing="false"
+                onAction="#getCsvFileAndInformPath" text="OutputPath"/>
+        <TextField id="dateFormat" fx:id="dateFormat" layoutX="231.0" layoutY="14.0" prefHeight="26.0" prefWidth="136.0"
+                   promptText="DD.MM.YYYY"/>
+    </children>
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+    </padding>
+</AnchorPane>
