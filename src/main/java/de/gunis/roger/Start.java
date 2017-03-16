@@ -21,7 +21,6 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
 public class Start {
     private static final Logger logger = LoggerFactory.getLogger("Start.class");
 
