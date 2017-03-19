@@ -1,6 +1,5 @@
 package de.gunis.roger;
 
-import com.beust.jcommander.JCommander;
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.jobsToDo.Job;
 import de.gunis.roger.jobsToDo.JobDescription;
@@ -15,17 +14,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StartTest {
+public class EmployeeSearchTest {
 
     @Test
     public void startMain() {
-        Start main = new Start();
-        String[] argv = {"-hs", "/home/vagrant/scheduler2ics/internal/Holidays.csv ",
-                "-js", "/home/vagrant/scheduler2ics/internal/JobDescription.csv",
-                "-ws", "/home/vagrant/scheduler2ics/internal/Workers.csv", "-log", "DEBUG", "-out", "/var/tmp/scheduler"};
-        JCommander jCommander = new JCommander(main, argv);
-        main.runEmploymentAgency(jCommander);
-
+        EmployeeSearch main = new EmployeeSearch();
+        main.setInputFilePathHolidays("/home/vagrant/scheduler2ics/internal/Holidays.csv");
+        main.setInputFilePathJobDescriptions("/home/vagrant/scheduler2ics/internal/JobDescription.csv");
+        main.setInputFilePathWorkers("/home/vagrant/scheduler2ics/internal/Workers.csv");
+        main.setOutputFilePath("/var/tmp/scheduler");
+        ClearingHouse.setLoggingLevel("TRACE");
+        main.setLoggingLevel("TRACE");
+        main.runEmploymentAgency();
     }
 
     @Test

@@ -102,6 +102,7 @@ public class JobDescription implements ICalendarAccess {
         }
         vEvent = getNewEvent(placedCalendarDay, (infoInDayOfWeek != null ? duration1Day : jobDuration), foundWorker, jobDescription);
 
+        logger.trace("registerWorkerOnDate start");
         Categories categories = new Categories(name + "," + foundWorker.getName());
         vEvent.getProperties().add(categories);
 
@@ -110,6 +111,7 @@ public class JobDescription implements ICalendarAccess {
         calendar.getComponents().add(vEvent);
 
         foundWorker.registerJobOnDate(day, jobDuration, name);
+        logger.trace("registerWorkerOnDate done");
 
         return vEvent;
     }
@@ -126,9 +128,11 @@ public class JobDescription implements ICalendarAccess {
     }
 
     private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker, JobDescription jobDescription) {
+        logger.trace("getNewEvent");
         VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), duration, foundWorker.getName());
         vEvent.getProperties().add(ug.generateUid());
         askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
+        logger.trace("getNewEvent done");
         return vEvent;
     }
 

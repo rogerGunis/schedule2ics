@@ -1,6 +1,5 @@
 package de.gunis.roger;
 
-import ch.qos.logback.classic.Level;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import de.gunis.roger.calendar.Holiday;
@@ -10,7 +9,6 @@ import de.gunis.roger.imports.CsvFileLoader;
 import de.gunis.roger.jobsToDo.JobDescription;
 import de.gunis.roger.workersAvailable.JobCenter;
 import de.gunis.roger.workersAvailable.Worker;
-import groovy.util.logging.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +19,8 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Start {
-    private static final Logger logger = LoggerFactory.getLogger("Start.class");
+public class EmployeeSearch {
+    private static final Logger logger = LoggerFactory.getLogger("EmployeeSearch.class");
 
     @SuppressWarnings("FieldCanBeLocal")
     @Parameter(names = {"--help", "-h"}, description = "This help", help = true)
@@ -44,15 +42,16 @@ public class Start {
     @Parameter(names = {"--dateFormat", "-dateFormat"}, description = "Format of the Dates (begin|end|holiday) in all files [yyyy-MM-dd|dd.MM.yyyy|...]")
     private String dateFormat = "dd.MM.yyyy";
 
-    @Parameter(names = {"-log", "-verbose"}, description = "Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]")
-    private String verbose;
+    @SuppressWarnings("unused FieldCanBeLocal")
+    @Parameter(names = {"-log", "-loggingLevel"}, description = "Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]")
+    private String loggingLevel;
 
-    Start() {
+    EmployeeSearch() {
     }
 
     public static void main(String[] args) {
 
-        Start main = new Start();
+        EmployeeSearch main = new EmployeeSearch();
         JCommander jCommander = new JCommander(main, args);
 
         if (!askedForInstructions(jCommander)) {
@@ -61,28 +60,19 @@ public class Start {
 
     }
 
-    private static void setLoggingLevel(String level) {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(
-                ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME
-        );
-        root.setLevel(Level.toLevel(level, Level.DEBUG));
-
-        // we suppress calendar TRACE level, because not needed for me
-        ch.qos.logback.classic.Logger cal = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(
-                "net.fortuna.ical4j.data.FoldingWriter"
-        );
-        cal.setLevel(Level.DEBUG);
-    }
 
     private static boolean askedForInstructions(JCommander jCommander) {
         if (help) {
             jCommander.usage();
-            setLoggingLevel("INFO");
             logger.info("-------------\nAll elements marked with * are required\n-------------\n");
             return true;
         } else {
             return false;
         }
+    }
+
+    public void setLoggingLevel(String loggingLevel) {
+        this.loggingLevel = loggingLevel;
     }
 
     public void setInputFilePathHolidays(String inputFilePathHolidays) {
@@ -108,8 +98,9 @@ public class Start {
     void runEmploymentAgency() {
 
 
-        logger.info("starting with: {}, {}, {}", inputFilePathHolidays, inputFilePathWorkers, inputFilePathJobDescriptions);
-        setLoggingLevel(verbose);
+        logger.info("starting with: {},\n {},\n {},\n export to {}", inputFilePathHolidays,
+                inputFilePathWorkers, inputFilePathJobDescriptions, outputFilePath);
+        ClearingHouse.setLoggingLevel(loggingLevel);
 
         JobCenter.open();
         CsvFileLoader csvFileLoader = new CsvFileLoader(dateFormat);
@@ -130,6 +121,8 @@ public class Start {
         logger.info("Searching, between {} -> {} (days: {})", beginOfJobSearch, endOfJobSearch, endOfJobSearch.toEpochDay() - beginOfJobSearch.toEpochDay());
 
         JobCenter.instance().combineJobAndWorkerAndSubscribe(holidays, workers, jobDescriptions, beginOfJobSearch, endOfJobSearch);
+
+        logger.debug("Exporting all calendar entries to {}", outputFilePath);
 
         CalendarWriter.documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job)
                 .collect(Collectors.toList()), outputFilePath);

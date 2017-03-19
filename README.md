@@ -19,7 +19,7 @@ because we do not struggle the work order of the people.
 TODO
 
 ```shell
-Usage: <main class> [options]
+Usage: <hiringProcess class> [options]
   Options:
     --help, -h
 
@@ -43,7 +43,7 @@ Here you should say what actually happens when you execute the code above.
 Following commands must/can be added to cli. holidays, jobDescriptions, workers is required
 
 ```bash
-Usage: <main class> [options]
+Usage: <hiringProcess class> [options]
   Options:
     --help, -h
 

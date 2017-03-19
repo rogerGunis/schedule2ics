@@ -35,7 +35,7 @@ public class JobCenter {
 
     public static synchronized JobCenter open() {
         if (instance != null) {
-            throw new RuntimeException("open called, but already opened");
+            throw new RuntimeException(JobCenter.class.getSimpleName() + " is already open, terminating");
         }
         Calendar calendar = new Calendar();
         calendar.getProperties().add(new ProdId("-//allEvents//iCal4j 1.0//EN"));
