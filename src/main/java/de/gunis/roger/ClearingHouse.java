@@ -21,9 +21,11 @@ public class ClearingHouse {
         map.put(Level.ERROR, (o) -> logger.error(o));
     }
 
-    private static void log(Level level, String s) {
+    static void log(String s) {
+        ch.qos.logback.classic.Logger rootLogger = getRootLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        Level effectiveLevel = rootLogger.getEffectiveLevel();
         try {
-            map.get(level).log(s);
+            map.get(effectiveLevel).log(s);
 
         } catch (Exception e) {
             logger.error(s);
@@ -31,17 +33,19 @@ public class ClearingHouse {
     }
 
     static void setLoggingLevel(String level) {
-        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(
-                ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME
-        );
+        ch.qos.logback.classic.Logger root = getRootLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.toLevel(level, Level.DEBUG));
-        ClearingHouse.log(root.getEffectiveLevel(), "Setting loglevel to " + root.getEffectiveLevel());
+        ClearingHouse.log("Setting loglevel to " + root.getEffectiveLevel());
 
         // we suppress calendar TRACE level, because not needed for me
-        ch.qos.logback.classic.Logger cal = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(
-                "net.fortuna.ical4j.data.FoldingWriter"
-        );
+        ch.qos.logback.classic.Logger cal = getRootLogger("net.fortuna.ical4j.data.FoldingWriter");
         cal.setLevel(Level.DEBUG);
+    }
+
+    private static ch.qos.logback.classic.Logger getRootLogger(String rootLoggerName) {
+        return (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
+                rootLoggerName
+        );
     }
 
     @FunctionalInterface

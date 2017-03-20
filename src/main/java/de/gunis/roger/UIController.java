@@ -109,8 +109,10 @@ public class UIController {
                 hiringProcess.setOutputFilePath(fileOrPath.getAbsolutePath());
             }
         }
-
-
     }
 
+    public void exit(ActionEvent actionEvent) {
+        ClearingHouse.log("Bye");
+        System.exit(0);
+    }
 }
