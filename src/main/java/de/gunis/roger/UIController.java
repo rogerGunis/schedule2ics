@@ -3,8 +3,11 @@ package de.gunis.roger;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -12,11 +15,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
 
-public class UIController {
+public class UIController implements Initializable {
 
     private static final Logger logger = LoggerFactory.getLogger("UIController.class");
-    private EmployeeSearch hiringProcess = new EmployeeSearch();
+    private static final Map<String, UIController.FileOrPathChooserFunction> CHOOSER_FUNCTION_MAP;
     @FXML // fx:id="outputPath"
     @SuppressWarnings("unused")
     private Button outputPath;
@@ -39,6 +48,22 @@ public class UIController {
     @SuppressWarnings("unused")
     private TextField information;
     private String previousDirectory;
+    private static final Map<String, String> BUTTON_TOOLTIPS;
+    private static EmployeeSearch hiringProcess = new EmployeeSearch();
+
+    static {
+        CHOOSER_FUNCTION_MAP = new HashMap<>();
+        CHOOSER_FUNCTION_MAP.put("holidays", (o) -> hiringProcess.setInputFilePathHolidays(o));
+        CHOOSER_FUNCTION_MAP.put("jobDescriptions", (o) -> hiringProcess.setInputFilePathJobDescriptions(o));
+        CHOOSER_FUNCTION_MAP.put("workers", (o) -> hiringProcess.setInputFilePathWorkers(o));
+        CHOOSER_FUNCTION_MAP.put("outputPath", (o) -> hiringProcess.setOutputFilePath(o));
+
+        BUTTON_TOOLTIPS = new HashMap<>();
+        BUTTON_TOOLTIPS.put("holidays", "Enter holiday information here");
+        BUTTON_TOOLTIPS.put("jobDescriptions", "Enter jobDescriptions csv file");
+        BUTTON_TOOLTIPS.put("workers", "Enter workers csv file");
+        BUTTON_TOOLTIPS.put("outputPath", "Set output file for ics files");
+    }
 
     public UIController() {
     }
@@ -51,10 +76,28 @@ public class UIController {
     void getCsvFileAndInformPath(ActionEvent event) {
         String buttonId = ((Button) event.getSource()).getId();
         File fileOrPath;
-        if ("outputPath".equals(buttonId)) {
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-            directoryChooser.setTitle("directory selection");
-            fileOrPath = directoryChooser.showDialog(new Stage());
+        if (CHOOSER_FUNCTION_MAP.containsKey(buttonId)) {
+            if ("outputPath".equals(buttonId)) {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                directoryChooser.setInitialDirectory(getInitialPath());
+                directoryChooser.setTitle("directory selection");
+                fileOrPath = directoryChooser.showDialog(new Stage());
+            } else {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("csv file selection for " + buttonId);
+                fileChooser.setInitialDirectory(getInitialPath());
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
+                fileChooser.getExtensionFilters().add(extFilter);
+                fileOrPath = fileChooser.showOpenDialog(new Stage());
+            }
+            if (fileOrPath != null) {
+                previousDirectory = fileOrPath.getParent();
+                String absolutePath = fileOrPath.getAbsolutePath();
+                information.setText(absolutePath);
+                logger.debug("Setting {} file to: {}", buttonId, absolutePath);
+                CHOOSER_FUNCTION_MAP.get(buttonId).openFileOrPath(absolutePath);
+            }
+
         } else if ("createAgenda".equals(buttonId)) {
             if (!"".equals(dateFormat.getText())) {
                 hiringProcess.setDateFormat(dateFormat.getText());
@@ -62,57 +105,35 @@ public class UIController {
 
             Platform.runLater(() -> {
                 try {
-                    //an event with a button maybe
-//                    System.out.println("button is clicked");
                     hiringProcess.runEmploymentAgency();
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());
                 }
             });
-//            Task task = new Task<Void>() {
-//                @Override
-//                public Void call() {
-//                    if (isCancelled()) {
-//                    }
-//                    return null;
-//                }
-//            };
-//            ProgressBar bar = new ProgressBar();
-//            bar.progressProperty().bind(task.progressProperty());
-
-//            new Thread(task).start();
             return;
-        } else {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("csv file selection for " + buttonId);
-            String property = previousDirectory != null ? previousDirectory : System.getProperty("user.home");
-            fileChooser.setInitialDirectory(new File(property));
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
-            fileChooser.getExtensionFilters().add(extFilter);
-            fileOrPath = fileChooser.showOpenDialog(new Stage());
-            previousDirectory = fileOrPath.getParent();
         }
 
-        if (fileOrPath != null) {
-            information.setText(fileOrPath.getAbsolutePath());
 
-            if ("holidays".equals(buttonId)) {
-                logger.debug("Setting holidays file to: {}", fileOrPath.getAbsolutePath());
-                hiringProcess.setInputFilePathHolidays(fileOrPath.getAbsolutePath());
-            } else if ("workers".equals(buttonId)) {
-                logger.debug("Setting workers file to: {}", fileOrPath.getAbsolutePath());
-                hiringProcess.setInputFilePathWorkers(fileOrPath.getAbsolutePath());
-            } else if ("jobDescriptions".equals(buttonId)) {
-                logger.debug("Setting jobDescriptions file to: {}", fileOrPath.getAbsolutePath());
-                hiringProcess.setInputFilePathJobDescriptions(fileOrPath.getAbsolutePath());
-            } else if ("outputPath".equals(buttonId)) {
-                hiringProcess.setOutputFilePath(fileOrPath.getAbsolutePath());
-            }
-        }
+    }
+
+    private File getInitialPath() {
+
+        return new File(previousDirectory != null ? previousDirectory : System.getProperty("user.home"));
     }
 
     public void exit(ActionEvent actionEvent) {
         ClearingHouse.log("Bye");
         System.exit(0);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        createAgenda.setTooltip(new Tooltip("create ics files"));
+        workers.setTooltip(new Tooltip(BUTTON_TOOLTIPS.get("workers")));
+    }
+
+    @FunctionalInterface
+    private interface FileOrPathChooserFunction {
+        void openFileOrPath(String arg);
     }
 }
