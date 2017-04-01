@@ -22,7 +22,7 @@ public class JobDescription implements ICalendarAccess {
 
     private final String name;
     private final Set<DayOfWeek> daysInWeek;
-    private final DayOfWeek infoInDayOfWeek;
+    private final DayOfWeek manuallySetDay;
     private final Integer duration;
     private final Calendar calendar;
     private final LocalDate begin;
@@ -30,7 +30,7 @@ public class JobDescription implements ICalendarAccess {
     private final Dur jobDuration;
     private UidGenerator ug = null;
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek infoInDayOfWeek) {
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek manuallySetDay) {
         this.name = name;
         this.daysInWeek = daysInWeek;
         this.duration = duration;
@@ -38,7 +38,7 @@ public class JobDescription implements ICalendarAccess {
         this.begin = begin;
         this.end = end;
 
-        this.infoInDayOfWeek = infoInDayOfWeek;
+        this.manuallySetDay = manuallySetDay;
 
         calendar = new Calendar();
         calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
@@ -55,9 +55,13 @@ public class JobDescription implements ICalendarAccess {
 
     }
 
-    private static LocalDate getManuallyPlacedCalendarDay(LocalDate day, DayOfWeek infoInDayOfWeek) {
-        LocalDate manuallySetDay = day.with(infoInDayOfWeek);
-        return infoInDayOfWeek == DayOfWeek.SATURDAY ? manuallySetDay : manuallySetDay.minusDays(7);
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end) {
+        this(name, daysInWeek, duration, begin, end, null);
+    }
+
+    private static LocalDate getManuallyPlacedCalendarDay(LocalDate day, DayOfWeek manuallySetDayCheckSatOrSun) {
+        LocalDate manuallySetDay = day.with(manuallySetDayCheckSatOrSun);
+        return manuallySetDayCheckSatOrSun == DayOfWeek.SATURDAY ? manuallySetDay : manuallySetDay.minusDays(7);
     }
 
     public LocalDate getBegin() {
@@ -95,12 +99,12 @@ public class JobDescription implements ICalendarAccess {
         VEvent vEvent;
         LocalDate placedCalendarDay;
         Dur duration1Day = new Dur(1, 0, 0, 0);
-        if (infoInDayOfWeek != null) {
-            placedCalendarDay = getManuallyPlacedCalendarDay(day, infoInDayOfWeek);
+        if (manuallySetDay != null) {
+            placedCalendarDay = getManuallyPlacedCalendarDay(day, manuallySetDay);
         } else {
             placedCalendarDay = day;
         }
-        vEvent = getNewEvent(placedCalendarDay, (infoInDayOfWeek != null ? duration1Day : jobDuration), foundWorker, jobDescription);
+        vEvent = getNewEvent(placedCalendarDay, (manuallySetDay != null ? duration1Day : jobDuration), foundWorker, jobDescription);
 
         logger.trace("registerWorkerOnDate start");
         Categories categories = new Categories(name + "," + foundWorker.getName());
@@ -141,7 +145,7 @@ public class JobDescription implements ICalendarAccess {
         return calendar;
     }
 
-    public DayOfWeek getInfoInDayOfWeek() {
-        return infoInDayOfWeek;
+    public DayOfWeek getManuallySetDay() {
+        return manuallySetDay;
     }
 }

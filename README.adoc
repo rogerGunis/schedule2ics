@@ -1,4 +1,4 @@
-![Logo of the project](https://url.toproject.com/path/to/logo.png)
+// ![Logo of the project](https://url.toproject.com/path/to/logo.png)
 
 # scheduler2ics
 > Assign jobs to workers and write the information who is doing when which job as ics file
@@ -16,48 +16,26 @@ because we do not struggle the work order of the people.
 
 ## Getting started
 
-TODO
-
-```shell
-Usage: <hiringProcess class> [options]
-  Options:
-    --help, -h
-
-      Default: false
-  * --holidays, -hs
-      File for Holidays <dd.MM.yyyy,dd.MM.yyyy,event>
-  * --jobDescriptions, -js
-      File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>
-  * --workers, -ws
-      File for Workers <Name,JobA JobB..,Holidays>
-    -log, -verbose
-      Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]
-      Default: <empty string>
+link:src/main/java/de/gunis/roger/EmployeeSearch.java[Please see @Paramters annotations]
+or
+```
+ -h --help for help descrption
 ```
 
-Here you should say what actually happens when you execute the code above.
+If all files are in place this software will generate ics files accoring to:
+
+    - ics files for all workers will generated
+    - allEvents.ics will be generated which will name the workers on weekdays
+    - for each job there will be
+
+## Basic Usage (File layout)
+
+### holidays
 
 
-## Basic Usage
+### jobDescriptions
 
-Following commands must/can be added to cli. holidays, jobDescriptions, workers is required
-
-```bash
-Usage: <hiringProcess class> [options]
-  Options:
-    --help, -h
-
-      Default: false
-  * --holidays, -hs
-      File for Holidays <dd.MM.yyyy,dd.MM.yyyy,event>
-  * --jobDescriptions, -js
-      File for Jobs <name,dayOfWeek (mo=1,...,sun=7),duration,begin,end>
-  * --workers, -ws
-      File for Workers <Name,JobA JobB..,Holidays>
-    -log, -verbose
-      Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]
-      Default: <empty string>
-```
+### workers
 
 ## Developing
 

@@ -141,4 +141,7 @@ public class EmployeeSearch {
 
     }
 
+    boolean isReady() {
+        return outputFilePath != null && inputFilePathWorkers != null && inputFilePathJobDescriptions != null;
+    }
 }

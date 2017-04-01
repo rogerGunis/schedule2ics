@@ -21,6 +21,10 @@ public class CsvFileLoader {
     private static final Logger logger = LoggerFactory.getLogger("CsvFileLoader.class");
     static Function<String, String> trimLine =
             line -> line.replaceAll("(,\\p{javaSpaceChar}+)|(\\p{javaSpaceChar}+,)", ",");
+
+    static Function<String, String> trimDateRange =
+            line -> line.replaceAll("(\\p{javaSpaceChar}+)-(\\p{javaSpaceChar}+)", "-");
+
     static DateTimeFormatter dateFormatter;
 
     static final Function<String, JobDescription> mapToJobDescription = line -> {
@@ -39,13 +43,7 @@ public class CsvFileLoader {
         }
 
         return new JobDescription(p[0], dayOfWeeks, Integer.parseInt(p[2]),
-                LocalDate.parse(p[3], dateFormatter), LocalDate.parse(p[4], dateFormatter),
-                info2DayOfWeek);
-    };
-    private static final Function<String, Holiday> mapToHoliday = line -> {
-        String[] p = line.split(",");
-
-        return new Holiday(LocalDate.parse(p[0], dateFormatter), LocalDate.parse(p[1], dateFormatter), p[2]);
+                dateOf(p[3]), dateOf(p[4]), info2DayOfWeek);
     };
     static final Function<String, Worker> mapToWorker = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines
@@ -64,23 +62,26 @@ public class CsvFileLoader {
         List<Holiday> vacations = null;
         String nameOfWorker = p[0];
         if (p.length == 3) {
-            vacations = Arrays.stream(p[2].split("\\s+"))
+            vacations = Arrays.stream(trimDateRange.apply(trimLine.apply(p[2])).split("\\s+"))
                     .map(possibleDates -> {
-                        String[] dates = possibleDates.split("\\s+-\\s+");
+                        String[] dates = possibleDates.split("-");
                         if (dates.length == 1) {
                             String date = dates[0];
                             dates = new String[2];
                             dates[0] = date;
                             dates[1] = date;
                         }
-                        LocalDate begin = LocalDate.parse(dates[0], dateFormatter);
-                        LocalDate end = LocalDate.parse(dates[1], dateFormatter);
-                        return new Holiday(begin, end, "Vacation: " + nameOfWorker);
+                        return new Holiday(dateOf(dates[0]), dateOf(dates[1]), "Vacation: " + nameOfWorker);
                     })
                     .collect(Collectors.toList());
         }
 
         return new Worker(nameOfWorker, jobs, vacations);
+    };
+    static final Function<String, Holiday> mapToHoliday = line -> {
+        String[] p = line.split(",");
+
+        return new Holiday(dateOf(p[0]), dateOf(p[1]), p[2]);
     };
 
     public CsvFileLoader(String datePattern) {
@@ -131,5 +132,9 @@ public class CsvFileLoader {
             logger.warn("Exception" + e);
         }
         return inputList;
+    }
+
+    private static LocalDate dateOf(String date) {
+        return LocalDate.parse(date, dateFormatter);
     }
 }

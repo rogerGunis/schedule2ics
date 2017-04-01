@@ -98,7 +98,7 @@ public class Worker implements ICalendarAccess {
         return jobs;
     }
 
-    boolean isOnHoliday(LocalDate day) {
+    public boolean isOnHoliday(LocalDate day) {
         return vacations.stream().anyMatch(vacation -> vacation.isWithinRange(day));
     }
 
