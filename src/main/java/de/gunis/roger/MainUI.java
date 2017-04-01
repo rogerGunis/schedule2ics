@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import static de.gunis.roger.ClearingHouse.setLoggingLevel;
@@ -19,7 +20,7 @@ public class MainUI extends Application {
         setLoggingLevel("TRACE");
         String sceneFile = "/initFrontend.fxml";
         // ClassLoader.getSystemResource
-        Parent root = FXMLLoader.load(getClass().getResource(sceneFile));
+        Parent layout = FXMLLoader.load(getClass().getResource(sceneFile));
 
         UIController UIController = new UIController();
 
@@ -27,7 +28,7 @@ public class MainUI extends Application {
         loader.setController(UIController);
 
         primaryStage.setTitle("Scheduler2ics");
-        primaryStage.setScene(new Scene(root, 580, 300));
+        primaryStage.setScene(new Scene(layout, 580, 300));
         primaryStage.show();
     }
 }
