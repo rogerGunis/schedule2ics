@@ -36,3 +36,7 @@ jar {
         attributes 'Main-Class': 'de.gunis.roger.Start'
     }
 }
+
+task wrapper(type: Wrapper) {
+        gradleVersion = '3.1'
+}
