@@ -1,11 +1,22 @@
 language: java
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-cache:
-  directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
+
+# before_cache:
+#   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+#   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+# cache:
+#   directories:
+#     - $HOME/.gradle/caches/
+#     - $HOME/.gradle/wrapper/
+
+before_install:
+  - find .
+  - ./gradlew wrapper
+  - ls -la gradle/wrapper/gradle-wrapper.jar
+
 jdk:
   - oraclejdk8
 
+# 4. Turn off notifications.
+notifications:
+  email: false
