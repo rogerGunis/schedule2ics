@@ -28,7 +28,7 @@ public class MainUI extends Application {
         loader.setController(UIController);
 
         primaryStage.setTitle("Scheduler2ics");
-        primaryStage.setScene(new Scene(layout, 580, 300));
+        primaryStage.setScene(new Scene(layout, 440, 300));
         primaryStage.show();
     }
 }

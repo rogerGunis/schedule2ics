@@ -1,6 +1,10 @@
 package de.gunis.roger;
 
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -128,6 +132,18 @@ public class UIController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+//        createAgenda.setDisable(true);
+//        ListProperty<String> list = new SimpleListProperty<>(FXCollections.<String>emptyObservableList());
+        createAgenda.disableProperty().bind(Bindings.selectBoolean(new BooleanBinding() {
+            {
+                bind();
+            }
+
+            @Override
+            protected boolean computeValue() {
+                return !hiringProcess.isReady();
+            }
+        }));
         createAgenda.setTooltip(new Tooltip("create ics files"));
         workers.setTooltip(new Tooltip(BUTTON_TOOLTIPS.get("workers")));
     }
