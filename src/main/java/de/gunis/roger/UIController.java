@@ -2,14 +2,12 @@ package de.gunis.roger;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.stage.DirectoryChooser;
@@ -19,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -102,7 +98,16 @@ public class UIController implements Initializable {
                 CHOOSER_FUNCTION_MAP.get(buttonId).openFileOrPath(absolutePath);
             }
 
-        } else if ("createAgenda".equals(buttonId)) {
+        }
+        else if ("reset".equals(buttonId)) {
+            logger.debug("resetting");
+            hiringProcess.setInputFilePathHolidays(null);
+            hiringProcess.setInputFilePathJobDescriptions(null);
+            hiringProcess.setInputFilePathWorkers(null);
+            hiringProcess.setOutputFilePath(null);
+            return;
+        }
+        else if ("createAgenda".equals(buttonId)) {
             if (!"".equals(dateFormat.getText())) {
                 hiringProcess.setDateFormat(dateFormat.getText());
             }
@@ -116,8 +121,6 @@ public class UIController implements Initializable {
             });
             return;
         }
-
-
     }
 
     private File getInitialPath() {
@@ -132,18 +135,10 @@ public class UIController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-//        createAgenda.setDisable(true);
-//        ListProperty<String> list = new SimpleListProperty<>(FXCollections.<String>emptyObservableList());
-        createAgenda.disableProperty().bind(Bindings.selectBoolean(new BooleanBinding() {
-            {
-                bind();
-            }
 
-            @Override
-            protected boolean computeValue() {
-                return !hiringProcess.isReady();
-            }
-        }));
+//        createAgenda.setDisable(true);
+        createAgenda.disableProperty().bind(Bindings.selectBoolean(hiringProcess.hasEnoughInformations().not()));
+
         createAgenda.setTooltip(new Tooltip("create ics files"));
         workers.setTooltip(new Tooltip(BUTTON_TOOLTIPS.get("workers")));
     }

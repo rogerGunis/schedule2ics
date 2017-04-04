@@ -21,6 +21,7 @@ public class MainUI extends Application {
         String sceneFile = "/initFrontend.fxml";
         // ClassLoader.getSystemResource
         Parent layout = FXMLLoader.load(getClass().getResource(sceneFile));
+        loadStyle(layout);
 
         UIController UIController = new UIController();
 
@@ -30,5 +31,10 @@ public class MainUI extends Application {
         primaryStage.setTitle("Scheduler2ics");
         primaryStage.setScene(new Scene(layout, 440, 300));
         primaryStage.show();
+    }
+
+    private void loadStyle(Parent node) {
+        node.getStylesheets().clear();
+        node.getStylesheets().add(getClass().getResource("/scheduler2ics.css").toExternalForm());
     }
 }

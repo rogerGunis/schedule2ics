@@ -9,6 +9,15 @@ import de.gunis.roger.imports.CsvFileLoader;
 import de.gunis.roger.jobsToDo.JobDescription;
 import de.gunis.roger.workersAvailable.JobCenter;
 import de.gunis.roger.workersAvailable.Worker;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.value.ObservableIntegerValue;
+import javafx.beans.value.ObservableValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +45,7 @@ public class EmployeeSearch {
     private String inputFilePathWorkers;
 
     @Parameter(required = true, names = {"--outputFilePath", "-out"}, description = "Path for ics file created per JobDescription")
-    private String outputFilePath;
+    private String outputFilePath = "";
 
     @SuppressWarnings("unused FieldCanBeLocal")
     @Parameter(names = {"--dateFormat", "-dateFormat"}, description = "Format of the Dates (begin|end|holiday) in all files [yyyy-MM-dd|dd.MM.yyyy|...]")
@@ -45,6 +54,16 @@ public class EmployeeSearch {
     @SuppressWarnings("unused FieldCanBeLocal")
     @Parameter(names = {"-log", "-loggingLevel"}, description = "Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]")
     private String loggingLevel;
+
+    private IntegerProperty amountOfWorkers = new SimpleIntegerProperty(0);
+    private IntegerProperty amountOfJobDescriptions = new SimpleIntegerProperty(0);
+
+    private IntegerProperty holidays = new SimpleIntegerProperty(0);
+
+    private List<Worker> workers;
+    private List<JobDescription> jobDescriptions;
+    private Set<Holiday> holidaysFromFile;
+    private CsvFileLoader csvFileLoader = new CsvFileLoader(dateFormat);
 
     EmployeeSearch() {
     }
@@ -76,19 +95,47 @@ public class EmployeeSearch {
     }
 
     public void setInputFilePathHolidays(String inputFilePathHolidays) {
-        this.inputFilePathHolidays = inputFilePathHolidays;
+        if (inputFilePathHolidays != null) {
+            this.inputFilePathHolidays = inputFilePathHolidays;
+            holidaysFromFile = csvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
+        } else {
+            this.inputFilePathHolidays = "";
+        }
+
     }
 
     public void setInputFilePathJobDescriptions(String inputFilePathJobDescriptions) {
-        this.inputFilePathJobDescriptions = inputFilePathJobDescriptions;
+        if (inputFilePathJobDescriptions != null) {
+            this.inputFilePathJobDescriptions = inputFilePathJobDescriptions;
+
+            jobDescriptions = csvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
+            this.amountOfJobDescriptions.set(jobDescriptions.size());
+        } else {
+            this.inputFilePathJobDescriptions = "";
+            jobDescriptions = null;
+            this.amountOfJobDescriptions.set(0);
+        }
     }
 
     public void setInputFilePathWorkers(String inputFilePathWorkers) {
-        this.inputFilePathWorkers = inputFilePathWorkers;
+        if (inputFilePathWorkers != null) {
+            this.inputFilePathWorkers = inputFilePathWorkers;
+
+            workers = csvFileLoader.importWorkerFromFile(inputFilePathWorkers);
+            this.amountOfWorkers.set(workers.size());
+        } else {
+            this.inputFilePathWorkers = "";
+            workers = null;
+            this.amountOfWorkers.set(0);
+        }
     }
 
     public void setOutputFilePath(String outputFilePath) {
-        this.outputFilePath = outputFilePath;
+        if (outputFilePath != null) {
+            this.outputFilePath = outputFilePath;
+        } else {
+            this.outputFilePath = "";
+        }
     }
 
     public void setDateFormat(String dateFormat) {
@@ -97,17 +144,12 @@ public class EmployeeSearch {
 
     void runEmploymentAgency() {
 
-
         logger.info("starting with: {},\n {},\n {},\n export to {}", inputFilePathHolidays,
                 inputFilePathWorkers, inputFilePathJobDescriptions, outputFilePath);
         ClearingHouse.setLoggingLevel(loggingLevel);
 
         JobCenter.open();
-        CsvFileLoader csvFileLoader = new CsvFileLoader(dateFormat);
-
-        Set<Holiday> holidays = csvFileLoader.importHolidaysFromFile(inputFilePathHolidays);
-        List<Worker> workers = csvFileLoader.importWorkerFromFile(inputFilePathWorkers);
-        List<JobDescription> jobDescriptions = csvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
+        csvFileLoader = new CsvFileLoader(dateFormat);
 
         OptionalInt optionalMin = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min();
         int startOffset = optionalMin.isPresent() ? optionalMin.getAsInt() : 0;
@@ -120,7 +162,7 @@ public class EmployeeSearch {
 
         logger.info("Searching, between {} -> {} (days: {})", beginOfJobSearch, endOfJobSearch, endOfJobSearch.toEpochDay() - beginOfJobSearch.toEpochDay());
 
-        JobCenter.instance().combineJobAndWorkerAndSubscribe(holidays, workers, jobDescriptions, beginOfJobSearch, endOfJobSearch);
+        JobCenter.instance().combineJobAndWorkerAndSubscribe(holidaysFromFile, workers, jobDescriptions, beginOfJobSearch, endOfJobSearch);
 
         logger.debug("Exporting all calendar entries to {}", outputFilePath);
 
@@ -141,7 +183,7 @@ public class EmployeeSearch {
 
     }
 
-    boolean isReady() {
-        return outputFilePath != null && inputFilePathWorkers != null && inputFilePathJobDescriptions != null;
+    BooleanBinding hasEnoughInformations() {
+        return amountOfJobDescriptions.greaterThan(0).and(amountOfWorkers.greaterThan(0));
     }
 }
