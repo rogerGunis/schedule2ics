@@ -2,7 +2,12 @@ package de.gunis.roger.calendar;
 
 import net.fortuna.ical4j.model.Dur;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 public class Holiday {
     private LocalDate startDate;
@@ -15,9 +20,14 @@ public class Holiday {
         this.name = name;
     }
 
-    public boolean  isWithinRange(LocalDate testDate) {
+    public boolean isWithinRange(LocalDate testDate) {
         return testDate.toEpochDay() >= startDate.toEpochDay() &&
                 testDate.toEpochDay() <= endDate.toEpochDay();
+    }
+
+
+    public boolean isHolidayInCompleteWorkingTime(LocalDate testDate, Integer duration) {
+        return IntStream.of(0,duration).allMatch(days -> isWithinRange(testDate.plusDays(days)));
     }
 
     @Override

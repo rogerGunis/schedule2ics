@@ -1,5 +1,6 @@
 package de.gunis.roger.jobsToDo;
 
+import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.workersAvailable.Worker;
 import net.fortuna.ical4j.model.Calendar;
 import org.junit.Assert;
@@ -24,6 +25,19 @@ public class JobDescriptionTest {
         jobDescription.registerWorkerOnDate(monday, worker, jobDescription);
         Calendar calendar = jobDescription.getCalendar();
         Assert.assertTrue(calendar != null);
+    }
+
+    @Test
+    public void hasToBeDoneOnHoliday() {
+        LocalDate monday = LocalDate.of(2017, 5, 22);
+        LocalDate friday = LocalDate.of(2017, 5, 26);
+        LocalDate saturday = LocalDate.of(2017, 5, 27);
+        JobDescription jobDescription = new JobDescription("test",
+                Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
+                5, monday, friday,
+                DayOfWeek.SUNDAY);
+        Holiday testHoliday = new Holiday(monday, saturday, "testHoliday");
+        Assert.assertFalse(jobDescription.hasToBeDoneOnHoliday(monday, testHoliday));
     }
 
 }

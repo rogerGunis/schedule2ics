@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class JobDescription implements ICalendarAccess {
     private static final Logger logger = LoggerFactory.getLogger("JobDescription.class");
-
+    private static int INITIAL_DAY = 1;
     private final String name;
     private final Set<DayOfWeek> daysInWeek;
     private final DayOfWeek manuallySetDay;
@@ -33,7 +33,7 @@ public class JobDescription implements ICalendarAccess {
     public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek manuallySetDay) {
         this.name = name;
         this.daysInWeek = daysInWeek;
-        this.duration = duration;
+        this.duration = duration - INITIAL_DAY;
         this.jobDuration = new Dur(duration, 0, 0, 0);
         this.begin = begin;
         this.end = end;
@@ -81,8 +81,11 @@ public class JobDescription implements ICalendarAccess {
         LocalDate endDate = testDate.plusDays(duration);
 
         boolean durationIsWithinHolidays = holiday.isWithinRange(testDate) && holiday.isWithinRange(endDate);
-        boolean doIfWorkIsOnlyForThisDay = duration != 1;
-        return daysInWeek.contains(testDate.getDayOfWeek()) && doIfWorkIsOnlyForThisDay && !durationIsWithinHolidays;
+        boolean doIfWorkIsOnlyForThisDay = duration != 0;
+        boolean holidayCompleteWorkingTime = holiday.isHolidayInCompleteWorkingTime(testDate, duration);
+        return daysInWeek.contains(testDate.getDayOfWeek()) && doIfWorkIsOnlyForThisDay
+                && !durationIsWithinHolidays
+                && !holidayCompleteWorkingTime;
     }
 
     private boolean isWithinRange(LocalDate testDate) {
@@ -113,6 +116,14 @@ public class JobDescription implements ICalendarAccess {
         askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
 
         calendar.getComponents().add(vEvent);
+
+//        java.util.Calendar cal = java.util.Calendar.getInstance();
+//        cal.set(java.util.Calendar.MONTH, java.util.Calendar.DECEMBER);
+//        cal.set(java.util.Calendar.DAY_OF_MONTH, 25);
+//
+//        VAlarm christmas = new VAlarm(cal.getTime());
+//        new DateTime();
+//        new VAlarm();
 
         foundWorker.registerJobOnDate(day, jobDuration, name);
         logger.trace("registerWorkerOnDate done");

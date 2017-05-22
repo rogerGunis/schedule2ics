@@ -100,6 +100,7 @@ public class JobCenter {
                 // on vacation, mark done and ask again (keep same order of list)
                 // some kind of business logic
                 maybeWorker.get().doJob(job);
+
                 return getWorkerForJob(day, jobDescription);
             } else {
                 maybeWorker.get().doJob(job);
@@ -107,7 +108,7 @@ public class JobCenter {
         } else {
             if (jobToWorker.getOrDefault(job, Collections.emptyList()).stream().findAny().isPresent()
                     && jobToWorker.getOrDefault(job, Collections.emptyList())
-                    .stream().noneMatch(worker -> worker.isOnHoliday(day))) {
+                    .stream().anyMatch(worker -> !worker.isOnHoliday(day))) {
 
                 logger.info("Round over, starting over next one: {}", job);
                 roundOfJobsCounter.compute(jobDescription, (k, v) -> v == null ? 1 : v + 1);
@@ -116,7 +117,7 @@ public class JobCenter {
                 return getWorkerForJob(day, jobDescription);
             } else {
                 try {
-                    throw new IllegalJobException("No workers found for this job or all on vacation");
+                    throw new IllegalJobException("No workers found for this job day: " + day + " or all on vacation");
                 } catch (IllegalJobException e) {
                     logger.error("" + e + ", " + job);
                 }
