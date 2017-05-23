@@ -1,6 +1,7 @@
 package de.gunis.roger;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.jobsToDo.Job;
 import de.gunis.roger.jobsToDo.JobDescription;
 import de.gunis.roger.workersAvailable.JobCenter;
@@ -31,6 +32,7 @@ public class EmployeeSearchTest {
     @Test
     public void combineJobAndWorker() throws Exception {
         JobCenter.open();
+        HolidayInformationCenter.open();
 
         LocalDate newYear = LocalDate.of(2017, 01, 01);
         Set<Holiday> holidays = Stream.of(new Holiday(newYear.minusDays(1L), newYear.minusDays(1L), "myHoliday"))
@@ -51,10 +53,11 @@ public class EmployeeSearchTest {
         LocalDate myDay = newYear;
         LocalDate endDay = newYear.plusDays(15L);
 
-        JobCenter.instance().combineJobAndWorkerAndSubscribe(holidays, workers, jobDescriptions, myDay, endDay);
+        JobCenter.instance().combineJobAndWorkerAndSubscribe(workers, jobDescriptions, myDay, endDay);
 
 //        documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job).collect(Collectors.toList()), "/tmp");
         JobCenter.close();
+        HolidayInformationCenter.close();
 
     }
 

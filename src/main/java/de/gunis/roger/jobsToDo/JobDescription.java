@@ -1,6 +1,7 @@
 package de.gunis.roger.jobsToDo;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.workersAvailable.Worker;
 import net.fortuna.ical4j.model.Calendar;
@@ -8,35 +9,47 @@ import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.*;
-import net.fortuna.ical4j.util.UidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JobDescription implements ICalendarAccess {
     private static final Logger logger = LoggerFactory.getLogger("JobDescription.class");
-    private static int INITIAL_DAY = 1;
+    private static Integer INITIAL_DAY = 1;
     private final String name;
     private final Set<DayOfWeek> daysInWeek;
+    private final Set<DayOfWeek> daysInWeekTotal;
     private final DayOfWeek manuallySetDay;
     private final Integer duration;
     private final Calendar calendar;
     private final LocalDate begin;
     private final LocalDate end;
     private final Dur jobDuration;
-    private UidGenerator ug = null;
+    private final Boolean reminder;
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek manuallySetDay) {
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek manuallySetDay, Boolean reminder) {
         this.name = name;
-        this.daysInWeek = daysInWeek;
+        this.daysInWeek = new HashSet<>(daysInWeek);
+        this.daysInWeekTotal = daysInWeek;
         this.duration = duration - INITIAL_DAY;
         this.jobDuration = new Dur(duration, 0, 0, 0);
         this.begin = begin;
         this.end = end;
+        this.reminder = reminder;
+
+        if (duration > 1 && daysInWeekTotal.size() == 1) {
+            DayOfWeek startDay = daysInWeekTotal.iterator().next();
+            Stream.iterate(startDay.getValue(), date -> date + 1)
+                    .limit(duration)
+                    .forEach(i -> daysInWeekTotal.add(DayOfWeek.of(i)));
+        }
 
         this.manuallySetDay = manuallySetDay;
 
@@ -45,18 +58,10 @@ public class JobDescription implements ICalendarAccess {
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
 
-        try {
-            logger.trace("Generating UID (timeConsuming ...)");
-            ug = new UidGenerator("1");
-            logger.trace("Generating UID (DONE)");
-        } catch (SocketException e) {
-            logger.warn("Exception: " + e.getMessage());
-        }
-
     }
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end) {
-        this(name, daysInWeek, duration, begin, end, null);
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, Boolean reminder) {
+        this(name, daysInWeek, duration, begin, end, null, reminder);
     }
 
     private static LocalDate getManuallyPlacedCalendarDay(LocalDate day, DayOfWeek manuallySetDayCheckSatOrSun) {
@@ -72,23 +77,19 @@ public class JobDescription implements ICalendarAccess {
         return end;
     }
 
-    boolean hasToBeDoneOnNormalDay(LocalDate testDate) {
+    boolean hasToBeDoneOnHoliday(LocalDate testDate) {
+        Set<Holiday> holidays = HolidayInformationCenter.instance().getHolidays();
 
-        return isWithinRange(testDate);
+        boolean jobIsTotalInHolidays = Stream.iterate(testDate, date -> date.plusDays(1))
+                .limit(duration + INITIAL_DAY)
+                .filter(day -> daysInWeekTotal.contains(day.getDayOfWeek()))
+                .allMatch(day -> holidays.stream().anyMatch(holiday -> holiday.isWithinRange(day))
+                );
+
+        return !jobIsTotalInHolidays;
     }
 
-    boolean hasToBeDoneOnHoliday(LocalDate testDate, Holiday holiday) {
-        LocalDate endDate = testDate.plusDays(duration);
-
-        boolean durationIsWithinHolidays = holiday.isWithinRange(testDate) && holiday.isWithinRange(endDate);
-        boolean doIfWorkIsOnlyForThisDay = duration != 0;
-        boolean holidayCompleteWorkingTime = holiday.isHolidayInCompleteWorkingTime(testDate, duration);
-        return daysInWeek.contains(testDate.getDayOfWeek()) && doIfWorkIsOnlyForThisDay
-                && !durationIsWithinHolidays
-                && !holidayCompleteWorkingTime;
-    }
-
-    private boolean isWithinRange(LocalDate testDate) {
+    boolean isWithinRange(LocalDate testDate) {
         return daysInWeek.contains(testDate.getDayOfWeek()) &&
                 testDate.toEpochDay() >= begin.toEpochDay() &&
                 testDate.toEpochDay() <= end.toEpochDay();
@@ -117,15 +118,7 @@ public class JobDescription implements ICalendarAccess {
 
         calendar.getComponents().add(vEvent);
 
-//        java.util.Calendar cal = java.util.Calendar.getInstance();
-//        cal.set(java.util.Calendar.MONTH, java.util.Calendar.DECEMBER);
-//        cal.set(java.util.Calendar.DAY_OF_MONTH, 25);
-//
-//        VAlarm christmas = new VAlarm(cal.getTime());
-//        new DateTime();
-//        new VAlarm();
-
-        foundWorker.registerJobOnDate(day, jobDuration, name);
+        foundWorker.registerJobOnDate(day, jobDuration, this);
         logger.trace("registerWorkerOnDate done");
 
         return vEvent;
@@ -138,14 +131,13 @@ public class JobDescription implements ICalendarAccess {
             Description calDescription = new Description();
             calDescription.setValue(jobProposal);
             vEvent.getProperties().add(calDescription);
-
         }
     }
 
     private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker, JobDescription jobDescription) {
         logger.trace("getNewEvent");
         VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), duration, foundWorker.getName());
-        vEvent.getProperties().add(ug.generateUid());
+        vEvent.getProperties().add(new Uid(UUID.randomUUID().toString()));
         askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
         logger.trace("getNewEvent done");
         return vEvent;
@@ -159,4 +151,44 @@ public class JobDescription implements ICalendarAccess {
     public DayOfWeek getManuallySetDay() {
         return manuallySetDay;
     }
+
+    public Boolean hasReminder() {
+        return reminder;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JobDescription that = (JobDescription) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (daysInWeek != null ? !daysInWeek.equals(that.daysInWeek) : that.daysInWeek != null) return false;
+        if (daysInWeekTotal != null ? !daysInWeekTotal.equals(that.daysInWeekTotal) : that.daysInWeekTotal != null)
+            return false;
+        if (manuallySetDay != that.manuallySetDay) return false;
+        if (duration != null ? !duration.equals(that.duration) : that.duration != null) return false;
+        if (calendar != null ? !calendar.equals(that.calendar) : that.calendar != null) return false;
+        if (begin != null ? !begin.equals(that.begin) : that.begin != null) return false;
+        if (end != null ? !end.equals(that.end) : that.end != null) return false;
+        if (jobDuration != null ? !jobDuration.equals(that.jobDuration) : that.jobDuration != null) return false;
+        return reminder != null ? reminder.equals(that.reminder) : that.reminder == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (daysInWeek != null ? daysInWeek.hashCode() : 0);
+        result = 31 * result + (daysInWeekTotal != null ? daysInWeekTotal.hashCode() : 0);
+        result = 31 * result + (manuallySetDay != null ? manuallySetDay.hashCode() : 0);
+        result = 31 * result + (duration != null ? duration.hashCode() : 0);
+        result = 31 * result + (calendar != null ? calendar.hashCode() : 0);
+        result = 31 * result + (begin != null ? begin.hashCode() : 0);
+        result = 31 * result + (end != null ? end.hashCode() : 0);
+        result = 31 * result + (jobDuration != null ? jobDuration.hashCode() : 0);
+        result = 31 * result + (reminder != null ? reminder.hashCode() : 0);
+        return result;
+    }
 }
+

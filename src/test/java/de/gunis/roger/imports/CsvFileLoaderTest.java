@@ -55,7 +55,8 @@ public class CsvFileLoaderTest {
         List<Worker> workers = Stream.of(workerCsvLineExample)
                 .map(trimLine).map(mapToWorker).collect(Collectors.toList());
         String jobProposal = workers.get(0).askForProposal(new JobDescription("rescue", sunday,
-                7, LocalDate.parse("11.03.2017", dateFormatter), LocalDate.parse("11.03.2017", dateFormatter)
+                7, LocalDate.parse("11.03.2017", dateFormatter), LocalDate.parse("11.03.2017", dateFormatter),
+                Boolean.getBoolean("0")
         ));
         Assert.assertTrue(workers.size() > 0);
         Assert.assertEquals("diving", jobProposal);

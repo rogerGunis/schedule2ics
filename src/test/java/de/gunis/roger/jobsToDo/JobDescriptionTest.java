@@ -1,6 +1,7 @@
 package de.gunis.roger.jobsToDo;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.workersAvailable.Worker;
 import net.fortuna.ical4j.model.Calendar;
 import org.junit.Assert;
@@ -8,6 +9,8 @@ import org.junit.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,7 +22,7 @@ public class JobDescriptionTest {
         JobDescription jobDescription = new JobDescription("test",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 7, monday, monday,
-                DayOfWeek.SUNDAY);
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
         Worker worker = new Worker("asdf",
                 Stream.of(new Job("JobA")).collect(Collectors.toSet()), null);
         jobDescription.registerWorkerOnDate(monday, worker, jobDescription);
@@ -29,15 +32,25 @@ public class JobDescriptionTest {
 
     @Test
     public void hasToBeDoneOnHoliday() {
+        HolidayInformationCenter.open();
         LocalDate monday = LocalDate.of(2017, 5, 22);
         LocalDate friday = LocalDate.of(2017, 5, 26);
         LocalDate saturday = LocalDate.of(2017, 5, 27);
+        Holiday testHoliday = new Holiday(monday, saturday, "testHoliday");
+        Set holidays = new HashSet<>();
+        holidays.add(testHoliday);
+        HolidayInformationCenter.instance().setHolidays(holidays);
+
+
         JobDescription jobDescription = new JobDescription("test",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 5, monday, friday,
-                DayOfWeek.SUNDAY);
-        Holiday testHoliday = new Holiday(monday, saturday, "testHoliday");
-        Assert.assertFalse(jobDescription.hasToBeDoneOnHoliday(monday, testHoliday));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
+
+//        HolidayInformationCenter.instance().getHolidays().stream().anyMatch(holiday -> holiday.isWithinRange(friday));
+
+        Assert.assertFalse(jobDescription.hasToBeDoneOnHoliday(monday));
+        HolidayInformationCenter.close();
     }
 
 }

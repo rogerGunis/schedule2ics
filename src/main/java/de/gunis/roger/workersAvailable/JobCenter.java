@@ -1,17 +1,16 @@
 package de.gunis.roger.workersAvailable;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.jobsToDo.Job;
 import de.gunis.roger.jobsToDo.JobDescription;
 import de.gunis.roger.jobsToDo.LaborMarket;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.*;
-import net.fortuna.ical4j.util.UidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,16 +20,14 @@ public class JobCenter {
 
     private static final Logger logger = LoggerFactory.getLogger("JobCenter.class");
     private static volatile JobCenter instance;
-    private final Uid uid;
 
     private Map<Worker, Set<Job>> workerToJobs = new HashMap<>();
     private Map<Job, List<Worker>> jobToWorker = new HashMap<>();
     private Map<JobDescription, Integer> roundOfJobsCounter = new HashMap<>();
     private Calendar allCalendarEntries;
 
-    private JobCenter(Calendar allCalendarEntries, Uid uid) {
+    private JobCenter(Calendar allCalendarEntries) {
         this.allCalendarEntries = allCalendarEntries;
-        this.uid = uid;
     }
 
     public static synchronized JobCenter open() {
@@ -41,16 +38,9 @@ public class JobCenter {
         calendar.getProperties().add(new ProdId("-//allEvents//iCal4j 1.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
-        Uid uid = null;
-        try {
-            UidGenerator uidGenerator = new UidGenerator("1");
-            uid = uidGenerator.generateUid();
-        } catch (SocketException e) {
-            logger.error("Exception {}", e);
-        }
 
 
-        instance = new JobCenter(calendar, uid);
+        instance = new JobCenter(calendar);
         logger.info("Instance started");
 
         return instance;
@@ -138,12 +128,11 @@ public class JobCenter {
         return allCalendarEntries;
     }
 
-    public void combineJobAndWorkerAndSubscribe(Set<Holiday> holidays,
-                                                List<Worker> workers,
+    public void combineJobAndWorkerAndSubscribe(List<Worker> workers,
                                                 List<JobDescription> jobDescriptions,
                                                 LocalDate myDay,
                                                 LocalDate endDay) {
-        LaborMarket laborMarket = new LaborMarket(jobDescriptions, holidays);
+        LaborMarket laborMarket = new LaborMarket(jobDescriptions);
         JobCenter jobCenter = JobCenter.instance();
         jobCenter.addWorkers(workers);
 
@@ -152,7 +141,7 @@ public class JobCenter {
             logger.debug("Day: {}", myDay.toString());
 
             LocalDate finalMyDay1 = myDay;
-            Optional<Holiday> mayBeHoliday = holidays.parallelStream().filter(holiday -> holiday.isWithinRange(finalMyDay1)).findFirst();
+            Optional<Holiday> mayBeHoliday = HolidayInformationCenter.instance().getHolidays().parallelStream().filter(holiday -> holiday.isWithinRange(finalMyDay1)).findFirst();
             List<JobDescription> jobQueue = laborMarket.getJobDescriptions(myDay, mayBeHoliday);
 
             if (mayBeHoliday.isPresent() && !holidayAlreadyAddressed.contains(mayBeHoliday.get())) {
@@ -160,7 +149,7 @@ public class JobCenter {
                 logger.info("Found holiday {} adding to calendar", foundHoliday);
                 VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(myDay.toEpochDay() * 86400 * 1000),
                         foundHoliday.getDuration(), foundHoliday.getName());
-                vEvent.getProperties().add(uid);
+                vEvent.getProperties().add(new Uid(UUID.randomUUID().toString()));
 
                 Categories holiday = new Categories("Holiday");
                 vEvent.getProperties().add(holiday);

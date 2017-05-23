@@ -1,6 +1,7 @@
 package de.gunis.roger.workersAvailable;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.jobsToDo.Job;
 import de.gunis.roger.jobsToDo.JobDescription;
 import org.junit.After;
@@ -15,23 +16,25 @@ import java.util.stream.Stream;
 
 public class JobCenterTest {
 
-    JobCenter jobCenter = null;
-    JobDescription jobCleaning;
+    private JobCenter jobCenter = null;
+    private JobDescription jobCleaning;
 
     @After
     public void tearDown() throws Exception {
         jobCenter.close();
+        HolidayInformationCenter.close();
     }
 
     @Before
     public void setUp() throws Exception {
         jobCenter = JobCenter.open();
+        HolidayInformationCenter.open();
 
         LocalDate monday = LocalDate.of(2017, 2, 27);
         jobCleaning = new JobDescription("cleaning",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 7, monday, monday,
-                DayOfWeek.SUNDAY);
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
     }
 
     @Test

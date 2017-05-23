@@ -1,15 +1,14 @@
 package de.gunis.roger.workersAvailable;
 
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.jobsToDo.Job;
 import de.gunis.roger.jobsToDo.JobDescription;
 import net.fortuna.ical4j.model.Dur;
+import net.fortuna.ical4j.model.component.VAlarm;
 import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.Description;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.*;
 import net.fortuna.ical4j.util.UidGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.net.SocketException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class Worker implements ICalendarAccess {
     private static final Logger logger = LoggerFactory.getLogger("Worker.class");
@@ -65,19 +65,44 @@ public class Worker implements ICalendarAccess {
         hasJobDone.put(job, Boolean.TRUE);
     }
 
-    public void registerJobOnDate(LocalDate day, Dur duration, String jobName) {
-        VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(day.toEpochDay() * 86400 * 1000), duration, jobName);
-        vEvent.getProperties().add(ug.generateUid());
+    public void registerJobOnDate(LocalDate day, Dur duration, JobDescription jobDescription) {
+        VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(day.toEpochDay() * 86400 * 1000), duration, jobDescription.getName());
+        vEvent.getProperties().add(new Uid(UUID.randomUUID().toString()));
 
-        Optional<Job> maybeJobInfoFromWorker = jobs.stream().filter(job -> job.getName().equals(jobName)).findFirst();
+        Optional<Job> maybeJobProposalFromWorker = jobs.stream().filter(job -> job.getName().equals(jobDescription.getName())).findFirst();
 
-        if (maybeJobInfoFromWorker.isPresent()) {
+        if (maybeJobProposalFromWorker.isPresent()) {
             Description calDescription = new Description();
-            calDescription.setValue(maybeJobInfoFromWorker.get().getJobProposal());
+            calDescription.setValue(maybeJobProposalFromWorker.get().getJobProposal());
             vEvent.getProperties().add(calDescription);
-
         }
 
+        if (jobDescription.hasReminder()) {
+            Set<Holiday> holidays = HolidayInformationCenter.instance().getHolidays();
+
+            // find previous workday
+            VAlarm cooking = new VAlarm(new Dur(0, -9, 0, 0));
+            cooking.getProperties().add(Action.DISPLAY);
+            cooking.getProperties().add(new Description("Kochen für " + jobDescription.getName()));
+            vEvent.getAlarms().add(cooking);
+
+            Optional<LocalDate> dayOfShopping = Stream.iterate(day.minusDays(2), date -> date.minusDays(1))
+                    .limit(6)
+                    .filter(
+                            iDay -> holidays.stream().allMatch(holiday -> holiday.isShoppingPossible(iDay))
+                    ).findFirst();
+
+            LocalDate shoppingDay = dayOfShopping.orElse(day);
+            int diffOfDays = shoppingDay.getDayOfYear() - day.getDayOfYear();
+
+            VAlarm goShopping = new VAlarm(new Dur(diffOfDays, -15, 0, 0));
+            goShopping.getProperties().add(Action.DISPLAY);
+            goShopping.getProperties().add(new Description("Einkaufen für " + jobDescription.getName()));
+            vEvent.getAlarms().add(goShopping);
+        }
+
+
+        vEvent.getProperties().add(new Comment("----------------------------------"));
         this.calendar.getComponents().add(vEvent);
     }
 

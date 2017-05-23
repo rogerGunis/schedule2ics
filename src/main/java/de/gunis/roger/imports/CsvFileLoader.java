@@ -35,15 +35,20 @@ public class CsvFileLoader {
                 .collect(Collectors.toSet());
 
         DayOfWeek info2DayOfWeek = null;
-        if (p.length == 6) {
+        if (p.length >= 6) {
             Integer dayOfWeekInt = Integer.valueOf(p[5]);
             if (dayOfWeekInt > 0) {
                 info2DayOfWeek = DayOfWeek.of(dayOfWeekInt);
             }
         }
 
+        boolean aBoolean = false;
+        if (p.length >= 7) {
+            aBoolean = p[6].equals("0") ? Boolean.FALSE : Boolean.TRUE;
+        }
+
         return new JobDescription(p[0], dayOfWeeks, Integer.parseInt(p[2]),
-                dateOf(p[3]), dateOf(p[4]), info2DayOfWeek);
+                dateOf(p[3]), dateOf(p[4]), info2DayOfWeek, aBoolean);
     };
     static final Function<String, Worker> mapToWorker = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines
@@ -61,7 +66,7 @@ public class CsvFileLoader {
 
         List<Holiday> vacations = null;
         String nameOfWorker = p[0];
-        if (p.length == 3) {
+        if (p.length >= 3) {
             vacations = Arrays.stream(trimDateRange.apply(trimLine.apply(p[2])).split("\\s+"))
                     .map(possibleDates -> {
                         String[] dates = possibleDates.split("-");
@@ -80,12 +85,20 @@ public class CsvFileLoader {
     };
     static final Function<String, Holiday> mapToHoliday = line -> {
         String[] p = line.split(",");
+        String name = "0";
+        if (p.length >= 4) {
+            name = p[3];
+        }
 
-        return new Holiday(dateOf(p[0]), dateOf(p[1]), p[2]);
+        return new Holiday(dateOf(p[0]), dateOf(p[1]), p[2], Boolean.getBoolean(name));
     };
 
     public CsvFileLoader(String datePattern) {
         dateFormatter = DateTimeFormatter.ofPattern(datePattern);
+    }
+
+    private static LocalDate dateOf(String date) {
+        return LocalDate.parse(date, dateFormatter);
     }
 
     public List<Worker> importWorkerFromFile(String inputFilePath) {
@@ -132,9 +145,5 @@ public class CsvFileLoader {
             logger.warn("Exception" + e);
         }
         return inputList;
-    }
-
-    private static LocalDate dateOf(String date) {
-        return LocalDate.parse(date, dateFormatter);
     }
 }

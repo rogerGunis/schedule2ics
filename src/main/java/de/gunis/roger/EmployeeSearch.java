@@ -3,6 +3,7 @@ package de.gunis.roger;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import de.gunis.roger.calendar.Holiday;
+import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.calendar.ICalendarAccess;
 import de.gunis.roger.exports.CalendarWriter;
 import de.gunis.roger.imports.CsvFileLoader;
@@ -151,6 +152,8 @@ public class EmployeeSearch {
         JobCenter.open();
         csvFileLoader = new CsvFileLoader(dateFormat);
 
+        HolidayInformationCenter.open();
+
         OptionalInt optionalMin = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min();
         int startOffset = optionalMin.isPresent() ? optionalMin.getAsInt() : 0;
 
@@ -162,7 +165,8 @@ public class EmployeeSearch {
 
         logger.info("Searching, between {} -> {} (days: {})", beginOfJobSearch, endOfJobSearch, endOfJobSearch.toEpochDay() - beginOfJobSearch.toEpochDay());
 
-        JobCenter.instance().combineJobAndWorkerAndSubscribe(holidaysFromFile, workers, jobDescriptions, beginOfJobSearch, endOfJobSearch);
+        HolidayInformationCenter.instance().setHolidays(holidaysFromFile);
+        JobCenter.instance().combineJobAndWorkerAndSubscribe(workers, jobDescriptions, beginOfJobSearch, endOfJobSearch);
 
         logger.debug("Exporting all calendar entries to {}", outputFilePath);
 
@@ -180,6 +184,7 @@ public class EmployeeSearch {
 
         logger.info("Finished");
         JobCenter.close();
+        HolidayInformationCenter.close();
 
     }
 
