@@ -23,7 +23,7 @@ public class JobCenter {
 
     private Map<Worker, Set<Job>> workerToJobs = new HashMap<>();
     private Map<Job, List<Worker>> jobToWorker = new HashMap<>();
-    private Map<JobDescription, Integer> roundOfJobsCounter = new HashMap<>();
+    private Map<String, Integer> roundOfJobsCounter = new HashMap<>();
     private Calendar allCalendarEntries;
 
     private JobCenter(Calendar allCalendarEntries) {
@@ -78,7 +78,7 @@ public class JobCenter {
     Worker getWorkerForJob(LocalDate day, JobDescription jobDescription) {
         logger.trace("starting worker search");
         Job job = new Job(jobDescription.getName());
-        roundOfJobsCounter.putIfAbsent(jobDescription, 1);
+        roundOfJobsCounter.putIfAbsent(jobDescription.getName(), 1);
 
         Optional<Worker> maybeWorker = jobToWorker.getOrDefault(job, Collections.emptyList())
                 .stream()
@@ -101,7 +101,7 @@ public class JobCenter {
                     .stream().anyMatch(worker -> !worker.isOnHoliday(day))) {
 
                 logger.info("Round over, starting over next one: {}", job);
-                roundOfJobsCounter.compute(jobDescription, (k, v) -> v == null ? 1 : v + 1);
+                roundOfJobsCounter.compute(jobDescription.getName(), (k, v) -> v == null ? 1 : v + 1);
 
                 jobToWorker.get(job).forEach(worker -> worker.resetJobDone(job));
                 return getWorkerForJob(day, jobDescription);
@@ -174,7 +174,7 @@ public class JobCenter {
 
                 VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker, jobDescription);
 
-                String category = jobDescriptionName + "Round-" + roundOfJobsCounter.get(jobDescription);
+                String category = jobDescriptionName + "Round-" + roundOfJobsCounter.get(jobDescription.getName());
                 Categories roundInfoAsCategory = new Categories(category);
                 vEvent.getProperties().add(roundInfoAsCategory);
 
