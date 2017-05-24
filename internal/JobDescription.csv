@@ -1,0 +1,4 @@
+name,startDayOfWeek (mo=1,...,sun=7),duration,begin,end,infoInDayOfWeek (off=0, mo=1,...,sun=7),reminder(off=0,on=1)
+Frühstück,1, 5,09.01.2017,02.09.2017,7,1
+Mittagessen,1 2 3 4 5, 1,07.03.2017,01.09.2017,0,1
+Putzen,1, 2,23.01.2017,02.09.2017,6,0
