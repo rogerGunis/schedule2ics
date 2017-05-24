@@ -20,3 +20,26 @@ jdk:
 # 4. Turn off notifications.
 notifications:
   email: false
+
+
+before_deploy:
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - export GIT_TAG=$TRAVIS_BRANCH-v0.1.$TRAVIS_BUILD_NUMBER
+  - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+  - git push -q https://5046ebeb53322319a91c7581b86aa46461e5deda@github.com/rogerGunis/scheduler2ics --tags
+
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: [redacted]
+  file:
+    - "your_file"
+  on:
+    tags: false
+    all_branches: true
+
+branches:
+  except:
+    - /^*-v[0-9]/
