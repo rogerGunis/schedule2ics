@@ -1,28 +1,31 @@
 language: java
 before_install:
-  - find .
-  - "./gradlew wrapper"
-  - ls -la gradle/wrapper/gradle-wrapper.jar
-
+- find .
+- "./gradlew wrapper"
+- ls -la gradle/wrapper/gradle-wrapper.jar
 jdk:
-  - oraclejdk8
-
-
+- oraclejdk8
 notifications:
   email: false
-
-
 before_deploy:
-  - export GIT_TAG=$TRAVIS_BRANCH-v0.1.$TRAVIS_BUILD_NUMBER
-  - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+- git config --global user.email "builds@travis-ci.com"
+- git config --global user.name "Travis CI"
+- export GIT_TAG=$TRAVIS_BRANCH-v0.1.$TRAVIS_BUILD_NUMBER
+- git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+- git push -q https://${BLUB}@github.com/rogerGunis/scheduler2ics --tags
 deploy:
   skip_cleanup: true
   provider: releases
+  overwrite: true
   api_key:
-    secure: gnEIYyi4HCSasMWkDOJ6FSLGi+utmV2gr4e4AZl2/ut4V1g84KF9vvtcXKT5LVEChABSKNhp3wkOks9WihIvF/QNefrB6js60YDC2WrdTvW8crQuzYpZvTNdGNfEiJFOm0NOt2GfAAQxTGlY9zc+A/3CHRCts6bg8oitGftwUJNhwPsj4q4AjiepUD0VON8ccJzyesMVPBiBk9FZlQDFgiuzk8QOz+EKR4XmAV6Hz/ELB5t8mBWNiBE6FQ0lb595F8kZapp4HkXGrmQRltP7PxHoacKyh/VGyirBBsQV5H4dkrnvNjowU7PvebwNGT+6ZDRrD4AYyOzPMtw8qSfJICxkYHRe1Frje78T/K5Hx/6r3q5vTPrm89Ru8MjxaOJjZlygLOKHGZAqAsOU/tdBGJ8G580/rj/31keb5hKXJOMJJikUmwwVRUOM3a0FqmrP+4ZDkBKBXR1hKHtoTayogbIzFyF7QvseSs11CcGnRpZuLvSJtC6dunH/4bEq2cJfnhtfMWrgka3FilY9+jkuGYuOe5/1nUCR6e0Iatj8ULPV2aMxFBupqLEf1vs8/SkZTHoqM0QSeDOsYQVkTMERhlW+HDB+9hTLmgdN0t3Bjlx/ojFmlrGNvnITPMmMDOK795hL1Tzm1Vn8EeKJF+T/NQFt2ZN76w4svTMBUg4VWRk=
-  file: "build/libs/scheduler2ics-1.0.jar"
+    secure: i3/wiZDPAc8P4u/Znd4lbd1bE8UrcvknqsvybxQfAX0ZUADZpFoMeVzxAJXxwGFzxQZKhMmGu15zXpYdWLx3yQT7C504ioN5XgzLBEb/Xd2ESZxN0R0Js7U59Qq5VrgD/T5KUY5qWCyWuGpeqSH1mA+LOc9EJ0cEV5l/aXH0UkwjWa9T9VQ/vxeHfjiU3HC91RLudHWw0/kg3oUi5P9YMgS/tiN3JFygiwGSAapkmLZS1yROVK3oR6o4Kg3fW1dWkJlRCOQWf3Mr4cOHUNLq/S6T4m9koZNmHIZ7Z6JZnsn43UQVDb0CVXMoewWl6T17TZJVc7rEJFU7Rbfs7J9V4ikci1KcofICpMEKoupFpS9kXoFWA5UTIJ2djNZOSjcwOxEVZ2Kw6KH5uNgIt2NkSby78rqpWPMcQCRi1Qmxy2k7/R3yFUft0PzhQOV0nelnqAqADQRBVVnhAaRGMIPSW8MLfMl4tzHL8Ok8oNAtUXKWIy3mLoE0rLR9Z6JzsAzD/kytrGvgw92eGzJX4aM75IIid+AFs47+EYoPQmeIZuvkZfz98zK88zbSNNLqZK2SqXm3e2oJcUWqkW+upmWknt6U5RsQbxN+qZPpjbdMETqP63AchIzCaK0Lm3w3lecC81Qaa/kv+SpOD2uBsw7G7923eBk95A8bVq2c2ekoukU=
+  file:
+  - build/libs/scheduler2ics-1.0.jar
   on:
     repo: rogerGunis/scheduler2ics
 branches:
   except:
-    - "/^*-v[0-9]/"
+  - "/^*-v[0-9]/"
+env:
+  global:
+    secure: YAFpcOiggtffRjErCiDhVDdLCoCwL5yJhBg1OP7+BCoT9QcNlL449zTeKDIz/8F6Q1e+OOLNzcGM6c7sHBgZRyTlfKsa1JDevQixqqp6TsE69KCVg/ocMew2OByC3MoJiVSIfDekdJ0DeYq3bfRB+4H6vUnvVgFer/3TckcHlIGXxrF6w+21EGt5BqjAUq+cH4rCS3svtDa90G9g2kCls+aExk4FLY2P3hhHjulf4qUDd9k37LpuyV5UmM4TN45xbt4etvsbx59OMfkGgka0QcKF8mftVbJeYUdHmcRFSVBIebtAqqGqTweXWyHYy7xUOE0hmWK/Wh7GZKPDbXNYkgsOoeOClSKcaIGy49Dd3I9M/csRObV87LfpJJNxdGop1Fqv51Koycu2NtpOtC5Jv13wqDPEegvFZiPPYpOYdWfOIJQ80HHSLcw/4bO3IxZ/VZDY66AFQKB6DvDkoFjY/VSoXsncdZZ0SH43VeELCuZiapbl1GQtDK9Us//WSq323IfGLA9joVLbgBCuCibGbJM4FksdNjO9wXceI7V+yf/LUpLMlXtk3kR/8FECjcppPGxdjWi2mmNzJc91XiEapG95Cyjt9VbJMmNXr8BQFH84NEnbJ/fA4Oq3QCEWk7beil3slCr4JRTq2UCIwO7nwG/iPGe4ljoyWeoDsVCzvwQ=
