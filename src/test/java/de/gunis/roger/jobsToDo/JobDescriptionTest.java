@@ -37,7 +37,7 @@ public class JobDescriptionTest {
         LocalDate friday = LocalDate.of(2017, 5, 26);
         LocalDate saturday = LocalDate.of(2017, 5, 27);
         Holiday testHoliday = new Holiday(monday, saturday, "testHoliday");
-        Set holidays = new HashSet<>();
+        Set<Holiday> holidays = new HashSet<>();
         holidays.add(testHoliday);
         HolidayInformationCenter.instance().setHolidays(holidays);
 

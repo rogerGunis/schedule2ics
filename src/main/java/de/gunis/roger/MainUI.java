@@ -24,7 +24,7 @@ public class MainUI extends Application {
 
         UIController UIController = new UIController();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(sceneFile));
+        FXMLLoader loader = new FXMLLoader(this.getClass().getClassLoader().getResource(sceneFile));
         loader.setController(UIController);
 
         primaryStage.setTitle("Scheduler2ics");

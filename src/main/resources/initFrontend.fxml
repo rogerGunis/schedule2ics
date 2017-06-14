@@ -9,7 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?scenebuilder-stylesheet scheduler2ics.css?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="310.0" prefWidth="403.0" styleClass="layout" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.gunis.roger.UIController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="310.0" prefWidth="403.0" styleClass="background" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.gunis.roger.UIController">
     <children>
         <Region prefHeight="310.0" prefWidth="403.0" />
         <Button fx:id="holidays" layoutX="306.0" layoutY="61.0" mnemonicParsing="false" onAction="#getCsvFileAndInformPath" text="Holidays" />

@@ -10,18 +10,15 @@ import de.gunis.roger.imports.CsvFileLoader;
 import de.gunis.roger.jobsToDo.JobDescription;
 import de.gunis.roger.workersAvailable.JobCenter;
 import de.gunis.roger.workersAvailable.Worker;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableIntegerValue;
-import javafx.beans.value.ObservableValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
@@ -190,5 +187,38 @@ public class EmployeeSearch {
 
     BooleanBinding hasEnoughInformations() {
         return amountOfJobDescriptions.greaterThan(0).and(amountOfWorkers.greaterThan(0));
+    }
+
+    void doPostProcessing(String execCommand) {
+
+        String s = null;
+
+        try {
+
+            // run the Unix "ps -ef" command
+            // using the Runtime exec method:
+            Process p = Runtime.getRuntime().exec(execCommand);
+
+            BufferedReader stdInput = new BufferedReader(new
+                    InputStreamReader(p.getInputStream()));
+
+            BufferedReader stdError = new BufferedReader(new
+                    InputStreamReader(p.getErrorStream()));
+
+            // read the output from the command
+            logger.info("Here is the standard output of the command:\n");
+            while ((s = stdInput.readLine()) != null) {
+                logger.info(s);
+            }
+
+            // read any errors from the attempted command
+            logger.info("Here is the standard error of the command (if any):\n");
+            while ((s = stdError.readLine()) != null) {
+                logger.info(s);
+            }
+
+        } catch (IOException e) {
+            logger.error("exception happened: " + e.getMessage());
+        }
     }
 }
