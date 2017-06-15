@@ -22,7 +22,7 @@ deploy:
   file_glob: true
   file:
   - build/libs/scheduler2ics-1.0.jar
-  file: /var/tmp/scheduler/*.*
+  local_dir: /var/tmp/scheduler/
   on:
     repo: rogerGunis/scheduler2ics
 branches:
