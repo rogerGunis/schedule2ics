@@ -13,8 +13,8 @@ for i in $(find . -name "*.ics" -type f);
 do 
     echo $i
     $MY_PWD/ical2html --description $MONTH_START P${DAYS}D ${i} | sed -e 's#(whole</abbr> <abbr class=duration##;s#title="1D">day)##;s#>Sunday#>Frühstück#;s#>Monday#>Montag#;s#>Tuesday#>Dienstag#;s#>Wednesday#>Mittwoch#;s#>Thursday#>Donnerstag#;s#>Friday#>Freitag#;s#>Saturday#>Putzdienst#' > ${i/.ics/.html} ;
-done
 
+test -f ${i/.ics/.html}  && \
 cat << _EOF_ >>allEvents.html
 
 <script src="jquery.min.js"></script>
@@ -39,3 +39,5 @@ cat << _EOF_ >>allEvents.html
 
 
 _EOF_
+
+done
