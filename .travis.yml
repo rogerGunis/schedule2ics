@@ -12,6 +12,7 @@ after_success:
 - $PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/ics2html
 - cp $PWD/src/test/resources/WithPostProcessing/js/jquery.min.js postProcess
 - cp $PWD/src/test/resources/WithPostProcessing/css/calendar.css postProcess
+- ls -la $PWD/postProcess
 before_deploy:
 - git config --global user.email "builds@travis-ci.com"
 - git config --global user.name "Travis CI"
