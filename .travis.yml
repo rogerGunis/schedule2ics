@@ -10,8 +10,8 @@ notifications:
 after_success:
 - java -jar build/libs/scheduler2ics-1.0.jar --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log ALL
 - $PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/
-- find . -name "jquery.min.js" -exec cp -v \{\} postProcess
-- find . -name "calendar.css" -exec cp -v \{\} postProcess
+- find . -name "jquery.min.js" -exec cp -v \{\} postProcess \;
+- find . -name "calendar.css" -exec cp -v \{\} postProcess \;
 - ls -la $PWD/postProcess
 before_deploy:
 - git config --global user.email "builds@travis-ci.com"
