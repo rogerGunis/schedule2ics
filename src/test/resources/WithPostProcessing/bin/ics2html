@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 cd $1
 MY_PWD=$2
