@@ -26,9 +26,9 @@ deploy:
     secure: i3/wiZDPAc8P4u/Znd4lbd1bE8UrcvknqsvybxQfAX0ZUADZpFoMeVzxAJXxwGFzxQZKhMmGu15zXpYdWLx3yQT7C504ioN5XgzLBEb/Xd2ESZxN0R0Js7U59Qq5VrgD/T5KUY5qWCyWuGpeqSH1mA+LOc9EJ0cEV5l/aXH0UkwjWa9T9VQ/vxeHfjiU3HC91RLudHWw0/kg3oUi5P9YMgS/tiN3JFygiwGSAapkmLZS1yROVK3oR6o4Kg3fW1dWkJlRCOQWf3Mr4cOHUNLq/S6T4m9koZNmHIZ7Z6JZnsn43UQVDb0CVXMoewWl6T17TZJVc7rEJFU7Rbfs7J9V4ikci1KcofICpMEKoupFpS9kXoFWA5UTIJ2djNZOSjcwOxEVZ2Kw6KH5uNgIt2NkSby78rqpWPMcQCRi1Qmxy2k7/R3yFUft0PzhQOV0nelnqAqADQRBVVnhAaRGMIPSW8MLfMl4tzHL8Ok8oNAtUXKWIy3mLoE0rLR9Z6JzsAzD/kytrGvgw92eGzJX4aM75IIid+AFs47+EYoPQmeIZuvkZfz98zK88zbSNNLqZK2SqXm3e2oJcUWqkW+upmWknt6U5RsQbxN+qZPpjbdMETqP63AchIzCaK0Lm3w3lecC81Qaa/kv+SpOD2uBsw7G7923eBk95A8bVq2c2ekoukU=
   file: 
    - "build/libs/scheduler2ics-1.0.jar"
-   - "/var/tmp/scheduler/allEvents.html"
-   - "/var/tmp/scheduler/calendar.css"
-   - "/var/tmp/scheduler/Martina+Roger.ics"
+   - "postProcess/allEvents.html"
+   - "postProcess/calendar.css"
+   - "postProcess/Martina+Roger.ics"
   local_dir: scheduler
   on:
     repo: rogerGunis/scheduler2ics
