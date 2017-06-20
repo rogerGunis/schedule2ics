@@ -142,6 +142,11 @@ public class EmployeeSearch {
 
     void runEmploymentAgency() {
 
+        setInputFilePathHolidays(inputFilePathHolidays);
+        setInputFilePathJobDescriptions(inputFilePathJobDescriptions);
+        setInputFilePathWorkers(inputFilePathWorkers);
+        setOutputFilePath(outputFilePath);
+
         logger.info("starting with: {},\n {},\n {},\n export to {}", inputFilePathHolidays,
                 inputFilePathWorkers, inputFilePathJobDescriptions, outputFilePath);
         ClearingHouse.setLoggingLevel(loggingLevel);

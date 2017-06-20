@@ -7,6 +7,11 @@ jdk:
 - oraclejdk8
 notifications:
   email: false
+after_success:
+- java -jar build/libs/scheduler2ics-1.0.jar --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log ALL
+- $PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/ics2html
+- cp $PWD/src/test/resources/WithPostProcessing/js/jquery.min.js postProcess
+- cp $PWD/src/test/resources/WithPostProcessing/css/calendar.css postProcess
 before_deploy:
 - git config --global user.email "builds@travis-ci.com"
 - git config --global user.name "Travis CI"

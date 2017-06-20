@@ -33,7 +33,7 @@ jar {
         }
     }
     manifest {
-        attributes 'Main-Class': 'de.gunis.roger.MainUI'
+        attributes 'Main-Class': 'de.gunis.roger.EmployeeSearch'
     }
 }
 

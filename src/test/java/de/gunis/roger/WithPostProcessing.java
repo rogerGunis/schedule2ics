@@ -1,19 +1,13 @@
 package de.gunis.roger;
 
+import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class WithPostProcessing {
-    private static final Logger logger = LoggerFactory.getLogger("WithPostProcessing.class");
 
-
+    @Ignore
     @Test
     public void withPostprocessing() {
 
