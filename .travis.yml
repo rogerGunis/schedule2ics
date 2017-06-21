@@ -7,11 +7,12 @@ jdk:
 - oraclejdk8
 notifications:
   email: false
-before_install:
-- sudo apt-get update -qq
-- sudo apt-get install -qq libical1a
+# before_install:
+# - sudo apt-get update -qq
+# - sudo apt-get install -qq libical1a
 after_success:
 - java -jar build/libs/scheduler2ics-1.0.jar --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log ALL
+- export LD_PRELOAD=$PWD/src/test/resources/WithPostProcessing/lib/libical.so.1.0.1
 - $PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/
 - find src -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find src -name "calendar.css" -exec cp -v \{\} postProcess \;
