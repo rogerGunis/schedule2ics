@@ -137,7 +137,7 @@ public class JobCenter {
         jobCenter.addWorkers(workers);
 
         Set<Holiday> holidayAlreadyAddressed = new HashSet<>();
-        while (!myDay.isEqual(endDay)) {
+        while (!myDay.isEqual(endDay.plusDays(1L))) {
             logger.debug("Day: {}", myDay.toString());
 
             LocalDate finalMyDay1 = myDay;
