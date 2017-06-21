@@ -47,7 +47,7 @@ public class JobDescription implements ICalendarAccess {
         if (this.duration > 0 && daysInWeekTotal.size() == 1) {
             DayOfWeek startDay = daysInWeekTotal.iterator().next();
             Stream.iterate(startDay.getValue(), dayOfWeek -> dayOfWeek + 1)
-                    .limit(this.duration)
+                    .limit(this.duration + INITIAL_DAY)
                     .filter(i -> i > 0 && i < 7)
                     .forEach(i -> daysInWeekTotal.add(DayOfWeek.of(i)));
         }
