@@ -1,5 +1,6 @@
 package de.gunis.roger.jobsToDo;
 
+import de.gunis.roger.ClearingHouse;
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.calendar.ICalendarAccess;
@@ -16,8 +17,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JobDescription implements ICalendarAccess {
@@ -137,8 +136,11 @@ public class JobDescription implements ICalendarAccess {
 
     private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker, JobDescription jobDescription) {
         logger.trace("getNewEvent");
-        VEvent vEvent = new VEvent(new Date(day.toEpochDay() * 86400 * 1000), duration, foundWorker.getName());
-        vEvent.getProperties().add(new Uid(UUID.randomUUID().toString()));
+        long jobDate = day.toEpochDay() * 86400 * 1000;
+        String foundWorkerName = foundWorker.getName();
+        VEvent vEvent = new VEvent(new Date(jobDate), duration, foundWorkerName);
+        vEvent.getProperties().add(new Uid(String.valueOf(day.format(ClearingHouse.dateTimeFormatter)) + "_" + foundWorkerName));
+
         askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
         logger.trace("getNewEvent done");
         return vEvent;

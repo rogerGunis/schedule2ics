@@ -1,5 +1,6 @@
 package de.gunis.roger.workersAvailable;
 
+import de.gunis.roger.ClearingHouse;
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.jobsToDo.Job;
@@ -147,9 +148,12 @@ public class JobCenter {
             if (mayBeHoliday.isPresent() && !holidayAlreadyAddressed.contains(mayBeHoliday.get())) {
                 Holiday foundHoliday = mayBeHoliday.get();
                 logger.info("Found holiday {} adding to calendar", foundHoliday);
-                VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(myDay.toEpochDay() * 86400 * 1000),
-                        foundHoliday.getDuration(), foundHoliday.getName());
-                vEvent.getProperties().add(new Uid(UUID.randomUUID().toString()));
+                long jobDate = myDay.toEpochDay() * 86400 * 1000;
+                String foundHolidayName = foundHoliday.getName();
+                VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(jobDate),
+                        foundHoliday.getDuration(), foundHolidayName);
+                vEvent.getProperties().add(new Uid(String.valueOf(myDay.format(ClearingHouse.dateTimeFormatter)) + "_" + foundHolidayName));
+
 
                 Categories holiday = new Categories("Holiday");
                 vEvent.getProperties().add(holiday);

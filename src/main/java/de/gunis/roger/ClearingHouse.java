@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ public class ClearingHouse {
     private static final Logger logger = LoggerFactory.getLogger("ClearingHouse.class");
 
     private static final Map<Level, LoggingFunction> map;
+    public static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     static {
         map = new HashMap<>();

@@ -1,5 +1,6 @@
 package de.gunis.roger.workersAvailable;
 
+import de.gunis.roger.ClearingHouse;
 import de.gunis.roger.calendar.Holiday;
 import de.gunis.roger.calendar.HolidayInformationCenter;
 import de.gunis.roger.calendar.ICalendarAccess;
@@ -66,8 +67,11 @@ public class Worker implements ICalendarAccess {
     }
 
     public void registerJobOnDate(LocalDate day, Dur duration, JobDescription jobDescription) {
-        VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(day.toEpochDay() * 86400 * 1000), duration, jobDescription.getName());
-        vEvent.getProperties().add(new Uid(UUID.randomUUID().toString()));
+        long jobDate = day.toEpochDay() * 86400 * 1000;
+        String jobDescriptionName = jobDescription.getName();
+        VEvent vEvent = new VEvent(new net.fortuna.ical4j.model.Date(jobDate), duration, jobDescriptionName);
+
+        vEvent.getProperties().add(new Uid(String.valueOf(day.format(ClearingHouse.dateTimeFormatter)) + "_" + jobDescriptionName));
 
         Optional<Job> maybeJobProposalFromWorker = jobs.stream().filter(job -> job.getName().equals(jobDescription.getName())).findFirst();
 
