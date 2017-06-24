@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 
 public class JobDescription implements ICalendarAccess {
     private static final Logger logger = LoggerFactory.getLogger("JobDescription.class");
-    private static Integer INITIAL_DAY = 1;
     private final String name;
     private final Set<DayOfWeek> daysInWeek;
     private final Set<DayOfWeek> daysInWeekTotal;
@@ -37,19 +36,17 @@ public class JobDescription implements ICalendarAccess {
         this.name = name;
         this.daysInWeek = new HashSet<>(daysInWeek);
         this.daysInWeekTotal = daysInWeek;
-        this.duration = duration - INITIAL_DAY;
+        this.duration = duration;
         this.jobDuration = new Dur(duration, 0, 0, 0);
         this.begin = begin;
         this.end = end;
         this.reminder = reminder;
 
-        if (this.duration > 0 && daysInWeekTotal.size() == 1) {
-            DayOfWeek startDay = daysInWeekTotal.iterator().next();
-            Stream.iterate(startDay.getValue(), dayOfWeek -> dayOfWeek + 1)
-                    .limit(this.duration + INITIAL_DAY)
-                    .filter(i -> i > 0 && i < 7)
-                    .forEach(i -> daysInWeekTotal.add(DayOfWeek.of(i)));
+        if (begin.toEpochDay() > end.toEpochDay()) {
+            throw new IllegalArgumentException(this.toString() + ", begin day is before end date");
         }
+
+        addDaysInWeekTotalOnJobWithBiggerDuration();
 
         this.manuallySetDay = manuallySetDay;
 
@@ -69,6 +66,22 @@ public class JobDescription implements ICalendarAccess {
         return manuallySetDayCheckSatOrSun == DayOfWeek.SATURDAY ? manuallySetDay : manuallySetDay.minusDays(7);
     }
 
+    public Set<DayOfWeek> getDaysInWeekTotal() {
+        return daysInWeekTotal;
+    }
+
+    private void addDaysInWeekTotalOnJobWithBiggerDuration() {
+        if (this.duration > 1 && daysInWeekTotal.size() == 1) {
+            DayOfWeek startDay = daysInWeekTotal.iterator().next();
+            Stream.iterate(startDay.getValue(), dayOfWeek -> dayOfWeek + 1)
+                    .limit(this.duration)
+                    .filter(i -> i > 0 && i < 7)
+                    .forEach(i -> daysInWeekTotal.add(DayOfWeek.of(i)));
+        } else if (this.duration > 1 && daysInWeekTotal.size() != 1) {
+            throw new IllegalArgumentException(this.toString() + ",Currently it is only supported to have amount of 'startDayOfWeek' equals 1");
+        }
+    }
+
     public LocalDate getBegin() {
         return begin;
     }
@@ -81,7 +94,7 @@ public class JobDescription implements ICalendarAccess {
         Set<Holiday> holidays = HolidayInformationCenter.instance().getHolidays();
 
         boolean jobIsTotalInHolidays = Stream.iterate(testDate, date -> date.plusDays(1))
-                .limit(duration + INITIAL_DAY)
+                .limit(duration)
                 .filter(day -> daysInWeekTotal.contains(day.getDayOfWeek()))
                 .allMatch(day -> holidays.stream().anyMatch(holiday -> holiday.isWithinRange(day))
                 );
@@ -157,6 +170,22 @@ public class JobDescription implements ICalendarAccess {
 
     public Boolean hasReminder() {
         return reminder;
+    }
+
+    @Override
+    public String toString() {
+        return "JobDescription{" +
+                "name='" + name + '\'' +
+                ", daysInWeek=" + daysInWeek +
+                ", daysInWeekTotal=" + daysInWeekTotal +
+                ", manuallySetDay=" + manuallySetDay +
+                ", duration=" + duration +
+                ", calendar=" + calendar +
+                ", begin=" + begin +
+                ", end=" + end +
+                ", jobDuration=" + jobDuration +
+                ", reminder=" + reminder +
+                '}';
     }
 
     @Override

@@ -21,7 +21,6 @@ public class CalendarWriter {
         Path path = Paths.get(outputFile);
         FileOutputStream fileOutputStream = null;
         try {
-
             Files.createDirectories(path.getParent());
             fileOutputStream = new FileOutputStream(path.toString());
             CalendarOutputter calendarOutputter = new CalendarOutputter();
@@ -41,7 +40,7 @@ public class CalendarWriter {
         }
     }
 
-    public static void documentJobsAndWork(List<ICalendarAccess> calendarAccesses, String outputFilePath) {
+    public static void documentJobsAndWorkers(List<ICalendarAccess> calendarAccesses, String outputFilePath) {
         calendarAccesses.forEach(calendarAccess -> {
                     Calendar calendar = calendarAccess.getCalendar();
                     String name = calendarAccess.getName();

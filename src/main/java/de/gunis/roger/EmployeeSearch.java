@@ -172,9 +172,10 @@ public class EmployeeSearch {
 
         logger.debug("Exporting all calendar entries to {}", outputFilePath);
 
-        CalendarWriter.documentJobsAndWork(jobDescriptions.stream().map(job -> (ICalendarAccess) job)
+        CalendarWriter.documentJobsAndWorkers(jobDescriptions.stream().map(job -> (ICalendarAccess) job)
                 .collect(Collectors.toList()), outputFilePath);
-        CalendarWriter.documentJobsAndWork(workers.stream().map(worker -> (ICalendarAccess) worker)
+
+        CalendarWriter.documentJobsAndWorkers(workers.stream().map(worker -> (ICalendarAccess) worker)
                 .collect(Collectors.toList()), outputFilePath);
 
         try {
@@ -196,7 +197,7 @@ public class EmployeeSearch {
 
     void doPostProcessing(String execCommand) {
 
-        String s = null;
+        String s;
 
         try {
 

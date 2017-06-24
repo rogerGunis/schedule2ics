@@ -53,4 +53,42 @@ public class JobDescriptionTest {
         HolidayInformationCenter.close();
     }
 
+    @Test
+    public void adjustDaysInWeekTotalTest() {
+        LocalDate jobActivationOnMonday = LocalDate.of(2017, 5, 22);
+        LocalDate jobTerminationOnFriday = LocalDate.of(2017, 5, 26);
+
+        JobDescription jobDescription = new JobDescription("test",
+                Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
+                2, jobActivationOnMonday, jobTerminationOnFriday,
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
+
+        Assert.assertEquals(jobDescription.getDaysInWeekTotal().size(), 2);
+
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void adjustDaysInWeekTotalTestException() {
+        LocalDate jobActivationOnMonday = LocalDate.of(2017, 5, 22);
+        LocalDate jobTerminationOnFriday = LocalDate.of(2017, 5, 26);
+
+        new JobDescription("test",
+                Stream.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY).collect(Collectors.toSet()),
+                2, jobActivationOnMonday, jobTerminationOnFriday,
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void jobRangeProducesTestException() {
+        LocalDate jobActivationOnMonday = LocalDate.of(2017, 5, 22);
+        LocalDate jobTerminationOnFriday = LocalDate.of(2017, 5, 26);
+
+        new JobDescription("test",
+                Stream.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY).collect(Collectors.toSet()),
+                2, jobTerminationOnFriday, jobActivationOnMonday,
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
+
+    }
 }
