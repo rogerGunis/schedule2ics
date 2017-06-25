@@ -1,21 +1,18 @@
 language: java
 before_install:
-# - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-# - sudo dpkg -i ./google-chrome*.deb
-# - sudo apt-get install -f
 - "./gradlew wrapper"
 - ls -la gradle/wrapper/gradle-wrapper.jar
 jdk:
 - oraclejdk8
 notifications:
   email: false
-# before_install:
-# - sudo apt-get update -qq
-# - sudo apt-get install -qq libical1a
 after_success:
-- java -jar build/libs/scheduler2ics-1.0.jar --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log ALL
+- java -jar build/libs/scheduler2ics-1.0.jar --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv
+  --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv
+  --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
+  ALL
 - export LD_PRELOAD=$PWD/src/test/resources/WithPostProcessing/lib/libical.so.1.0.1
-- $PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/
+- "$PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/"
 - find src -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find src -name "calendar.css" -exec cp -v \{\} postProcess \;
 - zip -r postProcess.zip postProcess
@@ -25,6 +22,8 @@ before_deploy:
 - export GIT_TAG=$TRAVIS_BRANCH-v0.1.$TRAVIS_BUILD_NUMBER
 - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 - git push -q https://${BLUB}@github.com/rogerGunis/scheduler2ics --tags
+after_deploy:
+- src/test/resources/WithPostProcessing/bin/IcsFileSync.sh postProcess/${CALENDAR}
 deploy:
   skip_cleanup: true
   provider: releases
@@ -33,13 +32,8 @@ deploy:
     secure: i3/wiZDPAc8P4u/Znd4lbd1bE8UrcvknqsvybxQfAX0ZUADZpFoMeVzxAJXxwGFzxQZKhMmGu15zXpYdWLx3yQT7C504ioN5XgzLBEb/Xd2ESZxN0R0Js7U59Qq5VrgD/T5KUY5qWCyWuGpeqSH1mA+LOc9EJ0cEV5l/aXH0UkwjWa9T9VQ/vxeHfjiU3HC91RLudHWw0/kg3oUi5P9YMgS/tiN3JFygiwGSAapkmLZS1yROVK3oR6o4Kg3fW1dWkJlRCOQWf3Mr4cOHUNLq/S6T4m9koZNmHIZ7Z6JZnsn43UQVDb0CVXMoewWl6T17TZJVc7rEJFU7Rbfs7J9V4ikci1KcofICpMEKoupFpS9kXoFWA5UTIJ2djNZOSjcwOxEVZ2Kw6KH5uNgIt2NkSby78rqpWPMcQCRi1Qmxy2k7/R3yFUft0PzhQOV0nelnqAqADQRBVVnhAaRGMIPSW8MLfMl4tzHL8Ok8oNAtUXKWIy3mLoE0rLR9Z6JzsAzD/kytrGvgw92eGzJX4aM75IIid+AFs47+EYoPQmeIZuvkZfz98zK88zbSNNLqZK2SqXm3e2oJcUWqkW+upmWknt6U5RsQbxN+qZPpjbdMETqP63AchIzCaK0Lm3w3lecC81Qaa/kv+SpOD2uBsw7G7923eBk95A8bVq2c2ekoukU=
   file_glob: true
   file:
-   - "build/libs/scheduler2ics-1.0.jar"
-   - "postProcess.zip"
-#   - "postProcess/allEvents.html"
-#   - "postProcess/calendar.css"
-#   - "postProcess/jquery.min.js"
-#   - "postProcess/Martina+Roger.ics"
-#  local_dir: postProcess
+  - build/libs/scheduler2ics-1.0.jar
+  - postProcess.zip
   on:
     repo: rogerGunis/scheduler2ics
 branches:
@@ -47,4 +41,7 @@ branches:
   - "/^*-v[0-9]/"
 env:
   global:
-    secure: YAFpcOiggtffRjErCiDhVDdLCoCwL5yJhBg1OP7+BCoT9QcNlL449zTeKDIz/8F6Q1e+OOLNzcGM6c7sHBgZRyTlfKsa1JDevQixqqp6TsE69KCVg/ocMew2OByC3MoJiVSIfDekdJ0DeYq3bfRB+4H6vUnvVgFer/3TckcHlIGXxrF6w+21EGt5BqjAUq+cH4rCS3svtDa90G9g2kCls+aExk4FLY2P3hhHjulf4qUDd9k37LpuyV5UmM4TN45xbt4etvsbx59OMfkGgka0QcKF8mftVbJeYUdHmcRFSVBIebtAqqGqTweXWyHYy7xUOE0hmWK/Wh7GZKPDbXNYkgsOoeOClSKcaIGy49Dd3I9M/csRObV87LfpJJNxdGop1Fqv51Koycu2NtpOtC5Jv13wqDPEegvFZiPPYpOYdWfOIJQ80HHSLcw/4bO3IxZ/VZDY66AFQKB6DvDkoFjY/VSoXsncdZZ0SH43VeELCuZiapbl1GQtDK9Us//WSq323IfGLA9joVLbgBCuCibGbJM4FksdNjO9wXceI7V+yf/LUpLMlXtk3kR/8FECjcppPGxdjWi2mmNzJc91XiEapG95Cyjt9VbJMmNXr8BQFH84NEnbJ/fA4Oq3QCEWk7beil3slCr4JRTq2UCIwO7nwG/iPGe4ljoyWeoDsVCzvwQ=
+  - secure: YAFpcOiggtffRjErCiDhVDdLCoCwL5yJhBg1OP7+BCoT9QcNlL449zTeKDIz/8F6Q1e+OOLNzcGM6c7sHBgZRyTlfKsa1JDevQixqqp6TsE69KCVg/ocMew2OByC3MoJiVSIfDekdJ0DeYq3bfRB+4H6vUnvVgFer/3TckcHlIGXxrF6w+21EGt5BqjAUq+cH4rCS3svtDa90G9g2kCls+aExk4FLY2P3hhHjulf4qUDd9k37LpuyV5UmM4TN45xbt4etvsbx59OMfkGgka0QcKF8mftVbJeYUdHmcRFSVBIebtAqqGqTweXWyHYy7xUOE0hmWK/Wh7GZKPDbXNYkgsOoeOClSKcaIGy49Dd3I9M/csRObV87LfpJJNxdGop1Fqv51Koycu2NtpOtC5Jv13wqDPEegvFZiPPYpOYdWfOIJQ80HHSLcw/4bO3IxZ/VZDY66AFQKB6DvDkoFjY/VSoXsncdZZ0SH43VeELCuZiapbl1GQtDK9Us//WSq323IfGLA9joVLbgBCuCibGbJM4FksdNjO9wXceI7V+yf/LUpLMlXtk3kR/8FECjcppPGxdjWi2mmNzJc91XiEapG95Cyjt9VbJMmNXr8BQFH84NEnbJ/fA4Oq3QCEWk7beil3slCr4JRTq2UCIwO7nwG/iPGe4ljoyWeoDsVCzvwQ=
+  - secure: CLK1ioeu+3DgH1Zw7/35JF8GGMsSB0JRuuYW0SXPnFIPp8tIR0XDqcrs4V1qdOJcfqJ34IG46cmAPa45ZrurT0HA+BIr/xR5tYy0Z7qO1oWeRLhFGaC0UavBVVnWRF7WpTAOGpLHp6q96xegzEFki85hHPUqHC7+GsFo3UiHDQnT4qgOwAMLIdrBm0HS7R54q7OLS6oiynyTc6KbyeXFoFCkF8Dvyoh8K1ZCcDQ+7Y//TPpnrGAdfPLv2kRVX7MYGS/gpescfivRcYBeZX91jlsFAU4tNVz2V0E6+GTcdP2s7OqMCbd81NiN6zOmvMlEav5rU1AIYJePP3rqIbZK7MYxhTQVgHiUNYpioDhcOabpOCG3C+nX/yD5mpg+rVB0QHOR9m8X9xKxnvmy0OJxXzzJrb2fwrtOCwRjjes7zap9R8a+Yjm+SfkR3uoxErijmyAIdER7xjvzuxLwoShif+vZ20CpSwJWfZX2GOAGrXKo+/arC5ty49Prt0PXVUBLWtj3SU00Ln6WBAZi/AfJ6n0Z/bFhNIGKEzQx5EAdy9AhGKNjcFuCxo7pI31/eDb5vsEiA3GZ3JTCosHFIBq+FLv830InMlxDOPEOuy9ROGVmduOzke07U3t19sOG/OHIfhlsjUhERPcDgtg//K5Szb4hO6D3eIHEBEbM/ljW/IU=
+  - secure: SMCPZ+pNyrEuMvhXxPtgcfZu1NBNd2aj1iNteGslNvLbIeTXZMpdYXIXkU3iBU0A8asM5cLUdeuVHKhKu9TfaS9y+dR10rfMeMHbLZcsxuBgrFeFKITCV/c8pUFptWTfZssE5HKl3QLG7syxm/UrkZWLrHCNlVuZUO8u4OE2xSUwh3MdkbHROp3hkwhB6WkSv4ZDOmFIZL03NVN078DmLZaShci3xw1q6Y/L0SoSH7qldgOIecaTOKs/AcND4VK2U+MQBRTe7xxgoPin97zmW7g0Pn2b2o2plKb4qvrNubwrkzRfWoHhzZCejeuC4UF+jkertplli5Pz6n/6oS7g23SVmMOFehU9Fb/C/yERKHaMTM9OZ6W9C2c4Dfvp2knzKubLM2bW5ki2EE5//6tuQcEquLUXmFTAW/EGZG9hrzIgaPkS93UWX1DFzHrNvjuAuH52x4GluZS6AfJjSjmSg1DzCi7Gj1GfT4bsHYC1inho3eNKumIYxJKBfvcbIq9vIzuzJUQQnrbgeptWZCl7RU0fNsGbz5u+3TEqLH5bAt9TNlEXN4cbdaa9wscHV5fys9cyk5M/7VnnlWeZvkVGwXkC9PJcnXAeCOxB8yVrJ+oAF8bvyIk0Fv9dvNbJNMbQ89qP0j9WYKxdjaH9ILPJNfLInh35nCWpBsTLevVqXL4=
+  - secure: Brfgyf08o+p1+8YLEQ3mdYrZ1qkQjHrG6W29ob774GstTWGStRQfPljvLgkg11psolKpNiDJDWtk1TqzQ68szoxLOi+08/edlT+wMaLDEjedr7+dJFrMHJbU95ijECDhKHc0wXpUnZKnrBbhKpypolrHL2tgmFF61IO0vZFwomfCXmFy4kBJvOaDzIg4ydmpNeSSNfDErgCeC4R+LGXq5TlxrrbVtqBOJgPLlMHBtu0fH6W86gWo7dh3DgfJI4cyv1K6wE8OmFBm6W6Op+Ic1TdFFBUfW8U9qoZ01xNc9R20Amyv8SGLQffVYTMRGSLEWvjN1RF45/7gM95ubPnfzKqWaKDtCthAUlwY865qig9PYELjprZsxi8hTH18bsP6B2qzW1IAs6XTfofS5DGPKxDvsBY9X3OeTRPWLcvd1vg0smcni+zKRagYSXDB9pSr7oEVVEO3NOPhkYjxLCTClV4yOpwovYv4hm9H2G5lkZsW4+czqsixeTaIDBuPDhDU7r+3o7Fth/OBNlHqDLIyVTvmjtjIjIXl5ZQN8H5SxD5/B5OrGyajoKQjr2edHBws98JFmaTmxK0SAs0o/I/xN2AQZns62gR5IuVk1wI5YWZuXP3EasFEKvGACOptnZSbWd0VN1hZLrAbg9mk5bcHjAa0WbUPcj4xkFGkW5QNvTQ=
