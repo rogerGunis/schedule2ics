@@ -1,4 +1,4 @@
-group 'scheduler2ics' +
+group 'schedule2ics' +
         ''
 version '1.0'
 

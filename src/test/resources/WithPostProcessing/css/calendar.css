@@ -93,6 +93,18 @@ td.round1 {
 td.round2 { 
     background: rgba(255, 203, 179, 0.27)
     }
+td.lround1 { 
+    background: #99efac
+    }
+td.lround2 { 
+    background: rgba(198, 255, 179, 0.27)
+    }
+td.rround1 { 
+    background: #99efac
+    }
+td.rround2 { 
+    background: rgba(198, 255, 179, 0.27)
+    }
 td.td_1 > p {
     color: #FFF;
     }
