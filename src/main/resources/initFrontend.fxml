@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.text.Font?>
-<?scenebuilder-stylesheet scheduler2ics.css?>
+<?scenebuilder-stylesheet schedule2ics.css?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="310.0" prefWidth="403.0" styleClass="background" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.gunis.roger.UIController">
     <children>
@@ -29,6 +29,6 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     <stylesheets>
-        <URL value="@scheduler2ics.css" />
+        <URL value="@schedule2ics.css" />
     </stylesheets>
 </AnchorPane>

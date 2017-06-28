@@ -34,6 +34,6 @@ public class MainUI extends Application {
 
     private void loadStyle(Parent node) {
         node.getStylesheets().clear();
-        node.getStylesheets().add(getClass().getResource("/scheduler2ics.css").toExternalForm());
+        node.getStylesheets().add(getClass().getResource("/schedule2ics.css").toExternalForm());
     }
 }
