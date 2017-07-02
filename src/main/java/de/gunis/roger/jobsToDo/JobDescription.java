@@ -112,7 +112,7 @@ public class JobDescription implements ICalendarAccess {
         return name;
     }
 
-    public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker, JobDescription jobDescription) {
+    public VEvent registerWorkerOnDate(LocalDate day, Worker foundWorker) {
         VEvent vEvent;
         LocalDate placedCalendarDay;
         Dur duration1Day = new Dur(1, 0, 0, 0);
@@ -121,13 +121,13 @@ public class JobDescription implements ICalendarAccess {
         } else {
             placedCalendarDay = day;
         }
-        vEvent = getNewEvent(placedCalendarDay, (manuallySetDay != null ? duration1Day : jobDuration), foundWorker, jobDescription);
+        vEvent = getNewEvent(placedCalendarDay, (manuallySetDay != null ? duration1Day : jobDuration), foundWorker);
 
         logger.trace("registerWorkerOnDate start");
         Categories categories = new Categories(name + "," + foundWorker.getName());
         vEvent.getProperties().add(categories);
 
-        askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
+        askWorkerForJobProposalAndSubscribe(foundWorker, vEvent);
 
         calendar.getComponents().add(vEvent);
 
@@ -137,8 +137,8 @@ public class JobDescription implements ICalendarAccess {
         return vEvent;
     }
 
-    private void askWorkerForJobProposalAndSubscribe(Worker foundWorker, JobDescription jobDescription, VEvent vEvent) {
-        String jobProposal = foundWorker.askForProposal(jobDescription);
+    private void askWorkerForJobProposalAndSubscribe(Worker foundWorker, VEvent vEvent) {
+        String jobProposal = foundWorker.askForProposal(this);
 
         if (jobProposal != null) {
             Description calDescription = new Description();
@@ -147,14 +147,14 @@ public class JobDescription implements ICalendarAccess {
         }
     }
 
-    private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker, JobDescription jobDescription) {
+    private VEvent getNewEvent(LocalDate day, Dur duration, Worker foundWorker) {
         logger.trace("getNewEvent");
         long jobDate = day.toEpochDay() * 86400 * 1000;
         String foundWorkerName = foundWorker.getName();
         VEvent vEvent = new VEvent(new Date(jobDate), duration, foundWorkerName);
         vEvent.getProperties().add(new Uid(String.valueOf(day.format(ClearingHouse.dateTimeFormatter)) + "_" + foundWorkerName));
 
-        askWorkerForJobProposalAndSubscribe(foundWorker, jobDescription, vEvent);
+        askWorkerForJobProposalAndSubscribe(foundWorker, vEvent);
         logger.trace("getNewEvent done");
         return vEvent;
     }

@@ -176,7 +176,7 @@ public class JobCenter {
                 Worker foundWorker = jobCenter.getWorkerForJob(finalMyDay, jobDescription);
                 logger.trace("Found {} for {} @ {}", foundWorker, jobDescriptionName, finalMyDay);
 
-                VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker, jobDescription);
+                VEvent vEvent = jobDescription.registerWorkerOnDate(finalMyDay, foundWorker);
 
                 String category = jobDescriptionName + "Round-" + roundOfJobsCounter.get(jobDescription.getName());
                 Categories roundInfoAsCategory = new Categories(category);

@@ -43,12 +43,15 @@ public class CalendarWriter {
     public static void documentJobsAndWorkers(List<ICalendarAccess> calendarAccesses, String outputFilePath) {
         calendarAccesses.forEach(calendarAccess -> {
                     Calendar calendar = calendarAccess.getCalendar();
-                    String name = calendarAccess.getName();
-                    name = Normalizer.normalize(name, Normalizer.Form.NFD);
-                    String resultString = name.replaceAll("[^\\x00-\\x7F]", "").replaceAll("\\s+", "-");
-                    Path path = Paths.get(outputFilePath, resultString + ".ics");
+                    String name = normalizeString(calendarAccess.getName());
+                    Path path = Paths.get(outputFilePath, name + ".ics");
                     writeCalendar(calendar, path.toString());
                 }
         );
+    }
+
+    private static String normalizeString(String name) {
+        name = Normalizer.normalize(name, Normalizer.Form.NFD);
+        return name.replaceAll("[^\\x00-\\x7F]", "").replaceAll("\\s+", "-");
     }
 }

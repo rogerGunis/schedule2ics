@@ -25,7 +25,7 @@ public class JobDescriptionTest {
                 DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
         Worker worker = new Worker("asdf",
                 Stream.of(new Job("JobA")).collect(Collectors.toSet()), null);
-        jobDescription.registerWorkerOnDate(monday, worker, jobDescription);
+        jobDescription.registerWorkerOnDate(monday, worker);
         Calendar calendar = jobDescription.getCalendar();
         Assert.assertTrue(calendar != null);
     }
