@@ -8,6 +8,7 @@ v1.0, 02.04.2017
 # Current state
 
 image::https://travis-ci.org/rogerGunis/scheduler2ics.svg?branch=master[asdf]
+link:https://travis-ci.org/rogerGunis/schedule2ics[trvis-ci] 
 
 # What is it
 > Assign jobs to workers and write the information who is doing when which job as ics file
