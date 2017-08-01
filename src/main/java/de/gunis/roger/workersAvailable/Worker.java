@@ -138,14 +138,18 @@ public class Worker implements ICalendarAccess {
 
         Worker worker = (Worker) o;
 
-        return name != null ? name.equals(worker.name) : worker.name == null;
+        if (name != null ? !name.equals(worker.name) : worker.name != null) return false;
+        if (vacations != null ? !vacations.equals(worker.vacations) : worker.vacations != null) return false;
+        return jobs != null ? jobs.equals(worker.jobs) : worker.jobs == null;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (vacations != null ? vacations.hashCode() : 0);
+        result = 31 * result + (jobs != null ? jobs.hashCode() : 0);
+        return result;
     }
-
 
     void resetJobDone(Job job) {
         hasJobDone.put(job, Boolean.FALSE);
