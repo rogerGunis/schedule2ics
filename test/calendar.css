@@ -1,0 +1,105 @@
+body { 
+    background: #FFF;
+    background: #FFF;
+    color: #000;
+    line-height: 1;
+    font-family: sans-serif }
+table {
+    margin: 2em 0;
+    border-collapse: collapse;
+    empty-cells: show;
+    border-spacing: 0;
+    width: 100%}
+th, td {
+    padding: 0.5%;
+    width: 13%}
+td {
+    min-height: 5em;
+    height: 5em;
+    background: #FFF;
+    border: thin solid}
+td.skip { 
+    background: white;
+    background: #CCC}
+th { 
+    text-align: left;
+    background: #369;
+    color: #FFF}
+tr {
+    vertical-align: baseline}
+caption { 
+    color: #369;
+    text-align: left;
+    font-size: xx-large;
+    font-weight: bold}
+p.date {
+    color: #9C2727;
+    font-size: 1em;
+    margin-bottom: -1.3em;
+    font-weight: bold;
+    text-align: right}
+p.date.vevent{
+    color: #DDD;
+    font-size: 1em;
+    margin-bottom: -1.3em;
+    font-weight: bold;
+    text-align: right}
+pre {
+    /*display: none;*/
+    font-family: sans-serif;
+    /*text-indent: 0;*/
+    /*background: #FF9;*/
+    color: #666; 
+    /*overflow: auto;*/
+    /*white-space: pre;*/
+    margin: 0;
+    padding: 0.5em;
+    font-size: x-large;
+    /*border: thin solid*/}
+div.vevent:hover pre {
+    display: block;
+    position: absolute}
+.location {
+    display: block}
+p {
+    margin: 0;
+    padding: 0 }
+span.notime { display: none }
+span.time { font-weight: bold }
+
+div.vevent {
+    margin: 0.3em;
+    padding-left: 0.6em;
+    margin-top: 5.3em;
+    margin-left: 2em;
+    text-indent: -0.9em}
+
+div.vevent {color: #666}		/* Default */
+p.Birthday {color: #C66}
+p.Birthday.Personal {color: #C93}
+p.Dinner {color: #090}
+p.Holiday {color: #393; font-size: x-large;}
+p.Meeting {color: #990}
+p.Meeting.Phone-Call {color: #339}
+p.Miscellaneous {color: #960}
+p.Personal {color: #C60}
+p.Phone-Call {color: #909}
+p.Travel {color: #069}
+
+span.categories {display: none}
+td.round1 { 
+    background: #efef99
+    }
+td.round2 { 
+    background: rgba(255, 203, 179, 0.27)
+    }
+td.td_1 > p {
+    color: #FFF;
+    }
+td.td_7 > p {
+    color: #FFF;
+    }
+td.td_1 > div,td.td_7 > div {
+    margin: 2em;
+    padding-left: 0.6em;
+    text-indent: -0.9em}

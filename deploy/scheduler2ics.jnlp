@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="scheduler2ics.jnlp">
+  <information>
+    <title>scheduler2ics</title>
+    <vendor>Unknown</vendor>
+    <description>scheduler2ics</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+  </resources>
+  <jfx:javafx-desc  width="34" height="43" main-class="de.gunis.roger.MainUI"  name="scheduler2ics" />
+  <update check="background"/>
+</jnlp>

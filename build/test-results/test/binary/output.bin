@@ -1,0 +1,67 @@
+D02:29:29.459 [Test worker] INFO  JobCenter.class - Instance started
+S02:29:29.462 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+C02:29:29.478 [Test worker] DEBUG JobCenter.class - Day: 2017-01-01
+O02:29:29.484 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-01
+C02:29:29.484 [Test worker] DEBUG JobCenter.class - Day: 2017-01-02
+O02:29:29.484 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-02
+C02:29:29.484 [Test worker] DEBUG JobCenter.class - Day: 2017-01-03
+O02:29:29.484 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-03
+C02:29:29.485 [Test worker] DEBUG JobCenter.class - Day: 2017-01-04
+O02:29:29.486 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-04
+C02:29:29.486 [Test worker] DEBUG JobCenter.class - Day: 2017-01-05
+O02:29:29.486 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-05
+C02:29:29.486 [Test worker] DEBUG JobCenter.class - Day: 2017-01-06
+O02:29:29.487 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-06
+C02:29:29.487 [Test worker] DEBUG JobCenter.class - Day: 2017-01-07
+O02:29:29.487 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-07
+C02:29:29.488 [Test worker] DEBUG JobCenter.class - Day: 2017-01-08
+O02:29:29.488 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-08
+C02:29:29.488 [Test worker] DEBUG JobCenter.class - Day: 2017-01-09
+O02:29:29.488 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-09
+C02:29:29.488 [Test worker] DEBUG JobCenter.class - Day: 2017-01-10
+O02:29:29.488 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-10
+C02:29:29.489 [Test worker] DEBUG JobCenter.class - Day: 2017-01-11
+O02:29:29.490 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-11
+C02:29:29.490 [Test worker] DEBUG JobCenter.class - Day: 2017-01-12
+O02:29:29.490 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-12
+C02:29:29.490 [Test worker] DEBUG JobCenter.class - Day: 2017-01-13
+O02:29:29.490 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-13
+C02:29:29.490 [Test worker] DEBUG JobCenter.class - Day: 2017-01-14
+O02:29:29.491 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-14
+C02:29:29.491 [Test worker] DEBUG JobCenter.class - Day: 2017-01-15
+O02:29:29.492 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-15
+C02:29:29.492 [Test worker] DEBUG JobCenter.class - Day: 2017-01-16
+O02:29:29.492 [Test worker] DEBUG JobCenter.class - No work for day: 2017-01-16
+D02:29:29.493 [Test worker] INFO  JobCenter.class - JobCenter closed
+b02:29:29.493 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+D02:29:29.506 [Test worker] INFO  JobCenter.class - Instance started
+S02:29:29.508 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+l02:29:29.534 [Test worker] INFO  JobCenter.class - Round over, starting over next one: Job{name='cleaning'}
+D02:29:29.536 [Test worker] INFO  JobCenter.class - JobCenter closed
+b02:29:29.536 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+D02:29:29.538 [Test worker] INFO  JobCenter.class - Instance started
+S02:29:29.538 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+l02:29:29.564 [Test worker] INFO  JobCenter.class - Round over, starting over next one: Job{name='cleaning'}
+D02:29:29.568 [Test worker] INFO  JobCenter.class - JobCenter closed
+b02:29:29.568 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+D02:29:29.569 [Test worker] INFO  JobCenter.class - Instance started
+S02:29:29.569 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+D02:29:29.570 [Test worker] INFO  JobCenter.class - JobCenter closed
+b02:29:29.570 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+	D02:29:29.571 [Test worker] INFO  JobCenter.class - Instance started
+	S02:29:29.571 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+	~02:29:29.573 [Test worker] ERROR IllegalJobException.class - No workers found for this job day: 2017-06-28 or all on vacation
+	}02:29:29.574 [Test worker] ERROR JobCenter.class - de.gunis.roger.workersAvailable.IllegalJobException, Job{name='cleaning'}
+	D02:29:29.574 [Test worker] INFO  JobCenter.class - JobCenter closed
+	b02:29:29.575 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+
+D02:29:29.576 [Test worker] INFO  JobCenter.class - Instance started
+
+S02:29:29.576 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+
+D02:29:29.577 [Test worker] INFO  JobCenter.class - JobCenter closed
+
+b02:29:29.577 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+S02:29:29.582 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+b02:29:29.592 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+e02:29:29.599 [Test worker] INFO  net.fortuna.ical4j.util.Configurator - ical4j.properties not found.

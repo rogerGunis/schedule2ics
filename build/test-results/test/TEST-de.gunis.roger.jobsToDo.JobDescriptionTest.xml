@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="de.gunis.roger.jobsToDo.JobDescriptionTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2017-06-28T00:29:29" hostname="develvm" time="0.044">
+  <properties/>
+  <testcase name="adjustDaysInWeekTotalTestException" classname="de.gunis.roger.jobsToDo.JobDescriptionTest" time="0.0"/>
+  <testcase name="adjustDaysInWeekTotalTest" classname="de.gunis.roger.jobsToDo.JobDescriptionTest" time="0.0"/>
+  <testcase name="hasToBeDoneOnHoliday" classname="de.gunis.roger.jobsToDo.JobDescriptionTest" time="0.011"/>
+  <testcase name="jobRangeProducesTestException" classname="de.gunis.roger.jobsToDo.JobDescriptionTest" time="0.0"/>
+  <testcase name="testInfo2WeekOfDay" classname="de.gunis.roger.jobsToDo.JobDescriptionTest" time="0.03"/>
+  <system-out><![CDATA[02:29:29.582 [Test worker] INFO  HolidayInformationCenter.class - Instance started
+02:29:29.592 [Test worker] INFO  HolidayInformationCenter.class - HolidayInformationCenter closed
+02:29:29.599 [Test worker] INFO  net.fortuna.ical4j.util.Configurator - ical4j.properties not found.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

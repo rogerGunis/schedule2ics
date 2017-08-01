@@ -1,0 +1,22 @@
+language: java
+before_install:
+- find .
+- "./gradlew wrapper"
+- ls -la gradle/wrapper/gradle-wrapper.jar
+jdk:
+- oraclejdk8
+notifications:
+  email: false
+before_deploy:
+- git config --global user.email "builds@travis-ci.com"
+- git config --global user.name "Travis CI"
+- export GIT_TAG=$TRAVIS_BRANCH-v0.1.$TRAVIS_BUILD_NUMBER
+- git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
+deploy:
+  secure: d6EmD/ECZOrRmQhYXVp5H6SqMY91ivIDyqSPFit2F65fs1aaLpo+WCxDe2cBogrztAkWzXSHIk9SNY9WhADpIjG1JBTm8zOJg+55+4Q/ruvrn0qLAslP/9eQmpTDHMbMzyix026+SWnTDrMak1zyR/23oIU0oZoATbGRIgBJDyZldwvzga+ENf/Kpmy/D1Max7u81R3gF2sHoFrOgEd+yhMwHDakpjsNklf9M/2iEsgAdvJACivridtA4nqtKZ17/8zDBPL10COPuYlB0+qMPye0TQVpvZNb2+l0hZhy27BX3/Er5IoEPVtCKmWToZb3a4rKkEV0qD42uSZ8HSNotPVPu//cTXHVE1PFj1iOhej/4lLiZzMvEYz4VjvHJWBBPNHTAkj/x0d2CIs1utSmRvWoEWCHNCyaEIsJZ0+2F4hom4mkAIT9dFAKsMsCIlhZZGsOYFZdK7tIB026nsDlvtYjG+h2VJEqxLuA0OrtQci0BHG24Y2+oOrKVeHQ45bbRX4dKhB3HoQAVMbTkRvuG4phSG6W1YqN9B0N2km9hhjeFuXB+xPIB6fFKNdT0llWed7dHsEcwWzlGpm3Qx8U4J2284U7GJgHjY7Q4TwaNy+XLhVsgQU9spo3h3d5j2oCdG7iVJrYJjvrd60riMi4l7ZSvJNnTaZhML0Ze3LQsJk=
+branches:
+  except:
+  - "/^*-v[0-9]/"
+env:
+  global:
+    secure: TkzEp4CuVTAzpGYPCCCGv5wQt4vOcLhsH4KGkQ8VJYqw8OeB2dhVWz9wXZimHlkeKVadpySrrI+7HZE4xwPsiZm1sZA3Il9VTfujOwYQdzSHTD2R2a4V2NCuX3DQT6J8zSZ9SRTDFkUviCFdQOEzXWujIKFuG0EbnyNsAo7FgukB3hDVvg0tBIq73htkPZlBCq742b6us5QXyM9VZan12Cuw+nLDVEw0DAF5spyVMx59zQSYsfMNnTintW1+A8eW7HmVV8IRRvcD6GW6mAp3B9OpPri2PtNnsHJSTIxj3CrSbYZ9IYUD5ynqKTI7a9pCC/JGQxJcCrxrjho3g/vDk2xYF7G+XYqo3c0WmTB8i2XOUWPCovL46mmdkcO+xn4FvBEkD1Za8EJ0RuhxXgzKh0jgKqZ9oeN6gBDlIC0bGh2YTNkQm05gZjUpVa2VJxc58Lf3BCFs1fpKulBgZcQfPjn6knX0YvtNveXm3/EyyvqgdACKVZJwPAzt6WpDiskWVaDVUS3uEgCXaCf6ebbWBa1/R/BHDQK7/CJiBknUnO9HJGTfYeWIIVND3erNOLlEeDv3K0fUxz9a06UlBThfaIf7aKFddHq207bnOV6+QH7PTaqprF77EtkHbmHdN0TQcI331QtiJwcbPYS/tY9AFPLpsignfOf/eA9cIQ8zXDw=
