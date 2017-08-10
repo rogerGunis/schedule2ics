@@ -2,6 +2,20 @@ language: java
 before_install:
 - "./gradlew wrapper"
 - ls -la gradle/wrapper/gradle-wrapper.jar
+rvm:
+  - 2.2.0
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+script:
+  - bundle exec rspec
+  # Preferably you will run test-reporter on branch update events. But 
+  # if you setup travis to build PR updates only, you don't need to run 
+  # the line below
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  # In the case where travis is setup to build PR updates only, 
+  # uncomment the line below
+  # - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 jdk:
 - oraclejdk8
 notifications:
@@ -41,6 +55,8 @@ branches:
   - "/^*-v[0-9]/"
 env:
   global:
+    - CC_TEST_REPORTER_ID=5dc6b5df060ae4fc306c9e0e5fc1f65435dcba0e17bbf9ed310e958890258a32
+    - GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
   - secure: YAFpcOiggtffRjErCiDhVDdLCoCwL5yJhBg1OP7+BCoT9QcNlL449zTeKDIz/8F6Q1e+OOLNzcGM6c7sHBgZRyTlfKsa1JDevQixqqp6TsE69KCVg/ocMew2OByC3MoJiVSIfDekdJ0DeYq3bfRB+4H6vUnvVgFer/3TckcHlIGXxrF6w+21EGt5BqjAUq+cH4rCS3svtDa90G9g2kCls+aExk4FLY2P3hhHjulf4qUDd9k37LpuyV5UmM4TN45xbt4etvsbx59OMfkGgka0QcKF8mftVbJeYUdHmcRFSVBIebtAqqGqTweXWyHYy7xUOE0hmWK/Wh7GZKPDbXNYkgsOoeOClSKcaIGy49Dd3I9M/csRObV87LfpJJNxdGop1Fqv51Koycu2NtpOtC5Jv13wqDPEegvFZiPPYpOYdWfOIJQ80HHSLcw/4bO3IxZ/VZDY66AFQKB6DvDkoFjY/VSoXsncdZZ0SH43VeELCuZiapbl1GQtDK9Us//WSq323IfGLA9joVLbgBCuCibGbJM4FksdNjO9wXceI7V+yf/LUpLMlXtk3kR/8FECjcppPGxdjWi2mmNzJc91XiEapG95Cyjt9VbJMmNXr8BQFH84NEnbJ/fA4Oq3QCEWk7beil3slCr4JRTq2UCIwO7nwG/iPGe4ljoyWeoDsVCzvwQ=
   - secure: CLK1ioeu+3DgH1Zw7/35JF8GGMsSB0JRuuYW0SXPnFIPp8tIR0XDqcrs4V1qdOJcfqJ34IG46cmAPa45ZrurT0HA+BIr/xR5tYy0Z7qO1oWeRLhFGaC0UavBVVnWRF7WpTAOGpLHp6q96xegzEFki85hHPUqHC7+GsFo3UiHDQnT4qgOwAMLIdrBm0HS7R54q7OLS6oiynyTc6KbyeXFoFCkF8Dvyoh8K1ZCcDQ+7Y//TPpnrGAdfPLv2kRVX7MYGS/gpescfivRcYBeZX91jlsFAU4tNVz2V0E6+GTcdP2s7OqMCbd81NiN6zOmvMlEav5rU1AIYJePP3rqIbZK7MYxhTQVgHiUNYpioDhcOabpOCG3C+nX/yD5mpg+rVB0QHOR9m8X9xKxnvmy0OJxXzzJrb2fwrtOCwRjjes7zap9R8a+Yjm+SfkR3uoxErijmyAIdER7xjvzuxLwoShif+vZ20CpSwJWfZX2GOAGrXKo+/arC5ty49Prt0PXVUBLWtj3SU00Ln6WBAZi/AfJ6n0Z/bFhNIGKEzQx5EAdy9AhGKNjcFuCxo7pI31/eDb5vsEiA3GZ3JTCosHFIBq+FLv830InMlxDOPEOuy9ROGVmduOzke07U3t19sOG/OHIfhlsjUhERPcDgtg//K5Szb4hO6D3eIHEBEbM/ljW/IU=
   - secure: SMCPZ+pNyrEuMvhXxPtgcfZu1NBNd2aj1iNteGslNvLbIeTXZMpdYXIXkU3iBU0A8asM5cLUdeuVHKhKu9TfaS9y+dR10rfMeMHbLZcsxuBgrFeFKITCV/c8pUFptWTfZssE5HKl3QLG7syxm/UrkZWLrHCNlVuZUO8u4OE2xSUwh3MdkbHROp3hkwhB6WkSv4ZDOmFIZL03NVN078DmLZaShci3xw1q6Y/L0SoSH7qldgOIecaTOKs/AcND4VK2U+MQBRTe7xxgoPin97zmW7g0Pn2b2o2plKb4qvrNubwrkzRfWoHhzZCejeuC4UF+jkertplli5Pz6n/6oS7g23SVmMOFehU9Fb/C/yERKHaMTM9OZ6W9C2c4Dfvp2knzKubLM2bW5ki2EE5//6tuQcEquLUXmFTAW/EGZG9hrzIgaPkS93UWX1DFzHrNvjuAuH52x4GluZS6AfJjSjmSg1DzCi7Gj1GfT4bsHYC1inho3eNKumIYxJKBfvcbIq9vIzuzJUQQnrbgeptWZCl7RU0fNsGbz5u+3TEqLH5bAt9TNlEXN4cbdaa9wscHV5fys9cyk5M/7VnnlWeZvkVGwXkC9PJcnXAeCOxB8yVrJ+oAF8bvyIk0Fv9dvNbJNMbQ89qP0j9WYKxdjaH9ILPJNfLInh35nCWpBsTLevVqXL4=
