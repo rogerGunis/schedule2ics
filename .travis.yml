@@ -1,5 +1,9 @@
 language: java
 before_install:
+- wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+- sudo dpkg -i ./google-chrome*.deb
+- sudo apt-get install -f
+- find .
 - "./gradlew wrapper"
 - ls -la gradle/wrapper/gradle-wrapper.jar
 jdk:
@@ -7,7 +11,8 @@ jdk:
 notifications:
   email: false
 after_success:
-- java -jar build/libs/schedule2ics-1.0.jar --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv
+- export JAR_FILE=$(find build -name "schedule*.jar")
+- java -jar ${JAR_FILE:-} --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv
   --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv
   --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
   ALL
@@ -15,6 +20,8 @@ after_success:
 - "$PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/"
 - find src -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find src -name "calendar.css" -exec cp -v \{\} postProcess \;
+# currently not working due to lack of parameters in chrome
+- cd postProcess; google-chrome-stable --headless --disable-gpu --print-to-pdf=allEvents.pdf file://$PWD/allEvents.html; cd -
 - zip -r postProcess.zip postProcess
 before_deploy:
 - git config --global user.email "builds@travis-ci.com"
@@ -34,6 +41,7 @@ deploy:
   file:
   - build/libs/schedule2ics-1.0.jar
   - postProcess.zip
+  - postProcess/allEvents.pdf
   on:
     repo: rogerGunis/schedule2ics
 branches:
