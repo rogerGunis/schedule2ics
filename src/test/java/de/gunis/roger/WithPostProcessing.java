@@ -7,7 +7,6 @@ import java.io.File;
 
 public class WithPostProcessing {
 
-    @Ignore
     @Test
     public void withPostprocessing() {
 

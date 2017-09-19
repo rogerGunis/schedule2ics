@@ -1,5 +1,6 @@
 @page {
-      size: landscape;
+    size: landscape;
+    margin: 0;
 }
 body { 
     background: #FFF;

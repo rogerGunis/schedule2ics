@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class CsvFileLoader {
@@ -109,7 +110,7 @@ public class CsvFileLoader {
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
-            inputList = br.lines().skip(1).map(mapToWorker).collect(Collectors.toList());
+            inputList = getStringStream(br).map(mapToWorker).collect(Collectors.toList());
             br.close();
         } catch (IOException e) {
             logger.warn("Exception" + e);
@@ -124,7 +125,7 @@ public class CsvFileLoader {
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
-            inputList = br.lines().skip(1).map(trimLine).map(mapToJobDescription).collect(Collectors.toList());
+            inputList = getStringStream(br).map(mapToJobDescription).collect(Collectors.toList());
             br.close();
         } catch (IOException e) {
             logger.warn("Exception" + e);
@@ -139,11 +140,15 @@ public class CsvFileLoader {
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
-            inputList = br.lines().skip(1).map(trimLine).map(mapToHoliday).collect(Collectors.toSet());
+            inputList = getStringStream(br).map(mapToHoliday).collect(Collectors.toSet());
             br.close();
         } catch (IOException e) {
             logger.warn("Exception" + e);
         }
         return inputList;
+    }
+
+    private Stream<String> getStringStream(BufferedReader br) {
+        return br.lines().skip(1).filter(line -> !line.isEmpty()).map(trimLine);
     }
 }

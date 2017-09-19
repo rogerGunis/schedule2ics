@@ -7,7 +7,7 @@ v1.0, 02.04.2017
 
 # Current state
 
-image::https://travis-ci.org/rogerGunis/scheduler2ics.svg?branch=master[asdf]
+image::https://travis-ci.org/rogerGunis/schedule2ics.svg?branch=master[image]
 link:https://travis-ci.org/rogerGunis/schedule2ics[trvis-ci] 
 
 # What is it
