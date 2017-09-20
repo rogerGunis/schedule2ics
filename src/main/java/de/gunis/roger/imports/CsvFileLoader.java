@@ -149,6 +149,9 @@ public class CsvFileLoader {
     }
 
     private Stream<String> getStringStream(BufferedReader br) {
-        return br.lines().skip(1).filter(line -> !line.isEmpty()).map(trimLine);
+        return br.lines().skip(1)
+                .filter(line -> !line.isEmpty())
+                .filter(line -> !line.startsWith("#"))
+                .map(trimLine);
     }
 }
