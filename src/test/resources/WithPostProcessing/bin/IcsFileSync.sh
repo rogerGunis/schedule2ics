@@ -2,6 +2,8 @@
 
 shopt -s expand_aliases
 
+test -f credentials.txt && . credentials.txt
+
 # decode utf-8 string coming back from caldav server (vEvent ics file)
 alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.stdin.read().rstrip())"'
 
@@ -31,22 +33,27 @@ do
     tail -n $bfoot $file >> $file-$i.ics
 done
 
-alreadyDeployedEventsArray=($(curl -s -k --user "$CREDENTIALS" -X PROPFIND $URL | tr ';' '\n' | sed -ne 's#.*kochplan\/\([^<]*\)<.*#\1#p' | sed -ne 's#.ics##p' | urldecode  ))
+alreadyDeployedEventsArray=($(curl -s -k --user "$CREDENTIALS" -X PROPFIND $URL | tr ';' '\n' | sed -ne 's#.*kochplan\/\([^<]*\)<.*#\1#p' | sed -ne 's#.ics##p' | sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b"))
 
-echo "Getting all Entries"
+echo "Getting all ${#alreadyDeployedEventsArray[@]}# from online calendar"
 for (( i=0; i < ${#alreadyDeployedEventsArray[@]}; i++))
 do
     FROM_GITHUB_CALCULATED_DATE=${alreadyDeployedEventsArray[$i]/_*/}
-    ORIGINAL_DATE=$(curl -o - -s -k --user "$CREDENTIALS" -X GET $URL/${alreadyDeployedEventsArray[$i]}.ics | sed -ne 's/DTSTART;VALUE=DATE://p')
+    ORIGINAL_DATE=$(curl -o - -s -k --user "$CREDENTIALS" -X GET $URL/${alreadyDeployedEventsArray[$i]}.ics | sed -ne 's/DTSTART;VALUE=DATE:\([0-9]*\).*/\1/p')
+
 
     if [ "$ORIGINAL_DATE" = "${FROM_GITHUB_CALCULATED_DATE}" ];then
-        curl -s -k --user "$CREDENTIALS" -X DELETE $URL/${alreadyDeployedEventsArray[$i]}
+        echo 'Deleting job '$ORIGINAL_DATE' -> '${FROM_GITHUB_CALCULATED_DATE}' -> '${alreadyDeployedEventsArray[$i]}.ics
+        curl -s -k --user "$CREDENTIALS" -X DELETE $URL/${alreadyDeployedEventsArray[$i]}.ics
+    else
+        echo 'Keeping moved job '$ORIGINAL_DATE' -> '${FROM_GITHUB_CALCULATED_DATE}' -> '${alreadyDeployedEventsArray[$i]}.ics
+        # curl -s -k --user "$CREDENTIALS" -X DELETE $URL/${alreadyDeployedEventsArray[$i]}.ics
     fi
 done
 
 # check for modified events and skip them
-eventsWhichAreModified=$(curl -s -k --user "$CREDENTIALS" -X PROPFIND $URL | tr ';' '\n' | sed -ne 's#.*kochplan\/\([^<]*\)<.*#\1#p' | sed -ne 's#.ics##p' | urldecode | tr '\n' '|' | sed -ne 's/|$//p')
-test -z "${eventsWhichAreModified}" && eventsWhichAreModified=NONE
+eventsWhichAreModified=$(curl -s -k --user "$CREDENTIALS" -X PROPFIND $URL | tr ';' '\n' | sed -ne 's#.*kochplan\/\([^<]*\)<.*#\1#p' | sed -ne 's#.ics##p' | sed "s@+@ @g;s@%@\\\\x@g" | xargs -0 printf "%b" | tr '\n' '|' | sed -ne 's/|$//p')
+test -z "${eventsWhichAreModified}" && eventsWhichAreModified="NONE_EVENTS_MODIFIED"
 missingEvents=($(grep "^UID:" $file-*.ics | egrep -v "($eventsWhichAreModified)" | sed -ne 's/\([^:]*\).*/\1/p' ))
 
 if [ ${#missingEvents[@]} == 0 ];then
@@ -54,9 +61,7 @@ if [ ${#missingEvents[@]} == 0 ];then
     exit;
 fi
 
-echo ${missingEvents[@]}
-
-echo "Repopulating the calendar with up-to-date events"
+echo "Repopulating ${#missingEvents[@]}# calendar events"
     for (( i=0; i < ${#missingEvents[@]}; i++))
     do
         uid=`grep -e "^UID:"  ${missingEvents[$i]} | sed 's/UID://' | tr -d '\n' | tr -d '\r'`
