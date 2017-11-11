@@ -35,6 +35,8 @@ public class WithPostProcessing {
         main.doPostProcessing(ics2html.toString() + " " + scheduleTestDir + " " + folder);
         main.doPostProcessing("cp " + folder + "/../js/jquery.min.js" + " " + scheduleTestDir);
         main.doPostProcessing("cp " + folder + "/../css/calendar.css" + " " + scheduleTestDir);
+        main.doPostProcessing("google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
+                scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html");
 
 //        try {
 //            Files.copy(new File(folder + "/css/calendar.css").toPath(), new File(scheduleTestDir + "/css/calendar.css").toPath(), REPLACE_EXISTING);
