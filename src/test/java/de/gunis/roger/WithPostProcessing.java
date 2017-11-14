@@ -11,7 +11,7 @@ public class WithPostProcessing {
     @Test
     public void withPostprocessing() {
 
-        String scheduleTestDir = System.getProperty("SCHEDULER_TEST_DIR", "/var/tmp/schedule");
+        String scheduleTestDir = System.getProperty("SCHEDULER_TEST_DIR", "/var/tmp/schedule/");
         String folder = new File(this.getClass().getClassLoader().getResource("WithPostProcessing/bin/ics2html")
                 .getFile()).getParentFile().toString();
 
