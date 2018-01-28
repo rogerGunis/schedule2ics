@@ -1,7 +1,7 @@
 dist: trusty
-sudo: false
+sudo: required
 addons:
-  chrome: beta
+  chrome: stable
 language: java
 before_install:
 - ls -la gradle/wrapper/gradle-wrapper.jar
