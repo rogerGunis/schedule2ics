@@ -9,6 +9,6 @@
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
   </resources>
-  <jfx:javafx-desc  width="34" height="43" main-class="de.gunis.roger.MainUI"  name="scheduler2ics" />
+  <jfx:javafx-desc  width="34" height="43" main-class="de.gunis.roger.jobService.MainUI"  name="scheduler2ics" />
   <update check="background"/>
 </jnlp>

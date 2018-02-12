@@ -5,13 +5,14 @@ addons:
 language: java
 before_install:
 - ls -la gradle/wrapper/gradle-wrapper.jar
+- openssl aes-256-cbc -K $encrypted_cff167bd1238_key -iv $encrypted_cff167bd1238_iv -in icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json.enc -out icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json -d
 jdk:
 - oraclejdk8
 notifications:
   email: false
 after_success:
-- export JAR_FILE=$(find build -name "schedule*.jar")
-- java -jar ${JAR_FILE:-} --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv
+- export ICS_BUILDER_JAR_FILE=$(find build -name "jobService.jar")
+- java -jar ${ICS_BUILDER_JAR_FILE:-} --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv
   --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv
   --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
   ALL
@@ -20,16 +21,24 @@ after_success:
 - find src -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find src -name "calendar.css" -exec cp -v \{\} postProcess \;
 - readlink -f `which google-chrome` \;
-- cd postProcess; google-chrome --headless --disable-gpu --print-to-pdf=allEvents.pdf file://$PWD/allEvents.html; cd -
+- cd postProcess; google-chrome --headless --disable-gpu --print-to-pdf=allEvents.pdf
+  file://$PWD/allEvents.html; cd -
 - zip -r postProcess.zip postProcess
+- export DEPLOYER_JAR_FILE=$(find build -name "icalToGoogleDeployment*.jar")
+- mkdir .store
+- java -jar -DACCOUNT_USER=$ACCOUNT_USER ${DEPLOYER_JAR_FILE:-} --icsDirectory postProcess
+  --dataStore .store
+  --apiKey icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json
+  -log INFO
 before_deploy:
 - git config --global user.email "builds@travis-ci.com"
 - git config --global user.name "Travis CI"
 - export GIT_TAG=$TRAVIS_BRANCH-v0.1.$TRAVIS_BUILD_NUMBER
 - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 - git push -q https://${BLUB}@github.com/rogerGunis/schedule2ics --tags
-after_deploy:
-- test -f postProcess/${CALENDAR} && src/test/resources/WithPostProcessing/bin/IcsFileSync.sh postProcess/${CALENDAR}
+# after_deploy:
+# - test -f postProcess/${CALENDAR} && src/test/resources/WithPostProcessing/bin/IcsFileSync.sh
+#   postProcess/${CALENDAR}
 deploy:
   skip_cleanup: true
   provider: releases
@@ -38,7 +47,8 @@ deploy:
     secure: i3/wiZDPAc8P4u/Znd4lbd1bE8UrcvknqsvybxQfAX0ZUADZpFoMeVzxAJXxwGFzxQZKhMmGu15zXpYdWLx3yQT7C504ioN5XgzLBEb/Xd2ESZxN0R0Js7U59Qq5VrgD/T5KUY5qWCyWuGpeqSH1mA+LOc9EJ0cEV5l/aXH0UkwjWa9T9VQ/vxeHfjiU3HC91RLudHWw0/kg3oUi5P9YMgS/tiN3JFygiwGSAapkmLZS1yROVK3oR6o4Kg3fW1dWkJlRCOQWf3Mr4cOHUNLq/S6T4m9koZNmHIZ7Z6JZnsn43UQVDb0CVXMoewWl6T17TZJVc7rEJFU7Rbfs7J9V4ikci1KcofICpMEKoupFpS9kXoFWA5UTIJ2djNZOSjcwOxEVZ2Kw6KH5uNgIt2NkSby78rqpWPMcQCRi1Qmxy2k7/R3yFUft0PzhQOV0nelnqAqADQRBVVnhAaRGMIPSW8MLfMl4tzHL8Ok8oNAtUXKWIy3mLoE0rLR9Z6JzsAzD/kytrGvgw92eGzJX4aM75IIid+AFs47+EYoPQmeIZuvkZfz98zK88zbSNNLqZK2SqXm3e2oJcUWqkW+upmWknt6U5RsQbxN+qZPpjbdMETqP63AchIzCaK0Lm3w3lecC81Qaa/kv+SpOD2uBsw7G7923eBk95A8bVq2c2ekoukU=
   file_glob: true
   file:
-  - build/libs/schedule2ics-1.0.jar
+  - jobService/build/libs/jobService.jar
+  - icalToGoogleDeployment/build/libs/icalToGoogleDeployment.jar
   - postProcess.zip
   - postProcess/allEvents.pdf
   on:
@@ -52,3 +62,4 @@ env:
   - secure: CLK1ioeu+3DgH1Zw7/35JF8GGMsSB0JRuuYW0SXPnFIPp8tIR0XDqcrs4V1qdOJcfqJ34IG46cmAPa45ZrurT0HA+BIr/xR5tYy0Z7qO1oWeRLhFGaC0UavBVVnWRF7WpTAOGpLHp6q96xegzEFki85hHPUqHC7+GsFo3UiHDQnT4qgOwAMLIdrBm0HS7R54q7OLS6oiynyTc6KbyeXFoFCkF8Dvyoh8K1ZCcDQ+7Y//TPpnrGAdfPLv2kRVX7MYGS/gpescfivRcYBeZX91jlsFAU4tNVz2V0E6+GTcdP2s7OqMCbd81NiN6zOmvMlEav5rU1AIYJePP3rqIbZK7MYxhTQVgHiUNYpioDhcOabpOCG3C+nX/yD5mpg+rVB0QHOR9m8X9xKxnvmy0OJxXzzJrb2fwrtOCwRjjes7zap9R8a+Yjm+SfkR3uoxErijmyAIdER7xjvzuxLwoShif+vZ20CpSwJWfZX2GOAGrXKo+/arC5ty49Prt0PXVUBLWtj3SU00Ln6WBAZi/AfJ6n0Z/bFhNIGKEzQx5EAdy9AhGKNjcFuCxo7pI31/eDb5vsEiA3GZ3JTCosHFIBq+FLv830InMlxDOPEOuy9ROGVmduOzke07U3t19sOG/OHIfhlsjUhERPcDgtg//K5Szb4hO6D3eIHEBEbM/ljW/IU=
   - secure: SMCPZ+pNyrEuMvhXxPtgcfZu1NBNd2aj1iNteGslNvLbIeTXZMpdYXIXkU3iBU0A8asM5cLUdeuVHKhKu9TfaS9y+dR10rfMeMHbLZcsxuBgrFeFKITCV/c8pUFptWTfZssE5HKl3QLG7syxm/UrkZWLrHCNlVuZUO8u4OE2xSUwh3MdkbHROp3hkwhB6WkSv4ZDOmFIZL03NVN078DmLZaShci3xw1q6Y/L0SoSH7qldgOIecaTOKs/AcND4VK2U+MQBRTe7xxgoPin97zmW7g0Pn2b2o2plKb4qvrNubwrkzRfWoHhzZCejeuC4UF+jkertplli5Pz6n/6oS7g23SVmMOFehU9Fb/C/yERKHaMTM9OZ6W9C2c4Dfvp2knzKubLM2bW5ki2EE5//6tuQcEquLUXmFTAW/EGZG9hrzIgaPkS93UWX1DFzHrNvjuAuH52x4GluZS6AfJjSjmSg1DzCi7Gj1GfT4bsHYC1inho3eNKumIYxJKBfvcbIq9vIzuzJUQQnrbgeptWZCl7RU0fNsGbz5u+3TEqLH5bAt9TNlEXN4cbdaa9wscHV5fys9cyk5M/7VnnlWeZvkVGwXkC9PJcnXAeCOxB8yVrJ+oAF8bvyIk0Fv9dvNbJNMbQ89qP0j9WYKxdjaH9ILPJNfLInh35nCWpBsTLevVqXL4=
   - secure: Brfgyf08o+p1+8YLEQ3mdYrZ1qkQjHrG6W29ob774GstTWGStRQfPljvLgkg11psolKpNiDJDWtk1TqzQ68szoxLOi+08/edlT+wMaLDEjedr7+dJFrMHJbU95ijECDhKHc0wXpUnZKnrBbhKpypolrHL2tgmFF61IO0vZFwomfCXmFy4kBJvOaDzIg4ydmpNeSSNfDErgCeC4R+LGXq5TlxrrbVtqBOJgPLlMHBtu0fH6W86gWo7dh3DgfJI4cyv1K6wE8OmFBm6W6Op+Ic1TdFFBUfW8U9qoZ01xNc9R20Amyv8SGLQffVYTMRGSLEWvjN1RF45/7gM95ubPnfzKqWaKDtCthAUlwY865qig9PYELjprZsxi8hTH18bsP6B2qzW1IAs6XTfofS5DGPKxDvsBY9X3OeTRPWLcvd1vg0smcni+zKRagYSXDB9pSr7oEVVEO3NOPhkYjxLCTClV4yOpwovYv4hm9H2G5lkZsW4+czqsixeTaIDBuPDhDU7r+3o7Fth/OBNlHqDLIyVTvmjtjIjIXl5ZQN8H5SxD5/B5OrGyajoKQjr2edHBws98JFmaTmxK0SAs0o/I/xN2AQZns62gR5IuVk1wI5YWZuXP3EasFEKvGACOptnZSbWd0VN1hZLrAbg9mk5bcHjAa0WbUPcj4xkFGkW5QNvTQ=
+  - secure: Uaxj9Iu7K/Cx7/xcxdTHliTaKn72Er1JtV12m5hpXUwtfynz65Z0UnP1LgZPCxRg07ZokSXZNxgY3XRHQ+rtl+L3ZFolj610G1Tm4adZqh9D6Hh6bJrOQ3Pu/acH9r5Q0YgXHVwlsPhjfEs0yHpKGwz/AqVDpVvQEX37R0iRTCo7wpA18OudOndaVAQWODT3Txo0uYECPlaToMIM6KiTvHWUOicXVNFD5xmBLA4vqVWJxQ3wTkSVyG+/Y4I9MSVe2JTziwL13+NGF7hyUSE3jXzY1HmDlOq8LOVuBKTdxEFF7hygSNt56AnMcDyIa50yrCwd6vH0K/sBqjmWTAH0oxBp/HWaz5QQIs0fs9TKhuA3VuvBzwkkHnh3Gsr97RMfjNTLjq6kDk6b+GuBwk+/MDWW0+9LtejkT5dtK1kqkptZIEFaO8Tw/P7cHl5XVaC5Vavw8+tRVdNrq/AI4865BkK42mtwCOuNPDMCxZYhgPFv52n0CEsLU8XOmls63eI8v9qZ09azq2IoUBdiGVqk8yWADWdCHdVZtokcrLnmMY3X9N1QgN6dzBZe+koj1B+iywIlRaDws75+WdgIG5na+8yFEfdj1Ewt20JKm88fsuCstZ2vRzqK+hDzLBtRojIMNQXqGhWItcNsxFtWxuJn2sl4ik5BUaXdDGfo2OEnnmw=

@@ -1,11 +1,7 @@
-group 'schedule2ics' +
-        ''
-version '1.0'
-
 apply plugin: 'java'
+apply plugin: "idea"
 
 sourceCompatibility = 1.8
-
 
 repositories {
     mavenCentral()
@@ -15,34 +11,94 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-}
-
-dependencies {
     compile 'org.mnode.ical4j:ical4j:2.0.0'
-//    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
+    compile group: 'com.google.oauth-client', name: 'google-oauth-client-java6', version: '1.23.0'
+    compile group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.23.0'
+    compile 'com.google.apis:google-api-services-calendar:v3-rev291-1.23.0'
+
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '0.9.26'
     compile group: 'com.beust', name: 'jcommander', version: '1.58'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-jar {
-    from {
-        (configurations.runtime).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
+subprojects {
+    apply plugin: 'java'
+}
+
+project(':jobService') {
+    dependencies {
+        compile 'org.mnode.ical4j:ical4j:2.0.0'
+
+        compile group: 'ch.qos.logback', name: 'logback-classic', version: '0.9.26'
+        compile group: 'com.beust', name: 'jcommander', version: '1.58'
+        testCompile group: 'junit', name: 'junit', version: '4.12'
     }
-    manifest {
-        attributes 'Main-Class': 'de.gunis.roger.EmployeeSearch'
+
+    tasks.jar {
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+        manifest {
+            attributes 'Main-Class': 'de.gunis.roger.jobService.EmployeeSearch'
+        }
     }
 }
 
+project(':icalToGoogleDeployment') {
+    dependencies {
+        compile 'org.mnode.ical4j:ical4j:2.0.0'
+        compile group: 'com.google.oauth-client', name: 'google-oauth-client-java6', version: '1.23.0'
+        compile group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.23.0'
+        compile 'com.google.apis:google-api-services-calendar:v3-rev291-1.23.0'
+
+        compile group: 'ch.qos.logback', name: 'logback-classic', version: '0.9.26'
+        compile group: 'com.beust', name: 'jcommander', version: '1.58'
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+    }
+
+    tasks.jar {
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+        manifest {
+            attributes 'Main-Class': 'de.gunis.roger.icalToGoogleDeployment.IcsFilesToGoogleCalendarDeployment'
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        jcenter {
+            url "http://jcenter.bintray.com/"
+        }
+    }
+}
+
+//task ics2googleCalendarJar {
+//    from {
+//        include "de.gunis.roger.IcsFilesToGoogleCalendarDeployment"
+//    }
+//    manifest {
+//        attributes 'Main-Class': 'de.gunis.roger.IcsFilesToGoogleCalendarDeployment'
+//    }
+//}
+
 task wrapper(type: Wrapper) {
-        gradleVersion = '3.1'
+    gradleVersion = '3.1'
 }
 
 buildscript {
-  repositories {
-    jcenter()
-  }
+    repositories {
+        jcenter()
+    }
+}
+
+dependencies {
+    compile "com.intellij:forms_rt:7.0.3"
+    runtime "com.intellij:forms_rt:7.0.3"
 }

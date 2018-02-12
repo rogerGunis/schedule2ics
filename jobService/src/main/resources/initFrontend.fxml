@@ -6,24 +6,29 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Region?>
-<?scenebuilder-stylesheet scheduler2ics.css?>
+<?import javafx.scene.text.Font?>
+<?scenebuilder-stylesheet schedule2ics.css?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="310.0" prefWidth="403.0" styleClass="layout" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.gunis.roger.jobService.UIController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="310.0" prefWidth="403.0" styleClass="background" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.gunis.roger.jobService.UIController">
     <children>
         <Region prefHeight="310.0" prefWidth="403.0" />
         <Button fx:id="holidays" layoutX="306.0" layoutY="61.0" mnemonicParsing="false" onAction="#getCsvFileAndInformPath" text="Holidays" />
         <Button id="createAgenda" fx:id="createAgenda" layoutX="121.0" layoutY="174.0" mnemonicParsing="false" onAction="#getCsvFileAndInformPath" text="Create Agenda (ics files)" />
-        <TextField fx:id="information" layoutX="10.0" layoutY="255.0" prefHeight="26.0" prefWidth="382.0" />
+        <TextField fx:id="information" accessibleRole="TEXT" alignment="TOP_LEFT" editable="false" layoutY="253.0" prefHeight="26.0" prefWidth="426.0">
+         <font>
+            <Font size="12.0" />
+         </font></TextField>
         <Button id="workers" fx:id="workers" layoutX="186.0" layoutY="61.0" mnemonicParsing="false" onAction="#getCsvFileAndInformPath" text="Workers" />
         <Button id="jobDescriptions" fx:id="jobDescriptions" layoutX="15.0" layoutY="61.0" mnemonicParsing="false" onAction="#getCsvFileAndInformPath" text="JobDescriptions" />
         <Button id="outputPath" fx:id="outputPath" layoutX="173.0" layoutY="117.0" mnemonicParsing="false" onAction="#getCsvFileAndInformPath" text="OutputPath" />
         <TextField id="dateFormat" fx:id="dateFormat" layoutX="155.0" layoutY="14.0" prefHeight="26.0" prefWidth="136.0" promptText="DD.MM.YYYY" />
-        <Button fx:id="exit" layoutX="205.0" layoutY="219.0" mnemonicParsing="false" onAction="#exit" text="Exit" />
+        <Button fx:id="exit" layoutX="274.0" layoutY="218.0" mnemonicParsing="false" onAction="#exit" text="Exit" />
+        <Button id="reset" fx:id="reset" layoutX="129.0" layoutY="218.0" mnemonicParsing="false" onAction="#getCsvFileAndInformPath" prefHeight="21.0" prefWidth="110.0" text="Reset" />
     </children>
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
     <stylesheets>
-        <URL value="@scheduler2ics.css" />
+        <URL value="@schedule2ics.css" />
     </stylesheets>
 </AnchorPane>

@@ -1,6 +1,8 @@
 *.class
-build/*
-out/*
+**/build/*
+**/out/*
+**secrets_**.json
+.gradle/*
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

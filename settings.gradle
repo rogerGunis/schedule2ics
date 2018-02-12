@@ -1,2 +1,2 @@
 rootProject.name = 'schedule2ics'
-
+include 'jobService', 'icalToGoogleDeployment'
