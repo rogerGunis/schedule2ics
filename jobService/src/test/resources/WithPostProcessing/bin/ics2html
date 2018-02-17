@@ -2,9 +2,20 @@
 
 cd $1
 MY_PWD=$2
+# $3 : Start: YYYYMMDD
+# $4 : End: YYYYMMDD
 
-START=$(grep 'DTSTART;VALUE=DATE:' allEvents.ics | sed -e 's/.*DATE://' | head -1)
-END=$(grep 'DTSTART;VALUE=DATE:' allEvents.ics | sed -e 's/.*DATE://' | tail -1)
+if [ -z "$3" ];then
+    START=$(grep 'DTSTART;VALUE=DATE:' allEvents.ics | sed -e 's/.*DATE://' | head -1)
+else
+    START=$3
+fi
+
+if [ -z "$4" ];then
+    END=$(grep 'DTSTART;VALUE=DATE:' allEvents.ics | sed -e 's/.*DATE://' | tail -1)
+else
+    END=$4
+fi
 
 DAYS=$(( ($(date --date="$END" +%s) - $(date --date="$START" +%s) )/(60*60*24) + 14 ))
 MONTH_START=$(echo $START | sed -e 's/^\(.\{6\}\).*/\1/')01

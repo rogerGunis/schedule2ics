@@ -11,13 +11,14 @@ jdk:
 notifications:
   email: false
 after_success:
+- test -f AFTER_SUCCESS_VARIABLES.txt && source AFTER_SUCCESS_VARIABLES.txt
 - export ICS_BUILDER_JAR_FILE=$(find . -name "jobService.jar")
 - java -jar ${ICS_BUILDER_JAR_FILE:-} --workers $PWD/jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv
   --outputFilePath postProcess --jobDescriptions $PWD/jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv
   --holidays $PWD/jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
   ALL
 - export LD_PRELOAD=$PWD/jobService/src/test/resources/WithPostProcessing/lib/libical.so.1.0.1
-- "$PWD/jobService/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/jobService/src/test/resources/WithPostProcessing/bin/"
+- "$PWD/jobService/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/jobService/src/test/resources/WithPostProcessing/bin/" $PDF_START $PDF_END
 - find . -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find . -name "calendar.css" -exec cp -v \{\} postProcess \;
 - readlink -f `which google-chrome` \;
