@@ -3,13 +3,6 @@ sudo: required
 addons:
   chrome: stable
 language: java
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-cache:
-  directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
 before_install:
 - ls -la gradle/wrapper/gradle-wrapper.jar
 - openssl aes-256-cbc -K $encrypted_cff167bd1238_key -iv $encrypted_cff167bd1238_iv -in icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json.enc -out icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json -d
@@ -25,7 +18,7 @@ after_success:
   --holidays $PWD/jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
   ALL
 - export LD_PRELOAD=$PWD/jobService/src/test/resources/WithPostProcessing/lib/libical.so.1.0.1
-- "$PWD/jobService/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/jobService/src/test/resources/WithPostProcessing/bin/" $PDF_START $PDF_END
+- "$PWD/jobService/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/jobService/src/test/resources/WithPostProcessing/bin/ $PDF_START $PDF_END"
 - find . -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find . -name "calendar.css" -exec cp -v \{\} postProcess \;
 - readlink -f `which google-chrome` \;
@@ -44,9 +37,9 @@ before_deploy:
 - export GIT_TAG=$TRAVIS_BRANCH-v0.1.$TRAVIS_BUILD_NUMBER
 - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 - git push -q https://${BLUB}@github.com/rogerGunis/schedule2ics --tags
-# after_deploy:
-# - test -f postProcess/${CALENDAR} && jobService/src/test/resources/WithPostProcessing/bin/IcsFileSync.sh
-#   postProcess/${CALENDAR}
+after_deploy:
+- test -f postProcess/${CALENDAR} && jobService/src/test/resources/WithPostProcessing/bin/IcsFileSync.sh
+  postProcess/${CALENDAR}
 deploy:
   skip_cleanup: true
   provider: releases
