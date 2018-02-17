@@ -11,7 +11,7 @@ jdk:
 notifications:
   email: false
 after_success:
-- export ICS_BUILDER_JAR_FILE=$(find build -name "jobService.jar")
+- export ICS_BUILDER_JAR_FILE=$(find . -name "jobService.jar")
 - java -jar ${ICS_BUILDER_JAR_FILE:-} --workers $PWD/jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv
   --outputFilePath postProcess --jobDescriptions $PWD/jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv
   --holidays $PWD/jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
@@ -24,7 +24,7 @@ after_success:
 - cd postProcess; google-chrome --headless --disable-gpu --print-to-pdf=allEvents.pdf
   file://$PWD/allEvents.html; cd -
 - zip -r postProcess.zip postProcess
-- export DEPLOYER_JAR_FILE=$(find build -name "icalToGoogleDeployment*.jar")
+- export DEPLOYER_JAR_FILE=$(find . -name "icalToGoogleDeployment*.jar")
 - mkdir .store
 - java -jar -DACCOUNT_USER=$ACCOUNT_USER ${DEPLOYER_JAR_FILE:-} --icsDirectory postProcess
   --dataStore .store
