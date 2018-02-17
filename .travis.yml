@@ -28,7 +28,6 @@ after_success:
 - export DEPLOYER_JAR_FILE=$(find . -name "icalToGoogleDeployment*.jar")
 - mkdir .store
 - java -jar -DACCOUNT_USER=$ACCOUNT_USER ${DEPLOYER_JAR_FILE:-} --icsDirectory postProcess
-  --dataStore .store
   --apiKey icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json
   -log INFO
 before_deploy:

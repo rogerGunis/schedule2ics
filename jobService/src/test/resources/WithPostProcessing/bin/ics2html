@@ -20,6 +20,7 @@ fi
 DAYS=$(( ($(date --date="$END" +%s) - $(date --date="$START" +%s) )/(60*60*24) + 14 ))
 MONTH_START=$(echo $START | sed -e 's/^\(.\{6\}\).*/\1/')01
 
+echo "Timeframe: $START $END $MONTH_START P${DAYS}D"
 for i in $(find . -name "*.ics" -type f); 
 do 
     echo $i
