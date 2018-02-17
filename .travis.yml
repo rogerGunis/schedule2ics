@@ -12,12 +12,12 @@ notifications:
   email: false
 after_success:
 - export ICS_BUILDER_JAR_FILE=$(find build -name "jobService.jar")
-- java -jar ${ICS_BUILDER_JAR_FILE:-} --workers $PWD/src/test/resources/WithPostProcessing/inputData/Workers.csv
-  --outputFilePath postProcess --jobDescriptions $PWD/src/test/resources/WithPostProcessing/inputData/JobDescription.csv
-  --holidays $PWD/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
+- java -jar ${ICS_BUILDER_JAR_FILE:-} --workers $PWD/jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv
+  --outputFilePath postProcess --jobDescriptions $PWD/jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv
+  --holidays $PWD/jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv -log
   ALL
-- export LD_PRELOAD=$PWD/src/test/resources/WithPostProcessing/lib/libical.so.1.0.1
-- "$PWD/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/src/test/resources/WithPostProcessing/bin/"
+- export LD_PRELOAD=$PWD/jobService/src/test/resources/WithPostProcessing/lib/libical.so.1.0.1
+- "$PWD/jobService/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/jobService/src/test/resources/WithPostProcessing/bin/"
 - find src -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find src -name "calendar.css" -exec cp -v \{\} postProcess \;
 - readlink -f `which google-chrome` \;
@@ -37,7 +37,7 @@ before_deploy:
 - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 - git push -q https://${BLUB}@github.com/rogerGunis/schedule2ics --tags
 # after_deploy:
-# - test -f postProcess/${CALENDAR} && src/test/resources/WithPostProcessing/bin/IcsFileSync.sh
+# - test -f postProcess/${CALENDAR} && jobService/src/test/resources/WithPostProcessing/bin/IcsFileSync.sh
 #   postProcess/${CALENDAR}
 deploy:
   skip_cleanup: true
