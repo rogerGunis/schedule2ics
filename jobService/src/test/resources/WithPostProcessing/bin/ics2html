@@ -2,8 +2,8 @@
 
 cd $1
 MY_PWD=$2
-# $3 : Start: YYYYMMDD
-# $4 : End: YYYYMMDD
+# $3 : Start: dd.MM.yyyy
+# $4 : End: dd.MM.yyyy
 
 if [ -z "$3" ];then
     START=$(grep 'DTSTART;VALUE=DATE:' allEvents.ics | sed -e 's/.*DATE://' | head -1)
@@ -16,6 +16,9 @@ if [ -z "$4" ];then
 else
     END=$4
 fi
+# convert from dd.MM.yyyy to unixtime
+START=$(echo $START | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
+END=$(echo $END | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
 
 DAYS=$(( ($(date --date="$END" +%s) - $(date --date="$START" +%s) )/(60*60*24) ))
 MONTH_START=$(echo $START | sed -e 's/^\(.\{6\}\).*/\1/')01

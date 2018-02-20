@@ -20,10 +20,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class EmployeeSearch {
@@ -149,8 +149,22 @@ public class EmployeeSearch {
         OptionalInt optionalMin = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min();
         int startOffset = optionalMin.isPresent() ? optionalMin.getAsInt() : 0;
 
-        OptionalInt optionalMax = jobDescriptions.stream().mapToInt(job -> (int) job.getEnd().toEpochDay()).max();
-        int endOffset = optionalMax.isPresent() ? optionalMax.getAsInt() : 0;
+        OptionalLong optionalMax = jobDescriptions.stream().mapToLong(job -> job.getEnd().toEpochDay()).max();
+        long endOffset = optionalMax.isPresent() ? optionalMax.getAsLong() : 0;
+
+        String pdf_end = System.getProperty("PDF_END");
+
+        if (null != pdf_end) {
+            SimpleDateFormat simpleDateFormatter;
+            simpleDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+            simpleDateFormatter.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+            try {
+                Date parse = simpleDateFormatter.parse(pdf_end);
+                endOffset = parse.getTime();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
 
         LocalDate beginOfJobSearch = LocalDate.ofEpochDay(startOffset);
         LocalDate endOfJobSearch = LocalDate.ofEpochDay(endOffset);
