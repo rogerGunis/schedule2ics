@@ -21,13 +21,13 @@ START=$(echo $START | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
 END=$(echo $END | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
 
 DAYS=$(( ($(date --date="$END" +%s) - $(date --date="$START" +%s) )/(60*60*24) ))
-MONTH_START=$(echo $START | sed -e 's/^\(.\{6\}\).*/\1/')01
+YEAR_MONTH_START=$(date --date="$START" +%Y%m01)
 
-echo "Timeframe: $START $END $MONTH_START P${DAYS}D"
+echo "Timeframe: $START $END $YEAR_MONTH_START P${DAYS}D"
 for i in $(find . -name "*.ics" -type f); 
 do 
     echo $i
-    $MY_PWD/ical2html --description $MONTH_START P${DAYS}D ${i} | sed -e 's#(whole</abbr> <abbr class=duration##;s#title="1D">day)##;s#>Sunday#>Frühstück#;s#>Monday#>Montag#;s#>Tuesday#>Dienstag#;s#>Wednesday#>Mittwoch#;s#>Thursday#>Donnerstag#;s#>Friday#>Freitag#;s#>Saturday#>Samstag#' > ${i/.ics/.html} ;
+    $MY_PWD/ical2html --description $YEAR_MONTH_START P${DAYS}D ${i} | sed -e 's#(whole</abbr> <abbr class=duration##;s#title="1D">day)##;s#>Sunday#>Frühstück#;s#>Monday#>Montag#;s#>Tuesday#>Dienstag#;s#>Wednesday#>Mittwoch#;s#>Thursday#>Donnerstag#;s#>Friday#>Freitag#;s#>Saturday#>Samstag#' > ${i/.ics/.html} ;
 
 test -s ${i/.ics/.html}  && \
 cat << _EOF_ >>allEvents.html
