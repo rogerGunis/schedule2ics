@@ -17,13 +17,16 @@ else
     END=$4
 fi
 # convert from dd.MM.yyyy to unixtime
-START=$(echo $START | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
-END=$(echo $END | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
+START_UNIXTIME=$(echo $START | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
+END_UNIXTIME=$(echo $END | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
+
+START_US=$(echo $START | awk -F. {'print $3$2$1}')
+END_US=$(echo $END | awk -F. {'print $3$2$1}')
 
 echo Timeframe $START $END
 
-DAYS=$(( ($(date --date="$END" +%s) - $(date --date="$START" +%s) )/(60*60*24) ))
-YEAR_MONTH_START=$(date --date="$START" +%Y%m01)
+DAYS=$(( ($END_UNIXTIME - $START_UNIXTIME )/(60*60*24) ))
+YEAR_MONTH_START=$(date --date="$START_US" +%Y%m01)
 
 echo "Timeframe: $START $END $YEAR_MONTH_START P${DAYS}D"
 for i in $(find . -name "*.ics" -type f); 
