@@ -161,6 +161,7 @@ public class IcsFilesToGoogleCalendarDeployment {
 
             String accessOfUserStringList = System.getProperty("ACCESS_OF_USERS", "");
             Set<String> accessOfUsers = Arrays.stream(accessOfUserStringList.split("\\s*,\\s*")).collect(Collectors.toSet());
+            accessOfUsers.add(System.getProperty("ACCOUNT_USER"));
 
             usedCalendars.forEach(cal -> {
                 try {
@@ -193,11 +194,11 @@ public class IcsFilesToGoogleCalendarDeployment {
         }
     }
 
-    private AclRule getAclRule(String accessOfUsers) {
+    private AclRule getAclRule(String accessOfUser) {
         // Create access rule with associated scope
         AclRule rule = new AclRule();
         AclRule.Scope scope = new AclRule.Scope();
-        scope.setType("user").setValue(accessOfUsers);
+        scope.setType("user").setValue(accessOfUser);
         rule.setScope(scope).setRole("owner");
 //        String ruleIdToCheck = rule.getScope().getType().concat(":" + rule.getScope().getValue());
         return rule;
