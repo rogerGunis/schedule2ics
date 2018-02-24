@@ -150,21 +150,21 @@ public class EmployeeSearch {
         HolidayInformationCenter.open();
 
         OptionalLong optionalMin = jobDescriptions.stream().mapToLong(job -> job.getBegin().atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant().getEpochSecond()).min();
-        long startOfReports = optionalMin.isPresent() ? optionalMin.getAsLong() : 0L;
+        long startOfInterval = optionalMin.isPresent() ? optionalMin.getAsLong() : 0L;
 
         OptionalLong optionalMax = jobDescriptions.stream().mapToLong(job -> job.getEnd().atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant().getEpochSecond()).max();
-        long endOfReports = optionalMax.isPresent() ? optionalMax.getAsLong() : 0L;
+        long endOfInterval = optionalMax.isPresent() ? optionalMax.getAsLong() : 0L;
 
         String pdf_start = System.getProperty("PDF_START");
         String pdf_end = System.getProperty("PDF_END");
 
-        startOfReports = getDatesFromString(pdf_start, startOfReports);
-        endOfReports = getDatesFromString(pdf_end, endOfReports);
+        long startOfReports = getDatesFromString(pdf_start, startOfInterval);
+        long endOfReports = getDatesFromString(pdf_end, endOfInterval);
 
         Pair<Long, Long> reportRange = new Pair<>(startOfReports, endOfReports);
         LocalDate beginOfJobSearch =
-                Instant.ofEpochMilli(startOfReports * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
-        LocalDate endOfJobSearch = Instant.ofEpochMilli(endOfReports * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
+                Instant.ofEpochMilli(startOfInterval * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
+        LocalDate endOfJobSearch = Instant.ofEpochMilli(endOfInterval * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
 
         logger.info("Searching, between {} -> {} (days: {})", beginOfJobSearch, endOfJobSearch, endOfJobSearch.toEpochDay() - beginOfJobSearch.toEpochDay());
 
