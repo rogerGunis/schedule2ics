@@ -24,10 +24,8 @@ import javafx.util.Pair;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.ComponentList;
-import net.fortuna.ical4j.model.Dur;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
-import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.DtStamp;
 import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.Duration;
@@ -46,8 +44,6 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.lang.Math.abs;
 
 public class IcsFilesToGoogleCalendarDeployment {
     private static final Logger logger = LoggerFactory.getLogger(IcsFilesToGoogleCalendarDeployment.class);
@@ -132,7 +128,6 @@ public class IcsFilesToGoogleCalendarDeployment {
 
     }
 
-
     void runDeployment() {
         setLoggingToLevel(loggingLevel);
 
@@ -149,13 +144,6 @@ public class IcsFilesToGoogleCalendarDeployment {
                     httpTransport, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
 
 
-            Acl acl = client.acl().list("primary").execute();
-
-            for (AclRule rule : acl.getItems()) {
-                System.out.println(rule.getId() + ": " + rule.getRole());
-            }
-
-
             Set<String> googleCalendars = getGoogleCalendars();
 
             Set<String> foundCalendarsInDirectory = getBasenameOfFiles(inputDirectoryIcsFiles);
@@ -165,7 +153,7 @@ public class IcsFilesToGoogleCalendarDeployment {
 
             deployIcsFilesToGoogleCalendar(inputDirectoryIcsFiles, foundCalendarsInDirectory);
 
-            obsoleteCalendars.forEach(IcsFilesToGoogleCalendarDeployment::deleteCalendar);
+            obsoleteCalendars.forEach(this::deleteCalendar);
 
             Set<String> usedCalendars = googleCalendars.stream()
                     .filter(foundCalendarsInDirectory::contains).collect(Collectors.toSet());
@@ -180,10 +168,6 @@ public class IcsFilesToGoogleCalendarDeployment {
 
                     Calendar calendar = createAndGetCalendar(cal);
 
-//                    AclRule createdRule = client.acl().insert(calendar.getId(), rule).execute();
-//                    client.acl().get(calendar.getId(), ruleIdToCheck);
-//                    System.out.println("Acl ID: " + createdRule.getId());
-
                     accessOfUsers.stream()
                             .filter(accessOfUser -> !hasPermissionOnCalendar(calendar, accessOfUser))
                             .forEach(accessOfUser -> {
@@ -194,23 +178,6 @@ public class IcsFilesToGoogleCalendarDeployment {
                                     e.printStackTrace();
                                 }
                             });
-//                    List<AclRule> aclRules = client.acl().list(calendar.getId()).execute().getItems();
-//                    Set<String> usersAccessToCalendar = aclRules.stream().map(aclRule -> aclRule.getId().split(":")[1]).collect(Collectors.toSet());
-
-//                    accessOfUsers.stream()
-//                            .filter(accessOfUser -> !hasPermissionOnCalendar(calendar, accessOfUser))
-//                            .forEach(accessOfUser -> {
-//                                try {
-//                                    logger.trace("Granting new access");
-//                                    client.acl().insert(calendar.getId(), getAclRule(accessOfUser)).execute();
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            });
-
-//                    System.out.println("Calendar: " + calendar.getSummary());
-//                    System.out.println("https://calendar.google.com/calendar/render?cid=https://calendar.google.com/calendar/ical/" + calendar.getId() + "/public/basic.ics");
-//                    System.out.println("webcal://calendar.google.com/calendar/ical/" + calendar.getId() + "/public/basic.ics");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -249,21 +216,28 @@ public class IcsFilesToGoogleCalendarDeployment {
 
 
     private static Calendar createAndGetCalendar(String calendarTitle) throws IOException {
-        Calendar entry = new Calendar();
-        entry.setSummary(calendarTitle);
+        String timeZone = "Europe/Berlin";
+        Calendar calendar = new Calendar();
+        calendar.setSummary(calendarTitle);
         List<CalendarListEntry> calendars = client.calendarList().list().execute().getItems().stream()
                 .filter(cal -> cal.getSummary().equals(calendarTitle)).collect(Collectors.toList());
 
+        Calendar createdCalendar;
         if (calendars.isEmpty()) {
-            return client.calendars().insert(entry).execute().setTimeZone("Europe/Berlin");
+            createdCalendar = client.calendars().insert(calendar).execute();
         } else {
             if (calendars.size() > 1) {
                 logger.warn("More than on calendar with name {}, please delete all except one manually", calendarTitle);
             }
             Calendar googleCalendar = client.calendars().get(calendars.get(0).getId()).execute();
-            return googleCalendar.setTimeZone("Europe/Berlin");
+            createdCalendar = googleCalendar.setTimeZone("Europe/Berlin");
         }
 
+        if (!createdCalendar.getTimeZone().equals(timeZone)) {
+            client.calendars().patch(createdCalendar.getId(), createdCalendar.setTimeZone(timeZone)).execute();
+        }
+
+        return createdCalendar;
     }
 
 
@@ -287,17 +261,17 @@ public class IcsFilesToGoogleCalendarDeployment {
 
                         icalEvents.forEach(icalEvent -> {
 
-                            Event googleEvent = getConvertedIcalEvent(icalEvent);
+                            Event eventFromFile = getConvertedIcalEvent(icalEvent);
 
                             try {
-                                if (unmodifiedEvents.containsKey(GoogleEventKey.of(googleEvent.getStart(), googleEvent.getEnd(), googleEvent.getSummary()))) {
-                                    logger.debug("Already in googleEvent: " + getEventInformation(googleCalendar, googleEvent));
-                                    unmodifiedEvents.remove(GoogleEventKey.of(googleEvent.getStart(), googleEvent.getEnd(), googleEvent.getSummary()));
-                                } else if (modifiedEvents.containsKey(getCalculatedEventUid(googleEvent))) {
-                                    logger.warn("Modification found in " + calendarTitle + ", googleEvent: " + getEventInformation(googleCalendar, googleEvent));
+                                if (unmodifiedEvents.containsKey(GoogleEventKey.of(eventFromFile.getStart(), eventFromFile.getEnd(), eventFromFile.getSummary()))) {
+                                    logger.debug("Already in eventFromFile: " + getEventInformation(googleCalendar, eventFromFile));
+                                    unmodifiedEvents.remove(GoogleEventKey.of(eventFromFile.getStart(), eventFromFile.getEnd(), eventFromFile.getSummary()));
+                                } else if (modifiedEvents.containsKey(getCalculatedEventUid(eventFromFile))) {
+                                    logger.warn("Modification found in " + calendarTitle + ", eventFromFile: " + getEventInformation(googleCalendar, eventFromFile));
                                 } else {
-                                    logger.debug("Putting in googleEvent: " + getEventInformation(googleCalendar, googleEvent));
-                                    client.events().calendarImport(googleCalendar.getId(), googleEvent).queue(batch, getEventJsonBatchCallback(googleCalendar, googleEvent));
+                                    logger.debug("Putting in eventFromFile: " + getEventInformation(googleCalendar, eventFromFile));
+                                    client.events().calendarImport(googleCalendar.getId(), eventFromFile).queue(batch, getEventJsonBatchCallback(googleCalendar, eventFromFile));
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -347,29 +321,6 @@ public class IcsFilesToGoogleCalendarDeployment {
         LocalDateTime endDateCalculation = eventStartDate.plusDays(durationInDays);
         event.setEnd(new EventDateTime().setDate(new DateTime(true, endDateCalculation.toEpochSecond(ZoneOffset.ofHours(0)) * 1000, 0)));
 
-        List<EventReminder> listEventReminder = new ArrayList<>();
-        Event.Reminders reminders = new Event.Reminders();
-
-        ((VEvent) vevent).getAlarms().forEach(alarms -> alarms.getProperties("Trigger").forEach(clockAlarm -> {
-            Duration duration = new Duration(new Dur(clockAlarm.getValue()));
-
-            EventReminder reminder = new EventReminder();
-            int minutesOfAlarm = duration.getDuration().getDays() * 24 * 60
-                    + duration.getDuration().getHours() * 60
-                    + duration.getDuration().getMinutes()
-                    + duration.getDuration().getWeeks() * 10080;
-
-            minutesOfAlarm = abs(60 * 24 - minutesOfAlarm);
-
-            reminder.setMinutes(minutesOfAlarm);
-            reminder.setMethod("email");
-
-            reminders.setUseDefault(false);
-            listEventReminder.add(reminder);
-        }));
-
-        reminders.setOverrides(listEventReminder);
-        event.setReminders(reminders);
         event.setICalUID(vevent.getProperty(Property.UID).getValue());
         return event;
     }
@@ -464,7 +415,7 @@ public class IcsFilesToGoogleCalendarDeployment {
         this.apiKeyFile = apiKeyFile;
     }
 
-    private static void deleteCalendar(String calendarTitle) {
+    private void deleteCalendar(String calendarTitle) {
         try {
             Calendar googleCalendar = createAndGetCalendar(calendarTitle);
             CalendarListEntry googleCalendard = client.calendarList().get(googleCalendar.getId()).execute();

@@ -1,8 +1,12 @@
 package de.gunis.roger.jobService.exports;
 
 import de.gunis.roger.jobService.calendar.ICalendarAccess;
+import javafx.util.Pair;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.component.CalendarComponent;
+import net.fortuna.ical4j.model.property.DtStart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +17,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CalendarWriter {
     private static final Logger logger = LoggerFactory.getLogger("CalendarWriter.class");
 
-    public static void writeCalendar(Calendar calendar, String outputFile) {
+    public static boolean isWithinRange(Pair<Long, Long> reportRange, long value) {
+        return (Math.max(reportRange.getKey(), value) == Math.min(value, reportRange.getValue()));
+    }
+
+    public static void writeCalendar(Calendar calendar, String outputFile, Pair<Long, Long> reportRange) {
+        Calendar calendarWithRange = new Calendar();
+
+        List<CalendarComponent> vevents = calendar.getComponents("VEVENT").stream().filter(event -> isWithinRange(reportRange, ((DtStart) event.getProperty(Property.DTSTART)).getDate().getTime() / 1000)).collect(Collectors.toList());
+        calendarWithRange.getComponents().addAll(vevents);
+
         Path path = Paths.get(outputFile);
         FileOutputStream fileOutputStream = null;
         try {
@@ -25,7 +39,7 @@ public class CalendarWriter {
             fileOutputStream = new FileOutputStream(path.toString());
             CalendarOutputter calendarOutputter = new CalendarOutputter();
             calendarOutputter.setValidating(false);
-            calendarOutputter.output(calendar, fileOutputStream);
+            calendarOutputter.output(calendarWithRange, fileOutputStream);
 
         } catch (IOException e) {
             logger.warn("Exception: {}", e);
@@ -40,12 +54,12 @@ public class CalendarWriter {
         }
     }
 
-    public static void documentJobsAndWorkers(List<ICalendarAccess> calendarAccesses, String outputFilePath) {
+    public static void documentJobsAndWorkers(List<ICalendarAccess> calendarAccesses, String outputFilePath, Pair<Long, Long> reportRange) {
         calendarAccesses.forEach(calendarAccess -> {
                     Calendar calendar = calendarAccess.getCalendar();
                     String name = normalizeString(calendarAccess.getName());
                     Path path = Paths.get(outputFilePath, name + ".ics");
-                    writeCalendar(calendar, path.toString());
+                    writeCalendar(calendar, path.toString(), reportRange);
                 }
         );
     }

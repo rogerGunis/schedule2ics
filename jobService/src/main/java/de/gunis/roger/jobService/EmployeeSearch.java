@@ -13,6 +13,7 @@ import de.gunis.roger.jobService.workersAvailable.Worker;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,9 @@ import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -146,28 +149,22 @@ public class EmployeeSearch {
 
         HolidayInformationCenter.open();
 
-        OptionalInt optionalMin = jobDescriptions.stream().mapToInt(job -> (int) job.getBegin().toEpochDay()).min();
-        int startOffset = optionalMin.isPresent() ? optionalMin.getAsInt() : 0;
+        OptionalLong optionalMin = jobDescriptions.stream().mapToLong(job -> job.getBegin().atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant().getEpochSecond()).min();
+        long startOfReports = optionalMin.isPresent() ? optionalMin.getAsLong() : 0L;
 
-        OptionalLong optionalMax = jobDescriptions.stream().mapToLong(job -> job.getEnd().toEpochDay()).max();
-        long endOffset = optionalMax.isPresent() ? optionalMax.getAsLong() : 0;
+        OptionalLong optionalMax = jobDescriptions.stream().mapToLong(job -> job.getEnd().atStartOfDay(ZoneId.of("Europe/Berlin")).toInstant().getEpochSecond()).max();
+        long endOfReports = optionalMax.isPresent() ? optionalMax.getAsLong() : 0L;
 
+        String pdf_start = System.getProperty("PDF_START");
         String pdf_end = System.getProperty("PDF_END");
 
-        if (null != pdf_end) {
-            SimpleDateFormat simpleDateFormatter;
-            simpleDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
-            simpleDateFormatter.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
-            try {
-                Date parse = simpleDateFormatter.parse(pdf_end);
-                endOffset = parse.getTime();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+        startOfReports = getDatesFromString(pdf_start, startOfReports);
+        endOfReports = getDatesFromString(pdf_end, endOfReports);
 
-        LocalDate beginOfJobSearch = LocalDate.ofEpochDay(startOffset);
-        LocalDate endOfJobSearch = LocalDate.ofEpochDay(endOffset);
+        Pair<Long, Long> reportRange = new Pair<>(startOfReports, endOfReports);
+        LocalDate beginOfJobSearch =
+                Instant.ofEpochMilli(startOfReports * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
+        LocalDate endOfJobSearch = Instant.ofEpochMilli(endOfReports * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
 
         logger.info("Searching, between {} -> {} (days: {})", beginOfJobSearch, endOfJobSearch, endOfJobSearch.toEpochDay() - beginOfJobSearch.toEpochDay());
 
@@ -177,14 +174,14 @@ public class EmployeeSearch {
         logger.debug("Exporting all calendar entries to {}", outputFilePath);
 
         CalendarWriter.documentJobsAndWorkers(jobDescriptions.stream().map(job -> (ICalendarAccess) job)
-                .collect(Collectors.toList()), outputFilePath);
+                .collect(Collectors.toList()), outputFilePath, reportRange);
 
         CalendarWriter.documentJobsAndWorkers(workers.stream().map(worker -> (ICalendarAccess) worker)
-                .collect(Collectors.toList()), outputFilePath);
+                .collect(Collectors.toList()), outputFilePath, reportRange);
 
         try {
             CalendarWriter.writeCalendar(JobCenter.instance().getAllCalendarEntries(),
-                    Paths.get(outputFilePath, "allEvents.ics").toString());
+                    Paths.get(outputFilePath, "allEvents.ics").toString(), reportRange);
         } catch (Exception e) {
             logger.error("Buggy Calender export, please try again {}", e);
         }
@@ -193,6 +190,22 @@ public class EmployeeSearch {
         JobCenter.close();
         HolidayInformationCenter.close();
 
+    }
+
+    private long getDatesFromString(String date, long defaultValue) {
+        long returnValue = defaultValue;
+        if (null != date) {
+            SimpleDateFormat simpleDateFormatter;
+            simpleDateFormatter = new SimpleDateFormat("dd.MM.yyyy");
+            simpleDateFormatter.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+            try {
+                Date parse = simpleDateFormatter.parse(date);
+                returnValue = parse.getTime() / 1000;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return returnValue;
     }
 
     BooleanBinding hasEnoughInformations() {

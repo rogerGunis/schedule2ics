@@ -15,6 +15,9 @@ public class WithPostProcessing {
         String folder = new File(this.getClass().getClassLoader().getResource("WithPostProcessing/bin/ics2html")
                 .getFile()).getParentFile().toString();
 
+        System.setProperty("PDF_START", "01.02.2018");
+        System.setProperty("PDF_END", "30.03.2018");
+
         String ics2html = this.getClass().getClassLoader().getResource("WithPostProcessing/bin/ics2html").getFile();
         String holidays = this.getClass().getClassLoader().getResource("WithPostProcessing/inputData/Holidays.csv").getFile();
         String jobDecriptions = this.getClass().getClassLoader().getResource("WithPostProcessing/inputData/JobDescription.csv").getFile();
