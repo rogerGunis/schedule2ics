@@ -161,7 +161,6 @@ public class IcsFilesToGoogleCalendarDeployment {
 
             String accessOfUserStringList = System.getProperty("ACCESS_OF_USERS", "");
             Set<String> accessOfUsers = Arrays.stream(accessOfUserStringList.split("\\s*,\\s*")).collect(Collectors.toSet());
-            accessOfUsers.add(System.getProperty("ACCOUNT_USER"));
 
             usedCalendars.forEach(cal -> {
                 try {
@@ -173,7 +172,7 @@ public class IcsFilesToGoogleCalendarDeployment {
                             .filter(accessOfUser -> !hasPermissionOnCalendar(calendar, accessOfUser))
                             .forEach(accessOfUser -> {
                                 try {
-                                    logger.debug("Granting new access");
+                                    logger.debug("Granting new access to calendar: " + calendar.getSummary());
                                     client.acl().insert(calendar.getId(), getAclRule(accessOfUser)).execute();
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -213,7 +212,7 @@ public class IcsFilesToGoogleCalendarDeployment {
             e.printStackTrace();
             return false;
         }
-        return acl2.getItems().stream().anyMatch(aclRule -> aclRule.getId().equals(accessOfUser));
+        return acl2.getItems().stream().anyMatch(aclRule -> aclRule.getId().endsWith(accessOfUser));
     }
 
 

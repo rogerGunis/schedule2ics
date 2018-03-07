@@ -11,8 +11,9 @@ public class IcsFilesToGoogleCalendarDeploymentTest {
     @Test
     public void runDeployment() {
         System.setProperty("ACCOUNT_USER", "");
+        System.setProperty("ACCESS_OF_USERS", "");
         IcsFilesToGoogleCalendarDeployment icsTest = new IcsFilesToGoogleCalendarDeployment();
-        icsTest.setInputDirectoryIcsFiles(System.setProperty("INPUT_DIR_ICS", ""));
+        icsTest.setInputDirectoryIcsFiles("/var/tmp/schedule");
         icsTest.setLoggingLevel("DEBUG");
         try {
             icsTest.setApiKeyFile(IcsFilesToGoogleCalendarDeployment.class.getResource("/client_secrets_apiKey.json").toURI().getPath());

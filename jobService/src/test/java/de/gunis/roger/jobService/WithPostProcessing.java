@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class WithPostProcessing {
 
-//    @Ignore
+    @Ignore
     @Test
     public void withPostprocessing() throws IOException {
 
