@@ -9,30 +9,34 @@ if [ -z "$3" ];then
     START=$(grep 'DTSTART;VALUE=DATE:' allEvents.ics | sed -e 's/.*DATE://' | head -1)
 else
     START=$3
+    START=$(echo $START | tr -d '\r')
+    START_US=$(echo $START | awk -F. {'print $3$2$1}')
+    START=$START_US
 fi
 
 if [ -z "$4" ];then
     END=$(grep 'DTSTART;VALUE=DATE:' allEvents.ics | sed -e 's/.*DATE://' | tail -1)
 else
     END=$4
+    END=$(echo $END | tr -d '\r')
+    END_US=$(echo $END | awk -F. {'print $3$2$1}')
+    END=$END_US
 fi
+
 # convert from dd.MM.yyyy to unixtime
 START_UNIXTIME=$(echo $START | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
 END_UNIXTIME=$(echo $END | awk -F. {'print $3$2$1}' | xargs -i date -d {} +%s)
 
-START_US=$(echo $START | awk -F. {'print $3$2$1}')
-END_US=$(echo $END | awk -F. {'print $3$2$1}')
-
 echo Timeframe $START $END
 
-DAYS=$(( ($END_UNIXTIME - $START_UNIXTIME )/(60*60*24) ))
-YEAR_MONTH_START=$(date --date="$START_US" +%Y%m01)
+DAYS=$(( (($END_UNIXTIME - $START_UNIXTIME )/(60*60*24)) + 1 ))
+#YEAR_MONTH_START=$(date --date="$START_US" +%Y%m01)
 
-echo "Timeframe: $START $END $YEAR_MONTH_START P${DAYS}D"
+echo "Timeframe: $START $END P${DAYS}D"
 for i in $(find . -name "*.ics" -type f); 
 do 
     echo $i
-    $MY_PWD/ical2html --description $YEAR_MONTH_START P${DAYS}D ${i} | sed -e 's#(whole</abbr> <abbr class=duration##;s#title="1D">day)##;s#>Sunday#>Frühstück#;s#>Monday#>Montag#;s#>Tuesday#>Dienstag#;s#>Wednesday#>Mittwoch#;s#>Thursday#>Donnerstag#;s#>Friday#>Freitag#;s#>Saturday#>Samstag#' > ${i/.ics/.html} ;
+    $MY_PWD/ical2html --description $START P${DAYS}D ${i} | sed -e 's#(whole</abbr> <abbr class=duration##;s#title="1D">day)##;s#>Sunday#>Frühstück#;s#>Monday#>Montag#;s#>Tuesday#>Dienstag#;s#>Wednesday#>Mittwoch#;s#>Thursday#>Donnerstag#;s#>Friday#>Freitag#;s#>Saturday#>Samstag#' > ${i/.ics/.html} ;
 
 test -s ${i/.ics/.html}  && \
 cat << _EOF_ >>allEvents.html

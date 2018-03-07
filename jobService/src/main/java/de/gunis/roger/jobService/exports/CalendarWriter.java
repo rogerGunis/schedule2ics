@@ -16,17 +16,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Normalizer;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CalendarWriter {
     private static final Logger logger = LoggerFactory.getLogger("CalendarWriter.class");
 
-    public static boolean isWithinRange(Pair<Long, Long> reportRange, long value) {
-        return (Math.max(reportRange.getKey(), value) == Math.min(value, reportRange.getValue()));
+    public static boolean isWithinRange(Pair<LocalDate, LocalDate> reportRange, long value) {
+        LocalDate testDate = Instant.ofEpochMilli(value * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
+        return (Math.max(reportRange.getKey().toEpochDay(), testDate.toEpochDay()) == Math.min(testDate.toEpochDay(), reportRange.getValue().toEpochDay()));
     }
 
-    public static void writeCalendar(Calendar calendar, String outputFile, Pair<Long, Long> reportRange) {
+    public static void writeCalendar(Calendar calendar, String outputFile, Pair<LocalDate, LocalDate> reportRange) {
         Calendar calendarWithRange = new Calendar();
 
         List<CalendarComponent> vevents = calendar.getComponents("VEVENT").stream().filter(event -> isWithinRange(reportRange, ((DtStart) event.getProperty(Property.DTSTART)).getDate().getTime() / 1000)).collect(Collectors.toList());
@@ -54,7 +58,7 @@ public class CalendarWriter {
         }
     }
 
-    public static void documentJobsAndWorkers(List<ICalendarAccess> calendarAccesses, String outputFilePath, Pair<Long, Long> reportRange) {
+    public static void documentJobsAndWorkers(List<ICalendarAccess> calendarAccesses, String outputFilePath, Pair<LocalDate, LocalDate> reportRange) {
         calendarAccesses.forEach(calendarAccess -> {
                     Calendar calendar = calendarAccess.getCalendar();
                     String name = normalizeString(calendarAccess.getName());

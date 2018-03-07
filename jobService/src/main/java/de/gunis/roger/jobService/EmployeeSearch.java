@@ -158,10 +158,10 @@ public class EmployeeSearch {
         String pdf_start = System.getProperty("PDF_START");
         String pdf_end = System.getProperty("PDF_END");
 
-        long startOfReports = getDatesFromString(pdf_start, startOfInterval);
-        long endOfReports = getDatesFromString(pdf_end, endOfInterval);
+        LocalDate startOfReports = getDatesFromString(pdf_start, startOfInterval);
+        LocalDate endOfReports = getDatesFromString(pdf_end, endOfInterval + 60 * 60 * 24+1);
 
-        Pair<Long, Long> reportRange = new Pair<>(startOfReports, endOfReports);
+        Pair<LocalDate, LocalDate> reportRange = new Pair<>(startOfReports, endOfReports);
         LocalDate beginOfJobSearch =
                 Instant.ofEpochMilli(startOfInterval * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
         LocalDate endOfJobSearch = Instant.ofEpochMilli(endOfInterval * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
@@ -171,7 +171,7 @@ public class EmployeeSearch {
         HolidayInformationCenter.instance().setHolidays(holidaysFromFile);
         JobCenter.instance().combineJobAndWorkerAndSubscribe(workers, jobDescriptions, beginOfJobSearch, endOfJobSearch);
 
-        logger.debug("Exporting all calendar entries to {}", outputFilePath);
+        logger.debug("Exporting all calendar entries to {} from {} to {}", outputFilePath, startOfReports, endOfReports);
 
         CalendarWriter.documentJobsAndWorkers(jobDescriptions.stream().map(job -> (ICalendarAccess) job)
                 .collect(Collectors.toList()), outputFilePath, reportRange);
@@ -192,7 +192,7 @@ public class EmployeeSearch {
 
     }
 
-    private long getDatesFromString(String date, long defaultValue) {
+    private LocalDate getDatesFromString(String date, long defaultValue) {
         long returnValue = defaultValue;
         if (null != date) {
             SimpleDateFormat simpleDateFormatter;
@@ -205,7 +205,7 @@ public class EmployeeSearch {
                 e.printStackTrace();
             }
         }
-        return returnValue;
+        return Instant.ofEpochMilli(returnValue * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
     }
 
     BooleanBinding hasEnoughInformations() {
