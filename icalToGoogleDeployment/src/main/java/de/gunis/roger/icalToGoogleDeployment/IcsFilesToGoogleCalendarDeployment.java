@@ -209,6 +209,7 @@ public class IcsFilesToGoogleCalendarDeployment {
         try {
             acl2 = client.acl().list(calendar.getId()).execute();
         } catch (IOException e) {
+            logger.error("Error occured with calendar: " + calendar.getSummary());
             e.printStackTrace();
             return false;
         }
