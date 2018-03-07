@@ -1,0 +1,1 @@
+./jobService/src/test/resources/WithPostProcessing/inputData/AFTER_SUCCESS_VARIABLES.txt
