@@ -19,6 +19,9 @@ after_success:
   ALL
 - export LD_PRELOAD=$PWD/jobService/src/test/resources/WithPostProcessing/lib/libical.so.1.0.1
 - "$PWD/jobService/src/test/resources/WithPostProcessing/bin/ics2html postProcess $PWD/jobService/src/test/resources/WithPostProcessing/bin/ $PDF_START $PDF_END"
+- echo "Checking for necessary allEvents.ics file"
+- find postProcess -name "allEvents.ics" | grep -q allEvents.ics || exit 1;
+- echo "found one"
 - find . -name "jquery.min.js" -exec cp -v \{\} postProcess \;
 - find . -name "calendar.css" -exec cp -v \{\} postProcess \;
 - readlink -f `which google-chrome` \;

@@ -225,13 +225,16 @@ public class IcsFilesToGoogleCalendarDeployment {
 
         Calendar createdCalendar;
         if (calendars.isEmpty()) {
-            createdCalendar = client.calendars().insert(calendar).execute();
+            logger.info("Inserting new calendar: {}", calendarTitle);
+            client.calendars().insert(calendar).execute();
+            calendars = client.calendarList().list().execute().getItems().stream()
+                    .filter(cal -> cal.getSummary().equals(calendarTitle)).collect(Collectors.toList());
+            createdCalendar = client.calendars().get(calendars.get(0).getId()).execute();
         } else {
             if (calendars.size() > 1) {
                 logger.warn("More than on calendar with name {}, please delete all except one manually", calendarTitle);
             }
-            Calendar googleCalendar = client.calendars().get(calendars.get(0).getId()).execute();
-            createdCalendar = googleCalendar.setTimeZone("Europe/Berlin");
+            createdCalendar = client.calendars().get(calendars.get(0).getId()).execute();
         }
 
         if (!createdCalendar.getTimeZone().equals(timeZone)) {
