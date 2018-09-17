@@ -3,9 +3,10 @@ shopt -s expand_aliases
 YEAR=$(date +%Y)
 let NEXT_YEAR=YEAR+1 
 
+calendarFile=testfile.txt
 fname=FeiertageBayern.ics
 rm -f ${fname}
-rm -f testfile.txt
+rm -f ${calendarFile}
 # curl -s -o $fname https://calendar.google.com/calendar/ical/dbch66ql3ee9tm0sr97hrav20c%40group.calendar.google.com/public/basic.ics
 curl -s -o $fname 'http://www.ifeiertage.de/calendar.php?bl=by&o3=kirche&t=dnl'
 
@@ -48,6 +49,7 @@ do
     DOW=$(/bin/date -d ${INFO/-*/} +%u)
     CURRENT_YEAR=$(/bin/date -d ${INFO/-*/} +%Y)
     HUMAN_DATE=$(/bin/date -d ${INFO/-*/} "+%d.%m.%Y")
+    HUMAN_DATE_SORTABLE=$(/bin/date -d ${INFO/-*/} "+%Y%m%d")
 
     if [ $CURRENT_YEAR != $YEAR -a $CURRENT_YEAR != $NEXT_YEAR ];then
         continue;
@@ -66,13 +68,16 @@ do
     fi
     if [ -n "$BRUECKE" ];then
         BRUECKE_DATE=$(/bin/date -d "${INFO/-*/}${BRUECKE}" "+%d.%m.%Y")
+        BRUECKE_DATE_SORTABLE=$(/bin/date -d "${INFO/-*/}${BRUECKE}" "+%Y%m%d")
     fi
-    echo "$HUMAN_DATE,$HUMAN_DATE,${INFO/*-/},0" >> testfile.txt
+    echo "$HUMAN_DATE_SORTABLE,$HUMAN_DATE,$HUMAN_DATE,${INFO/*-/},0" >> ${calendarFile}
     if [ -n "$BRUECKE" ];then
-        echo "$BRUECKE_DATE,$BRUECKE_DATE,geschlossen wegen Brückentag,1" >> testfile.txt
+        echo "$BRUECKE_DATE_SORTABLE,$BRUECKE_DATE,$BRUECKE_DATE,geschlossen wegen Brückentag,1" >> ${calendarFile}
     fi
-    echo ${INFO}-${DOW} | egrep "^($YEAR|$NEXT_YEAR)"
 done | sort -r
+
+sort ${calendarFile} | cut -d\, -f2,3,4,5,6 > ${calendarFile}_tmp
+cat ${calendarFile}_tmp | cut -d\, -f1,2,3
 
 rm -f FeiertageBayern.ics
 rm -f FeiertageBayern.ics-*
