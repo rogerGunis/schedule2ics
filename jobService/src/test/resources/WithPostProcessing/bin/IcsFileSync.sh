@@ -42,13 +42,13 @@ do
     ORIGINAL_DATE=$(curl -o - -s -k --user "$CREDENTIALS" -X GET $URL/${alreadyDeployedEventsArray[$i]}.ics | sed -ne 's/DTSTART;VALUE=DATE:\([0-9]*\).*/\1/p')
 
 
-    if [ "$ORIGINAL_DATE" = "${FROM_GITHUB_CALCULATED_DATE}" ];then
+    #if [ "$ORIGINAL_DATE" = "${FROM_GITHUB_CALCULATED_DATE}" ];then
         echo 'Deleting job '$ORIGINAL_DATE' -> '${FROM_GITHUB_CALCULATED_DATE}' -> '${alreadyDeployedEventsArray[$i]}.ics
         curl -s -k --user "$CREDENTIALS" -X DELETE $URL/${alreadyDeployedEventsArray[$i]}.ics
-    else
-        echo 'Keeping moved job '$ORIGINAL_DATE' -> '${FROM_GITHUB_CALCULATED_DATE}' -> '${alreadyDeployedEventsArray[$i]}.ics
-        # curl -s -k --user "$CREDENTIALS" -X DELETE $URL/${alreadyDeployedEventsArray[$i]}.ics
-    fi
+    #else
+    #    echo 'Keeping moved job '$ORIGINAL_DATE' -> '${FROM_GITHUB_CALCULATED_DATE}' -> '${alreadyDeployedEventsArray[$i]}.ics
+    #    curl -s -k --user "$CREDENTIALS" -X DELETE $URL/${alreadyDeployedEventsArray[$i]}.ics
+    #fi
 done
 
 # check for modified events and skip them
