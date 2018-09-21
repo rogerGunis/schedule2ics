@@ -1,4 +1,25 @@
 dateStart,dateEnd,name,shopsAreOpen
+24.12.2019,04.01.2020,Weihnachten,1
+06.12.2019,06.12.2019,Nikolaus,0
+02.11.2019,02.11.2019,geschlossen wegen Brückentag,1
+01.11.2019,01.11.2019,Allerheiligen,0
+31.10.2019,31.10.2019,Reformationstag,0
+04.10.2019,04.10.2019,geschlossen wegen Brückentag,1
+03.10.2019,03.10.2019,Tag der Deutschen Einheit,0
+16.08.2019,06.09.2019,Sommerferien,1
+15.08.2019,15.08.2019,Mariä Himmelfahrt
+21.06.2019,21.06.2019,geschlossen wegen Brückentag,1
+20.06.2019,20.06.2019,Fronleichnam,0
+10.06.2019,10.06.2019,Pfingstmontag,0
+31.05.2019,31.05.2019,geschlossen wegen Brückentag,1
+30.05.2019,30.05.2019,Christi Himmelfahrt,0
+01.05.2019,01.05.2019,Tag der Arbeit,0
+22.04.2019,22.04.2019,Ostermontag,0
+19.04.2019,19.04.2019,Karfreitag,0
+19.04.2019,19.04.2019,geschlossen wegen Brückentag,1
+18.04.2019,18.04.2019,Gründonnerstag,0
+06.03.2019,06.03.2019,Aschermittwoch,0
+#---------------
 24.12.2018,05.01.2019,Weihnachten,1
 07.12.2018,07.12.2018,geschlossen wegen Brückentag,1
 06.12.2018,06.12.2018,Nikolaus,0
