@@ -38,7 +38,7 @@ echo "Timeframe: $START $END P${DAYS}D"
 for i in $(find . -name "*.ics" -type f); 
 do 
     echo $i
-    $MY_PWD/ical2html --description $START P${DAYS}D ${i} | sed -e 's#(whole</abbr> <abbr class=duration##;s#title="1D">day)##;s#>Sunday#>Frühstück#;s#>Monday#>Montag#;s#>Tuesday#>Dienstag#;s#>Wednesday#>Mittwoch#;s#>Thursday#>Donnerstag#;s#>Friday#>Freitag#;s#>Saturday#>Samstag#' > ${i/.ics/.html} ;
+    $MY_PWD/ical2html --description $START P${DAYS}D ${i} | sed -e 's#(whole</abbr> <abbr class=duration##;s#title="1D">day)##;s#>Sunday#>Frühstück+Wäsche#;s#>Monday#>Montag#;s#>Tuesday#>Dienstag#;s#>Wednesday#>Mittwoch#;s#>Thursday#>Donnerstag#;s#>Friday#>Freitag#;s#>Saturday#>Samstag#' > ${i/.ics/.html} ;
 
 test -s ${i/.ics/.html}  && \
 cat << _EOF_ >>allEvents.html
