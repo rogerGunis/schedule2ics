@@ -1,6 +1,5 @@
 dateStart,dateEnd,name,shopsAreOpen
 24.12.2019,04.01.2020,Weihnachten,1
-06.12.2019,06.12.2019,Nikolaus,0
 02.11.2019,02.11.2019,geschlossen wegen Brückentag,1
 01.11.2019,01.11.2019,Allerheiligen,0
 31.10.2019,31.10.2019,Reformationstag,0
@@ -21,8 +20,6 @@ dateStart,dateEnd,name,shopsAreOpen
 06.03.2019,06.03.2019,Aschermittwoch,0
 #---------------
 24.12.2018,05.01.2019,Weihnachten,1
-07.12.2018,07.12.2018,geschlossen wegen Brückentag,1
-06.12.2018,06.12.2018,Nikolaus,0
 02.11.2018,02.11.2018,geschlossen wegen Brückentag,1
 01.11.2018,01.11.2018,Allerheiligen,0
 03.10.2018,03.10.2018,Tag der Deutschen Einheit,0
