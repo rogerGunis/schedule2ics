@@ -6,7 +6,7 @@ dateStart,dateEnd,name,shopsAreOpen
 04.10.2019,04.10.2019,geschlossen wegen Brückentag,1
 03.10.2019,03.10.2019,Tag der Deutschen Einheit,0
 16.08.2019,06.09.2019,Sommerferien,1
-15.08.2019,15.08.2019,Mariä Himmelfahrt
+15.08.2019,15.08.2019,Mariä Himmelfahrt,
 21.06.2019,21.06.2019,geschlossen wegen Brückentag,1
 20.06.2019,20.06.2019,Fronleichnam,0
 10.06.2019,10.06.2019,Pfingstmontag,0
@@ -18,12 +18,12 @@ dateStart,dateEnd,name,shopsAreOpen
 19.04.2019,19.04.2019,geschlossen wegen Brückentag,1
 18.04.2019,18.04.2019,Gründonnerstag,0
 06.03.2019,06.03.2019,Aschermittwoch,0
-#---------------
+
 24.12.2018,05.01.2019,Weihnachten,1
 02.11.2018,02.11.2018,geschlossen wegen Brückentag,1
 01.11.2018,01.11.2018,Allerheiligen,0
 03.10.2018,03.10.2018,Tag der Deutschen Einheit,0
-#--------------- Ende Schuljahr 2018
+
 20.08.2018,07.09.2018,Sommerferien,1
 15.08.2018,15.08.2018,Mariä Himmelfahrt,0
 25.06.2018,29.06.2018,Bauernhof,1
@@ -36,7 +36,7 @@ dateStart,dateEnd,name,shopsAreOpen
 30.04.2018,30.04.2018,geschlossen wegen Brückentag,1
 02.04.2018,02.04.2018,Ostermontag,0
 30.03.2018,30.03.2018,Karfreitag,0
-#--------------- 2017
+
 24.12.2017,05.01.2018,Weihnachten,1
 01.11.2017,01.11.2017,Allerheiligen,0
 31.10.2017,31.10.2017,Reformationstag,0
