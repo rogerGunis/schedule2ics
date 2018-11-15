@@ -5,10 +5,10 @@ v1.0, 02.04.2017
 :toc:
 :imagesdir: assets/images
 
-link:./jobService/src/test/resources/WithPostProcessing/inputData/AFTER_SUCCESS_VARIABLES.txt[PDF Range]
-link:./jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv[Holidays]
-link:./jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv[Workers]
-link:./jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv[Jobs]
+* link:./jobService/src/test/resources/WithPostProcessing/inputData/AFTER_SUCCESS_VARIABLES.txt[PDF Range]
+* link:./jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv[Holidays]
+* link:./jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv[Workers]
+* link:./jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv[Jobs]
 
 
 # Current state
