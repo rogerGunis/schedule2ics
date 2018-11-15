@@ -5,6 +5,12 @@ v1.0, 02.04.2017
 :toc:
 :imagesdir: assets/images
 
+[PDF Range](./jobService/src/test/resources/WithPostProcessing/inputData/AFTER_SUCCESS_VARIABLES.txt)
+[Holidays](./jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv)
+[Workers](./jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv)
+[Jobs](./jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv)
+
+
 # Current state
 
 image::https://travis-ci.org/rogerGunis/schedule2ics.svg?branch=master[image]
