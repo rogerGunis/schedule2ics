@@ -103,4 +103,11 @@ dependencies {
     runtime "com.intellij:forms_rt:7.0.3"
 }
 
+test {
+    testLogging {
+        // Show that tests are run in the command-line output
+        events 'started', 'passed'
+    }
+}
+
 // ./gradlew :jobService:test --tests "de.gunis.roger.jobService.WithPostProcessing.withPostprocessing"
