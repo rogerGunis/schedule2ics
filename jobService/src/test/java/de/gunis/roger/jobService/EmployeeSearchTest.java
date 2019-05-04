@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,7 +33,7 @@ public class EmployeeSearchTest {
                 new JobDescription("help",
                         Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                         1,
-                        newYear, newYear, null)
+                        newYear, newYear, null, new HashSet<>(Arrays.asList("Bauernhof")))
         ).collect(Collectors.toList());
 
         LocalDate myDay = newYear;

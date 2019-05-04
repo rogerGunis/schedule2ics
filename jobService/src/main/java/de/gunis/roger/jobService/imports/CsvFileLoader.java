@@ -43,13 +43,11 @@ public class CsvFileLoader {
             }
         }
 
-        boolean aBoolean = false;
-        if (p.length >= 7) {
-            aBoolean = p[6].equals("0") ? Boolean.FALSE : Boolean.TRUE;
-        }
+        boolean reminder = p[6].equals("0") ? Boolean.FALSE : Boolean.TRUE;
+        String[] onEmptyWeeksCheckReasonOfHoliday = p[7].split("-");
 
         return new JobDescription(p[0], dayOfWeeks, Integer.parseInt(p[2]),
-                dateOf(p[3]), dateOf(p[4]), info2DayOfWeek, aBoolean);
+                dateOf(p[3]), dateOf(p[4]), info2DayOfWeek, reminder, new HashSet<>(Arrays.asList(onEmptyWeeksCheckReasonOfHoliday)));
     };
     static final Function<String, Worker> mapToWorker = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines

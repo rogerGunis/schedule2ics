@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,7 +36,7 @@ public class JobCenterTest {
         jobCleaning = new JobDescription("cleaning",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 7, monday, monday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")));
     }
 
     @Test

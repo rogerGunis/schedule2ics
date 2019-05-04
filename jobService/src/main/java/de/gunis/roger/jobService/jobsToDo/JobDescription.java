@@ -31,8 +31,9 @@ public class JobDescription implements ICalendarAccess {
     private final LocalDate end;
     private final Dur jobDuration;
     private final Boolean reminder;
+    private final Set<String> onEmptyWeeksCheckReasonOfHoliday;
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek manuallySetDay, Boolean reminder) {
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek manuallySetDay, Boolean reminder, Set<String> onEmptyWeeksCheckReasonOfHoliday) {
         this.name = name;
         this.daysInWeek = new HashSet<>(daysInWeek);
         this.daysInWeekTotal = daysInWeek;
@@ -41,6 +42,7 @@ public class JobDescription implements ICalendarAccess {
         this.begin = begin;
         this.end = end;
         this.reminder = reminder;
+        this.onEmptyWeeksCheckReasonOfHoliday = onEmptyWeeksCheckReasonOfHoliday;
 
         if (begin.toEpochDay() > end.toEpochDay()) {
             throw new IllegalArgumentException(this.toString() + ", begin day is before end date");
@@ -57,8 +59,8 @@ public class JobDescription implements ICalendarAccess {
 
     }
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, Boolean reminder) {
-        this(name, daysInWeek, duration, begin, end, null, reminder);
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, Boolean reminder, Set<String> onEmptyWeeksCheckReasonOfHoliday) {
+        this(name, daysInWeek, duration, begin, end, null, reminder, onEmptyWeeksCheckReasonOfHoliday);
     }
 
     private static LocalDate getManuallyPlacedCalendarDay(LocalDate day, DayOfWeek manuallySetDayCheckSatOrSun) {
@@ -96,10 +98,16 @@ public class JobDescription implements ICalendarAccess {
         boolean jobIsTotalInHolidays = Stream.iterate(testDate, date -> date.plusDays(1))
                 .limit(duration)
                 .filter(day -> daysInWeekTotal.contains(day.getDayOfWeek()))
-                .allMatch(day -> holidays.stream().anyMatch(holiday -> holiday.isWithinRange(day))
+                .allMatch(day -> holidays.stream()
+                        .anyMatch(holiday -> (holiday.isWithinRange(day)))
                 );
 
-        return !jobIsTotalInHolidays;
+        if(holidays.stream().map(Holiday::getName).anyMatch(onEmptyWeeksCheckReasonOfHoliday::contains)){
+            return true;
+        }
+        else{
+            return !jobIsTotalInHolidays;
+        }
     }
 
     boolean isWithinRange(LocalDate testDate) {
