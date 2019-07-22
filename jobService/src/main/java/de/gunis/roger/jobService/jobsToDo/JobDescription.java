@@ -102,12 +102,16 @@ public class JobDescription implements ICalendarAccess {
                         .anyMatch(holiday -> (holiday.isWithinRange(day)))
                 );
 
-        if(holidays.stream().map(Holiday::getName).anyMatch(onEmptyWeeksCheckReasonOfHoliday::contains)){
+        if(mustBeDoneEvenWithinHoliday(testDate, holidays)){
             return true;
         }
         else{
             return !jobIsTotalInHolidays;
         }
+    }
+
+    private boolean mustBeDoneEvenWithinHoliday(LocalDate testDate, Set<Holiday> holidays) {
+        return holidays.stream().filter(holiday -> holiday.isWithinRange(testDate)).map(Holiday::getName).anyMatch(onEmptyWeeksCheckReasonOfHoliday::contains);
     }
 
     boolean isWithinRange(LocalDate testDate) {

@@ -76,7 +76,7 @@ public class JobDescriptionTest {
 
 //        HolidayInformationCenter.instance().getHolidays().stream().anyMatch(holiday -> holiday.isWithinRange(friday));
 
-        Assert.assertTrue(jobDescription.hasToBeDoneOnHoliday(sunday));
+        Assert.assertTrue(jobDescription.hasToBeDoneOnHoliday(monday));
         HolidayInformationCenter.close();
     }
 

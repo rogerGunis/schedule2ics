@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class WithPostProcessing {
 
-    //@Ignore
+    @Ignore
     @Test
     public void withPostprocessing() throws IOException {
 
@@ -44,8 +44,8 @@ public class WithPostProcessing {
         main.runEmploymentAgency();
 
         main.doPostProcessing(ics2html.toString() + " " + scheduleTestDir + " " + folderWithConverterScripts + " " + System.getProperty("PDF_START") + " " + System.getProperty("PDF_END"));
-        main.doPostProcessing("cp -f " + folderWithConverterScripts + "/../js/jquery.min.js" + " " + scheduleTestDir);
-        main.doPostProcessing("cp -f " + folderWithConverterScripts + "/../css/calendar.css" + " " + scheduleTestDir);
+        main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../js/jquery.min.js" + " " + scheduleTestDir);
+        main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../css/calendar.css" + " " + scheduleTestDir);
         main.doPostProcessing("google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
                 scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html");
 
