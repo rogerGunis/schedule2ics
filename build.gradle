@@ -106,7 +106,7 @@ dependencies {
 test {
     testLogging {
         // Show that tests are run in the command-line output
-        events 'started', 'passed'
+        events 'started', 'passed', 'failed'
     }
 }
 

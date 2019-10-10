@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class WithPostProcessing {
 
-    @Ignore
+    //@Ignore
     @Test
     public void withPostprocessing() throws IOException {
 
@@ -46,8 +46,29 @@ public class WithPostProcessing {
         main.doPostProcessing(ics2html.toString() + " " + scheduleTestDir + " " + folderWithConverterScripts + " " + System.getProperty("PDF_START") + " " + System.getProperty("PDF_END"));
         main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../js/jquery.min.js" + " " + scheduleTestDir);
         main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../css/calendar.css" + " " + scheduleTestDir);
-        main.doPostProcessing("google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
-                scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html");
+
+      	try {
+    	 	//File
+     	 	File file = new File(scheduleTestDir + "allEvents.pdf");
+     	 	//Check the file is writable or read only
+            if(!file.exists()){
+                file.createNewFile();
+            }
+            else{
+                file.delete();
+                file.createNewFile();
+            }
+     	 	if(file.canWrite()){
+        		main.doPostProcessing("google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
+                		scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html");
+         	}
+            else{
+     	    	System.err.println("File is read only <"+scheduleTestDir + "allEvents.pdf"+">");
+     	 	}
+
+      	} catch (Exception e) {
+        	e.printStackTrace();
+      	} 
 
 //        try {
 //            Files.copy(new File(folderWithConverterScripts + "/css/calendar.css").toPath(), new File(scheduleTestDir + "/css/calendar.css").toPath(), REPLACE_EXISTING);
