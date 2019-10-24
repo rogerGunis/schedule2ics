@@ -1,6 +1,25 @@
 dateStart,dateEnd,name,shopsAreOpen
+17.08.2020,06.09.2020,Sommerferien,1
+16.07.2020,16.07.2020,Ausflugstag,1
+29.06.2020,03.07.2020,Bauernhof,1
+02.04.2020,02.04.2020,Ausflugstag,1
+12.03.2020,12.03.2020,Ausflugstag,1
+13.02.2020,13.02.2020,Ausflugstag,1
+23.01.2020,23.01.2020,Ausflugstag,1
+# ---- feiertage 2020
+01.01.2020,01.01.2020,Neujahr
+06.01.2020,06.01.2020,Heilige Drei Könige
+10.04.2020,10.04.2020,Karfreitag
+13.04.2020,13.04.2020,Ostermontag
+01.05.2020,01.05.2020,Tag der Arbeit
+21.05.2020,21.05.2020,Christi Himmelfahrt
+22.05.2020,22.05.2020,geschlossen wegen Brückentag
+01.06.2020,01.06.2020,Pfingstmontag
+11.06.2020,11.06.2020,Fronleichnam
+12.06.2020,12.06.2020,geschlossen wegen Brückentag
+25.12.2020,25.12.2020,1. Weihnachtstag
+#---------------
 24.12.2019,04.01.2020,Weihnachten,1
-02.11.2019,02.11.2019,geschlossen wegen Brückentag,1
 01.11.2019,01.11.2019,Allerheiligen,0
 04.10.2019,04.10.2019,geschlossen wegen Brückentag,1
 03.10.2019,03.10.2019,Tag der Deutschen Einheit,0

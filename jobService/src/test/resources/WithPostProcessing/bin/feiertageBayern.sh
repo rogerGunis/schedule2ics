@@ -5,10 +5,13 @@ let NEXT_YEAR=YEAR+1
 
 calendarFile=testfile.txt
 fname=FeiertageBayern.ics
-rm -f ${fname}
+# rm -f ${fname}
 rm -f ${calendarFile}
 # curl -s -o $fname https://calendar.google.com/calendar/ical/dbch66ql3ee9tm0sr97hrav20c%40group.calendar.google.com/public/basic.ics
-curl -s -o $fname 'http://www.ifeiertage.de/calendar.php?bl=by&o3=kirche&t=dnl'
+urlName="feiertage_bayern_2019.ics"
+fname=$(basename 'http://de-kalender.de/downloads/'${urlName})
+test -f ${fname} || curl -s -o $fname 'http://de-kalender.de/downloads/'${urlName}
+# http://de-kalender.de/downloads/feiertage_bayern_2020.ics
 
 # decode utf-8 string coming back from caldav server (vEvent ics file)
 alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.stdin.read().rstrip())"'
@@ -40,12 +43,13 @@ do
 done
 for (( i=${#bevents[@]} - 1; i >= 0 ; i--))
 do
-    INFO=$(egrep "(DTSTART;VALUE=DATE:|SUMMARY|DESCRIPTION)" $file-$i.ics | sed -e "s/2000/$NEXT_YEAR/" | sed -ne 's/.*://p' | tr '\r\n' '-' | sed -ne 's/--$//;s/--/-/p')
+    INFO=$(egrep "(DTSTART;TZID|SUMMARY|DESCRIPTION)" $file-$i.ics  | sed -e 's/DTS/1/;s/SUMM/2/' | sort -n | sed -ne 's/.*://p' | grep -v '^/' | tr '\r\n' '-' | tr '\n' '-'  | tr '\r' '-' | sed -e 's#^-##g;s#-$##g')
     IS_HOLIDAY=$(echo $INFO | grep -q 'kein ' ; echo $?)
     if [ $IS_HOLIDAY = 0 ];then
         continue
     fi
-    INFO=$(echo $INFO | sed -e 's/--[^-]*[-]*/-/;s/-$//')
+    DESC=$(echo $INFO | sed -e 's/[^-]*[-]*/-/;s/-$//;s/^-//')
+    # INFO=$(echo $INFO | sed -e 's/[^-]*[-]*/-/;s/-$//')
     DOW=$(/bin/date -d ${INFO/-*/} +%u)
     CURRENT_YEAR=$(/bin/date -d ${INFO/-*/} +%Y)
     HUMAN_DATE=$(/bin/date -d ${INFO/-*/} "+%d.%m.%Y")

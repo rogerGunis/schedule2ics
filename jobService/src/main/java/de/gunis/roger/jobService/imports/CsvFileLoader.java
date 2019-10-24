@@ -64,6 +64,7 @@ public class CsvFileLoader {
         }).collect(Collectors.toSet());
 
         List<Holiday> vacations = null;
+        List<Worker> group = null;
         String nameOfWorker = p[0];
         if (p.length >= 3) {
             vacations = Arrays.stream(trimDateRange.apply(trimLine.apply(p[2])).split("\\s+"))
