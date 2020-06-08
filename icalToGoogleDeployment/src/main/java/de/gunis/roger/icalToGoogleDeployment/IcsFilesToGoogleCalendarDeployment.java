@@ -20,7 +20,6 @@ import com.google.api.client.util.Lists;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.*;
 import com.google.api.services.calendar.model.Calendar;
-import javafx.util.Pair;
 import net.fortuna.ical4j.data.CalendarBuilder;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.ComponentList;
@@ -30,6 +29,8 @@ import net.fortuna.ical4j.model.property.DtStamp;
 import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.Duration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -384,7 +385,7 @@ public class IcsFilesToGoogleCalendarDeployment {
                 logger.warn("Modification found, Calendar: " + googleCalendar.getSummary() + ", Calculated UID: " + calculatedUID + ", IcalUID: " + googleUID);
             }
         });
-        return new Pair<>(unmodifiedEvents, modifiedEvents);
+        return new ImmutablePair<>(unmodifiedEvents, modifiedEvents);
     }
 
     private static String getEventInformation(Calendar googleCalendar, Event googleEvent) {

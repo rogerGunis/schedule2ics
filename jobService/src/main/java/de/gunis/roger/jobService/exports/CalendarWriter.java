@@ -1,12 +1,12 @@
 package de.gunis.roger.jobService.exports;
 
 import de.gunis.roger.jobService.calendar.ICalendarAccess;
-import javafx.util.Pair;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.component.CalendarComponent;
 import net.fortuna.ical4j.model.property.DtStart;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

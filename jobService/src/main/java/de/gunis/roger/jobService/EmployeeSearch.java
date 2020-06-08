@@ -10,10 +10,8 @@ import de.gunis.roger.jobService.imports.CsvFileLoader;
 import de.gunis.roger.jobService.jobsToDo.JobDescription;
 import de.gunis.roger.jobService.workersAvailable.JobCenter;
 import de.gunis.roger.jobService.workersAvailable.Worker;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,10 +54,10 @@ public class EmployeeSearch {
     @Parameter(names = {"-log", "-loggingLevel"}, description = "Level of verbosity [ALL|TRACE|DEBUG|INFO|WARN|ERROR|OFF]")
     private String loggingLevel;
 
-    private IntegerProperty amountOfWorkers = new SimpleIntegerProperty(0);
-    private IntegerProperty amountOfJobDescriptions = new SimpleIntegerProperty(0);
+    private Integer amountOfWorkers = 0;
+    private Integer amountOfJobDescriptions = 0;
 
-    private IntegerProperty holidays = new SimpleIntegerProperty(0);
+    private Integer holidays = 0;
 
     private List<Worker> workers;
     private List<JobDescription> jobDescriptions;
@@ -100,11 +98,11 @@ public class EmployeeSearch {
             this.inputFilePathJobDescriptions = inputFilePathJobDescriptions;
 
             jobDescriptions = csvFileLoader.importJobDescriptionFromFile(inputFilePathJobDescriptions);
-            this.amountOfJobDescriptions.set(jobDescriptions.size());
+            this.amountOfJobDescriptions = jobDescriptions.size();
         } else {
             this.inputFilePathJobDescriptions = "";
             jobDescriptions = null;
-            this.amountOfJobDescriptions.set(0);
+            this.amountOfJobDescriptions = 0;
         }
     }
 
@@ -113,11 +111,11 @@ public class EmployeeSearch {
             this.inputFilePathWorkers = inputFilePathWorkers;
 
             workers = csvFileLoader.importWorkerFromFile(inputFilePathWorkers);
-            this.amountOfWorkers.set(workers.size());
+            this.amountOfWorkers = workers.size();
         } else {
             this.inputFilePathWorkers = "";
             workers = null;
-            this.amountOfWorkers.set(0);
+            this.amountOfWorkers = 0;
         }
     }
 
@@ -159,9 +157,9 @@ public class EmployeeSearch {
         String pdf_end = System.getProperty("PDF_END");
 
         LocalDate startOfReports = getDatesFromString(pdf_start, startOfInterval);
-        LocalDate endOfReports = getDatesFromString(pdf_end, endOfInterval + 60 * 60 * 24+1);
+        LocalDate endOfReports = getDatesFromString(pdf_end, endOfInterval + 60 * 60 * 24 + 1);
 
-        Pair<LocalDate, LocalDate> reportRange = new Pair<>(startOfReports, endOfReports);
+        Pair<LocalDate, LocalDate> reportRange = new ImmutablePair(startOfReports, endOfReports);
         LocalDate beginOfJobSearch =
                 Instant.ofEpochMilli(startOfInterval * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
         LocalDate endOfJobSearch = Instant.ofEpochMilli(endOfInterval * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
@@ -206,10 +204,6 @@ public class EmployeeSearch {
             }
         }
         return Instant.ofEpochMilli(returnValue * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
-    }
-
-    BooleanBinding hasEnoughInformations() {
-        return amountOfJobDescriptions.greaterThan(0).and(amountOfWorkers.greaterThan(0));
     }
 
     void doPostProcessing(String execCommand) {
