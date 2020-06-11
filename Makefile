@@ -3,7 +3,7 @@ prepare:
 
 pdf: 
 	test -f /var/tmp/schedule/allEvents.pdf && mv /var/tmp/schedule/allEvents.pdf /var/tmp/schedule/allEvents.previous.pdf || true
-	sed -i -e 's#^\(\s+\)@Ignore#\1//@Ignore#' jobService/src/test/java/de/gunis/roger/jobService/WithPostProcessing.java
+	sed -i -e 's#^\(\s*\)@Ignore#\1//@Ignore#' jobService/src/test/java/de/gunis/roger/jobService/WithPostProcessing.java
 	export GRADLE_HOME=$$HOME/.gradle
 	./gradlew build 
 	./gradlew :jobService:test --tests "de.gunis.roger.jobService.WithPostProcessing.withPostprocessing"
@@ -17,5 +17,7 @@ view:
 	qpdfview /var/tmp/schedule/allEvents.pdf
 
 clean: 
+	mkdir -p /var/tmp/schedule/
+	rm /var/tmp/schedule/*
 	./gradlew clean
 

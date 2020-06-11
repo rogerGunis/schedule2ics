@@ -43,10 +43,11 @@ public class WithPostProcessing {
 
         main.runEmploymentAgency();
         main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../js/jquery.min.js" + " " + scheduleTestDir);
+        main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../js/style_cols.js" + " " + scheduleTestDir);
         main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../css/calendar.css" + " " + scheduleTestDir);
 
         String library = this.getClass().getClassLoader().getResource("WithPostProcessing/lib/libical.so.1.0.1").getFile();
-        String preload = "export LD_PRELOAD="+library+";";
+        String preload = "LD_PRELOAD="+library+" ";
         String command = preload+" "+ics2html.toString() + " " + scheduleTestDir + " " + folderWithConverterScripts + " " + System.getProperty("PDF_START") + " " + System.getProperty("PDF_END");
         System.out.println("Command: "+command);
         main.doPostProcessing(command);
@@ -55,14 +56,11 @@ public class WithPostProcessing {
     	 	//File
      	 	File file = new File(scheduleTestDir + "allEvents.pdf");
      	 	//Check the file is writable or read only
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            else{
+            if (file.exists()) {
                 file.delete();
-                file.createNewFile();
             }
-     	 	if(file.canWrite()){
+            file.createNewFile();
+            if(file.canWrite()){
         		main.doPostProcessing("google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
                 		scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html");
          	}

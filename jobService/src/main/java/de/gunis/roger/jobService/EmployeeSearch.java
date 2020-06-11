@@ -229,7 +229,7 @@ public class EmployeeSearch {
             }
 
             // read any errors from the attempted command
-            logger.info("Here is the standard error of the command (if any):\n");
+            logger.error("Here is the standard error of the command (if any):\n");
             while ((s = stdError.readLine()) != null) {
                 logger.info(s);
             }
