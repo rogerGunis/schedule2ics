@@ -36,7 +36,7 @@ public class JobCenterTest {
         jobCleaning = new JobDescription("cleaning",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 7, monday, monday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")), "");
     }
 
     @Test

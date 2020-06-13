@@ -36,18 +36,18 @@ public class CsvFileLoader {
                 .collect(Collectors.toSet());
 
         DayOfWeek info2DayOfWeek = null;
-        if (p.length >= 6) {
-            Integer dayOfWeekInt = Integer.valueOf(p[5]);
-            if (dayOfWeekInt > 0) {
-                info2DayOfWeek = DayOfWeek.of(dayOfWeekInt);
-            }
+        Integer dayOfWeekInt = Integer.valueOf(p[5]);
+        if (dayOfWeekInt > 0) {
+            info2DayOfWeek = DayOfWeek.of(dayOfWeekInt);
         }
 
         boolean reminder = p[6].equals("0") ? Boolean.FALSE : Boolean.TRUE;
         String[] onEmptyWeeksCheckReasonOfHoliday = p[7].split("-");
+        String startsWith = p[8];
 
         return new JobDescription(p[0], dayOfWeeks, Integer.parseInt(p[2]),
-                dateOf(p[3]), dateOf(p[4]), info2DayOfWeek, reminder, new HashSet<>(Arrays.asList(onEmptyWeeksCheckReasonOfHoliday)));
+                dateOf(p[3]), dateOf(p[4]), info2DayOfWeek, reminder,
+                new HashSet<>(Arrays.asList(onEmptyWeeksCheckReasonOfHoliday)), startsWith);
     };
     static final Function<String, Worker> mapToWorker = line -> {
         String[] p = line.split(",");// a CSV has comma separated lines

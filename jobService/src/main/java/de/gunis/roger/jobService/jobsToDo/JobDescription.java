@@ -33,7 +33,12 @@ public class JobDescription implements ICalendarAccess {
     private final Boolean reminder;
     private final Set<String> onEmptyWeeksCheckReasonOfHoliday;
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, DayOfWeek manuallySetDay, Boolean reminder, Set<String> onEmptyWeeksCheckReasonOfHoliday) {
+
+    private final String startsWithWorker;
+
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration,
+                          LocalDate begin, LocalDate end, DayOfWeek manuallySetDay, Boolean reminder,
+                          Set<String> onEmptyWeeksCheckReasonOfHoliday, String startsWithWorker) {
         this.name = name;
         this.daysInWeek = new HashSet<>(daysInWeek);
         this.daysInWeekTotal = daysInWeek;
@@ -43,6 +48,7 @@ public class JobDescription implements ICalendarAccess {
         this.end = end;
         this.reminder = reminder;
         this.onEmptyWeeksCheckReasonOfHoliday = onEmptyWeeksCheckReasonOfHoliday;
+        this.startsWithWorker = startsWithWorker;
 
         if (begin.toEpochDay() > end.toEpochDay()) {
             throw new IllegalArgumentException(this.toString() + ", begin day is before end date");
@@ -59,8 +65,8 @@ public class JobDescription implements ICalendarAccess {
 
     }
 
-    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, Boolean reminder, Set<String> onEmptyWeeksCheckReasonOfHoliday) {
-        this(name, daysInWeek, duration, begin, end, null, reminder, onEmptyWeeksCheckReasonOfHoliday);
+    public JobDescription(String name, Set<DayOfWeek> daysInWeek, Integer duration, LocalDate begin, LocalDate end, Boolean reminder, Set<String> onEmptyWeeksCheckReasonOfHoliday, String startsWithWorker) {
+        this(name, daysInWeek, duration, begin, end, null, reminder, onEmptyWeeksCheckReasonOfHoliday, startsWithWorker);
     }
 
     private static LocalDate getManuallyPlacedCalendarDay(LocalDate day, DayOfWeek manuallySetDayCheckSatOrSun) {
@@ -82,6 +88,10 @@ public class JobDescription implements ICalendarAccess {
         } else if (this.duration > 1 && daysInWeekTotal.size() != 1) {
             throw new IllegalArgumentException(this.toString() + ",Currently it is only supported to have amount of 'startDayOfWeek' equals 1");
         }
+    }
+
+    public String getStartsWithWorker() {
+        return startsWithWorker;
     }
 
     public LocalDate getBegin() {

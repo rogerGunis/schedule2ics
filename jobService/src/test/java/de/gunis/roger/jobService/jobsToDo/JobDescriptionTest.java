@@ -24,7 +24,7 @@ public class JobDescriptionTest {
         JobDescription jobDescription = new JobDescription("test",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 7, monday, monday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")), "");
         Worker worker = new Worker("asdf",
                 Stream.of(new Job("JobA")).collect(Collectors.toSet()), null);
         jobDescription.registerWorkerOnDate(monday, worker);
@@ -47,7 +47,7 @@ public class JobDescriptionTest {
         JobDescription jobDescription = new JobDescription("test",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 5, monday, friday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")), "");
 
 //        HolidayInformationCenter.instance().getHolidays().stream().anyMatch(holiday -> holiday.isWithinRange(friday));
 
@@ -72,7 +72,7 @@ public class JobDescriptionTest {
         JobDescription jobDescription = new JobDescription("Weekly",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 5, monday, friday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList(noSkipOnThisHoliday)));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList(noSkipOnThisHoliday)), "");
 
 //        HolidayInformationCenter.instance().getHolidays().stream().anyMatch(holiday -> holiday.isWithinRange(friday));
 
@@ -97,7 +97,7 @@ public class JobDescriptionTest {
         JobDescription jobDescription = new JobDescription("Daily",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 1, monday, friday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Collections.EMPTY_LIST));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Collections.EMPTY_LIST), "");
 
 //        HolidayInformationCenter.instance().getHolidays().stream().anyMatch(holiday -> holiday.isWithinRange(friday));
 
@@ -113,7 +113,7 @@ public class JobDescriptionTest {
         JobDescription jobDescription = new JobDescription("test",
                 Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                 2, jobActivationOnMonday, jobTerminationOnFriday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")), "");
 
         Assert.assertEquals(jobDescription.getDaysInWeekTotal().size(), 2);
 
@@ -128,7 +128,7 @@ public class JobDescriptionTest {
         new JobDescription("test",
                 Stream.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY).collect(Collectors.toSet()),
                 2, jobActivationOnMonday, jobTerminationOnFriday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")), "");
     }
 
 
@@ -140,7 +140,7 @@ public class JobDescriptionTest {
         new JobDescription("test",
                 Stream.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY).collect(Collectors.toSet()),
                 2, jobTerminationOnFriday, jobActivationOnMonday,
-                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")));
+                DayOfWeek.SUNDAY, Boolean.getBoolean("0"), new HashSet<>(Arrays.asList("Bauernhof")), "");
 
     }
 }

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class JobCenter {
@@ -79,9 +80,21 @@ public class JobCenter {
     Worker getWorkerForJob(LocalDate day, JobDescription jobDescription) {
         logger.trace("starting worker search");
         Job job = new Job(jobDescription.getName());
+        Integer startOfJobCenter = roundOfJobsCounter.getOrDefault(jobDescription.getName(), 0);
         roundOfJobsCounter.putIfAbsent(jobDescription.getName(), 1);
 
-        Optional<Worker> maybeWorker = jobToWorker.getOrDefault(job, Collections.emptyList())
+        List<Worker> workers = jobToWorker.getOrDefault(job, Collections.emptyList());
+
+        if(workerToBeShuffled(startOfJobCenter)){
+            OptionalInt indexOpt = IntStream.range(0, workers.size())
+                    .filter(i -> jobDescription.getStartsWithWorker().equals(workers.get(i).name))
+                    .findFirst();
+            Collections.rotate(workers, (workers.size()-indexOpt.orElse(0)));
+
+            jobToWorker.put(job, workers);
+        }
+
+        Optional<Worker> maybeWorker = workers
                 .stream()
                 .filter(worker -> !worker.hasJobDone(job))
                 .min(Comparator.comparing(worker -> worker.hasJobDone(job)));
@@ -97,8 +110,8 @@ public class JobCenter {
                 maybeWorker.get().doJob(job);
             }
         } else {
-            if (jobToWorker.getOrDefault(job, Collections.emptyList()).stream().findAny().isPresent()
-                    && jobToWorker.getOrDefault(job, Collections.emptyList())
+            if (workers.stream().findAny().isPresent()
+                    && workers
                     .stream().anyMatch(worker -> !worker.isOnHoliday(day))) {
 
                 logger.info("Round over, starting over next one: {}", job);
@@ -120,6 +133,10 @@ public class JobCenter {
         return maybeWorker.orElse(null);
     }
 
+    private boolean workerToBeShuffled(Integer startOfJobCenter) {
+        return startOfJobCenter == 0;
+    }
+
     private void addWorkers(List<Worker> workers) {
         workers.forEach(this::addWorker);
     }
@@ -133,6 +150,7 @@ public class JobCenter {
                                                 List<JobDescription> jobDescriptions,
                                                 LocalDate myDay,
                                                 LocalDate endDay) {
+
         LaborMarket laborMarket = new LaborMarket(jobDescriptions);
         JobCenter jobCenter = JobCenter.instance();
         jobCenter.addWorkers(workers);

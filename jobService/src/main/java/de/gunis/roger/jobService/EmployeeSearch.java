@@ -206,7 +206,7 @@ public class EmployeeSearch {
         return Instant.ofEpochMilli(returnValue * 1000).atZone(ZoneId.of("Europe/Berlin")).toLocalDate();
     }
 
-    void doPostProcessing(String execCommand) {
+    void doPostProcessing(String[] execCommand) {
 
         String s;
 

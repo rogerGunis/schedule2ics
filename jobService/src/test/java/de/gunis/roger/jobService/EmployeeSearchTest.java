@@ -24,7 +24,10 @@ public class EmployeeSearchTest {
 
         LocalDate newYear = LocalDate.of(2017, 01, 01);
         List<Worker> workers = Stream.of(
-                new Worker("asdf",
+                new Worker("asdf1",
+                        Stream.of(new Job("help")).collect(Collectors.toSet()),
+                        null),
+                new Worker("asdf2",
                         Stream.of(new Job("help")).collect(Collectors.toSet()),
                         null)
         ).collect(Collectors.toList());
@@ -33,7 +36,7 @@ public class EmployeeSearchTest {
                 new JobDescription("help",
                         Stream.of(DayOfWeek.MONDAY).collect(Collectors.toSet()),
                         1,
-                        newYear, newYear, null, new HashSet<>(Arrays.asList("Bauernhof")))
+                        newYear, newYear, null, new HashSet<>(Arrays.asList("Bauernhof")),"asdf2")
         ).collect(Collectors.toList());
 
         LocalDate myDay = newYear;

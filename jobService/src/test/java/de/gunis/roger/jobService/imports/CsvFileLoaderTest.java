@@ -28,13 +28,13 @@ public class CsvFileLoaderTest {
     String workerCsvLineExample = "Batman, drive rescue(diving), 12.12.2017-13.12.2017 14.12.2017 - 15.12.2017";
 
     // name, startDayOfWeek (mo=1,...,sun=7),duration, begin, end, moveInformationToDayOfWeek (off=0, mo=1,...,sun=7), special
-    String jobDescriptionCsvLineExample = "rescue, 1, 7, 01.01.2017, 01.01.2017, 0, 1, 1 ";
+    String jobDescriptionCsvLineExample = "rescue, 1, 7, 01.01.2017, 01.01.2017, 0, 1, 1,''";
 
     String dateFormat = "dd.MM.yyyy";
 
     // special treatment where to set information of the worker who will to this job which is on all weekdays
     // I want to put it on sunday only - and not on the weekdays
-    String jobDescriptionInfo2DayOfWeek = "making breakfast whole week, 1, 7, 01.01.2017, 01.01.2017, 7, 1, 1";
+    String jobDescriptionInfo2DayOfWeek = "making breakfast whole week, 1, 7, 01.01.2017, 01.01.2017, 7, 1, 1,''";
 
 
     @Before
@@ -58,7 +58,7 @@ public class CsvFileLoaderTest {
         String jobProposal = workers.get(0).askForProposal(new JobDescription("rescue", sunday,
                 7, LocalDate.parse("11.03.2017", dateFormatter), LocalDate.parse("11.03.2017", dateFormatter),
                 Boolean.FALSE,
-                new HashSet<>(Arrays.asList("Bauernhof"))));
+                new HashSet<>(Arrays.asList("Bauernhof")),""));
         Assert.assertTrue(workers.size() > 0);
         Assert.assertEquals("diving", jobProposal);
         Assert.assertTrue(workers.get(0).isOnHoliday(LocalDate.parse("12.12.2017", dateFormatter)));

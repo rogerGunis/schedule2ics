@@ -10,7 +10,7 @@ import java.util.Properties;
 
 public class WithPostProcessing {
 
-    // @Ignore
+    @Ignore
     @Test
     public void withPostprocessing() throws IOException {
 
@@ -42,14 +42,17 @@ public class WithPostProcessing {
         main.setLoggingLevel("TRACE");
 
         main.runEmploymentAgency();
-        main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../js/jquery.min.js" + " " + scheduleTestDir);
-        main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../js/style_cols.js" + " " + scheduleTestDir);
-        main.doPostProcessing("cp -u " + folderWithConverterScripts + "/../css/calendar.css" + " " + scheduleTestDir);
+        main.doPostProcessing(new String[]{"cp -u " + folderWithConverterScripts + "/../js/jquery.min.js" + " " + scheduleTestDir});
+        main.doPostProcessing(new String[]{"cp -u " + folderWithConverterScripts + "/../js/style_cols.js" + " " + scheduleTestDir});
+        main.doPostProcessing(new String[]{"cp -u " + folderWithConverterScripts + "/../css/calendar.css" + " " + scheduleTestDir});
 
         String library = this.getClass().getClassLoader().getResource("WithPostProcessing/lib/libical.so.1.0.1").getFile();
         String preload = "LD_PRELOAD="+library+" ";
-        String command = preload+" "+ics2html.toString() + " " + scheduleTestDir + " " + folderWithConverterScripts + " " + System.getProperty("PDF_START") + " " + System.getProperty("PDF_END");
-        System.out.println("Command: "+command);
+        String[] command = {
+                "/bin/bash","-c",
+                preload+" "+ics2html.toString()+ " " + scheduleTestDir + " " + folderWithConverterScripts + " " + System.getProperty("PDF_START") + " " + System.getProperty("PDF_END")
+        };
+        System.out.println("Command: "+command.toString());
         main.doPostProcessing(command);
 
       	try {
@@ -61,8 +64,8 @@ public class WithPostProcessing {
             }
             file.createNewFile();
             if(file.canWrite()){
-        		main.doPostProcessing("google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
-                		scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html");
+        		main.doPostProcessing(new String[]{"/bin/bash","-c","google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
+                        scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html"});
          	}
             else{
      	    	System.err.println("File is read only <"+scheduleTestDir + "allEvents.pdf"+">");
