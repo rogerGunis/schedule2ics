@@ -2,9 +2,11 @@ package de.gunis.roger.jobService;
 
 import de.gunis.roger.jobService.imports.CsvFileLoader;
 import de.gunis.roger.jobService.jobsToDo.JobDescription;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -68,15 +70,23 @@ public class WithPostProcessing {
 
         try {
             //File
-            File file = new File(scheduleTestDir + "allEvents.pdf");
+            String filename = scheduleTestDir + "allEvents.sh";
+            File file = new File(filename);
+            Runtime.getRuntime().exec("chmod u+x " + filename);
             //Check the file is writable or read only
             if (file.exists()) {
                 file.delete();
             }
             file.createNewFile();
             if (file.canWrite()) {
-                main.doPostProcessing(new String[]{"/bin/bash", "-c", "google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
-                        scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html"});
+                FileWriter myWriter = new FileWriter(filename);
+                String renderWithChrome = "google-chrome-stable --headless --disable-gpu --print-to-pdf=" +
+                        scheduleTestDir + "allEvents.pdf file://" + scheduleTestDir + "/allEvents.html";
+                String[] execCommand = {"/bin/bash", "-c", renderWithChrome};
+                myWriter.write("/bin/bash -c '"+String.join(" ", renderWithChrome)+"'");
+                myWriter.close();
+
+//                main.doPostProcessing(execCommand);
             } else {
                 System.err.println("File is read only <" + scheduleTestDir + "allEvents.pdf" + ">");
             }

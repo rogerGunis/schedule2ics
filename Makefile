@@ -1,3 +1,9 @@
+define geschwistertag
+
+	sed -i -e '0,/.*summary.*Geschwistertag$(1)/s#Geschwistertag$(1)#G::$(2)#' /var/tmp/schedule/allEvents.html
+
+endef
+
 prepare:
 	mkdir -p /var/tmp/schedule/
 
@@ -8,6 +14,20 @@ pdf:
 	./gradlew build 
 	./gradlew :jobService:test --tests "de.gunis.roger.jobService.WithPostProcessing.withPostprocessing"
 	sed -i -e 's#//@Ignore#@Ignore#' jobService/src/test/java/de/gunis/roger/jobService/WithPostProcessing.java
+	
+	$(call geschwistertag,1,Caro+Basti)
+	$(call geschwistertag,2,Martina+Roger)
+	$(call geschwistertag,1,Birgit+Raoul)
+
+	$(call geschwistertag,2,Caro+Basti)
+	$(call geschwistertag,1,Martina+Roger)
+	$(call geschwistertag,2,Doris+Jerome)
+	$(call geschwistertag,1,Birgit+Raoul)
+	
+	! egrep ".*summary.*Geschwistertag[1-2]" /var/tmp/schedule/allEvents.html
+	
+	/var/tmp/schedule/allEvents.sh
+	
 	test -f /var/tmp/schedule/allEvents.pdf && qpdfview /var/tmp/schedule/allEvents.pdf
 
 render:
@@ -19,5 +39,5 @@ view:
 clean: 
 	mkdir -p /var/tmp/schedule/
 	rm /var/tmp/schedule/*
-	./gradlew clean
+	// ./gradlew clean
 

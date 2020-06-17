@@ -109,7 +109,7 @@ public class CsvFileLoader {
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
-            inputList = getStringStream(br).map(mapToWorker).collect(Collectors.toList());
+            inputList = streamWithoutHeader(br).map(mapToWorker).collect(Collectors.toList());
             br.close();
         } catch (IOException e) {
             logger.warn("Exception" + e);
@@ -124,7 +124,7 @@ public class CsvFileLoader {
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
-            inputList = getStringStream(br).map(mapToJobDescription).collect(Collectors.toList());
+            inputList = streamWithoutHeader(br).map(mapToJobDescription).collect(Collectors.toList());
             br.close();
         } catch (IOException e) {
             logger.warn("Exception" + e);
@@ -139,7 +139,7 @@ public class CsvFileLoader {
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
-            inputList = getStringStream(br).map(mapToHoliday).collect(Collectors.toSet());
+            inputList = streamWithoutHeader(br).map(mapToHoliday).collect(Collectors.toSet());
             br.close();
         } catch (IOException e) {
             logger.warn("Exception" + e);
@@ -147,10 +147,11 @@ public class CsvFileLoader {
         return inputList;
     }
 
-    private Stream<String> getStringStream(BufferedReader br) {
-        return br.lines().skip(1)
+    private Stream<String> streamWithoutHeader(BufferedReader br) {
+        return br.lines()
                 .filter(line -> !line.isEmpty())
                 .filter(line -> !line.startsWith("#"))
+                .skip(1)
                 .map(trimLine);
     }
 }
