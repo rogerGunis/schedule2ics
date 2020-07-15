@@ -23,6 +23,11 @@ pdf:
 	$(call geschwistertag,1,Martina+Roger)
 	$(call geschwistertag,2,Doris+Jerome)
 	$(call geschwistertag,1,Birgit+Raoul)
+
+	$(call geschwistertag,2,Caro+Basti)
+	$(call geschwistertag,1,Martina+Roger)
+	$(call geschwistertag,2,Doris+Jerome)
+	$(call geschwistertag,1,Birgit+Raoul)
 	
 	! egrep ".*summary.*Geschwistertag[1-2]" /var/tmp/schedule/allEvents.html
 	

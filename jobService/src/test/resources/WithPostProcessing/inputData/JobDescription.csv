@@ -1,3 +1,3 @@
 name,startDayOfWeek (mo=1 ... sun=7),duration,begin,end,infoInDayOfWeek (off=0 mo=1 ... sun=7),reminder(off=0 on=1),specialHolidayNames(keyWord-keyWord),startsWith('' to be empty)
-Frühstück,1, 5,14.06.2020,31.07.2020,7,1,Bauernhof,Victoria+David
-Mittagessen,1 2 3 4 5, 1,15.06.2020,31.07.2020,0,1,Ausflugstag,''
+Frühstück,1, 5,14.06.2020,31.08.2020,7,1,Bauernhof,Victoria+David
+Mittagessen,1 2 3 4 5, 1,15.06.2020,31.08.2020,0,1,Ausflugstag,''
