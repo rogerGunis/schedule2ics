@@ -15,23 +15,12 @@ pdf:
 	./gradlew :jobService:test --tests "de.gunis.roger.jobService.WithPostProcessing.withPostprocessing"
 	sed -i -e 's#//@Ignore#@Ignore#' jobService/src/test/java/de/gunis/roger/jobService/WithPostProcessing.java
 	
-	$(call geschwistertag,1,Caro+Basti)
-	$(call geschwistertag,2,Martina+Roger)
 	$(call geschwistertag,1,Birgit+Raoul)
-
-	$(call geschwistertag,2,Caro+Basti)
-	$(call geschwistertag,1,Martina+Roger)
-	$(call geschwistertag,2,Doris+Jerome)
-	$(call geschwistertag,1,Birgit+Raoul)
-
-	$(call geschwistertag,2,Caro+Basti)
-	$(call geschwistertag,1,Martina+Roger)
-	$(call geschwistertag,2,Doris+Jerome)
-	$(call geschwistertag,1,Birgit+Raoul)
+	$(call geschwistertag,1,Doris+Jerome)
 	
 	! egrep ".*summary.*Geschwistertag[1-2]" /var/tmp/schedule/allEvents.html
 	
-	/var/tmp/schedule/allEvents.sh
+	bash /var/tmp/schedule/allEvents.sh
 	
 	test -f /var/tmp/schedule/allEvents.pdf && qpdfview /var/tmp/schedule/allEvents.pdf
 
