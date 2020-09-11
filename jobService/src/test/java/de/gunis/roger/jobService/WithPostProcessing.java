@@ -14,7 +14,7 @@ import java.util.Comparator;
 
 public class WithPostProcessing {
 
-    @Ignore
+//    @Ignore
     @Test
     public void withPostprocessing() throws IOException {
 

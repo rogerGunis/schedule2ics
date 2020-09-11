@@ -131,6 +131,10 @@ public class Worker implements ICalendarAccess {
         return vacations.stream().anyMatch(vacation -> vacation.isWithinRange(day));
     }
 
+    public Worker clone(){
+        return new Worker(name,jobs,vacations);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

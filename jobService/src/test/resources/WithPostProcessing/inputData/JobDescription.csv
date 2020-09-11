@@ -1,3 +1,4 @@
-name,startDayOfWeek (mo=1 ... sun=7),duration,begin,end,infoInDayOfWeek (off=0 mo=1 ... sun=7),reminder(off=0 on=1),specialHolidayNames(keyWord-keyWord),startsWith('' to be empty)
-Frühstück,1, 5,06.09.2020,30.09.2020,7,1,Bauernhof,Lynn+Nick
-Mittagessen,1 2 3 4 5, 1,07.09.2020,30.09.2020,0,1,Ausflugstag-Märchenwald-Weihnachtsfeier-Sommerfest,Doris+Jerome
+name,startDayOfWeek (mo=1 ... sun=7),duration,begin,end,infoInDayOfWeek (off=0 mo=1 ... sun=7),reminder(off=0 on=1),specialHolidayNames(keyWord-keyWord),endsWith('' to be empty)
+Frühstück,1, 5,01.10.2020,31.12.2020,7,1,Bauernhof,Birgit+Raoul
+Mittagessen,1 2 3 4 5, 1,01.10.2020,31.12.2020,0,1,Ausflugstag-Märchenwald-Weihnachtsfeier-Sommerfest,Birgit+Raoul
+rkerForJob(day, jobDescription)Birgit+Raoul

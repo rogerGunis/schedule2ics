@@ -26,7 +26,9 @@ public class JobCenter {
     private Map<Worker, Set<Job>> workerToJobs = new HashMap<>();
     private Map<Job, List<Worker>> jobToWorker = new HashMap<>();
     private Map<String, Integer> roundOfJobsCounter = new HashMap<>();
+    private Map<Job, Worker> firstWorkerForReoundIteration = new HashMap<>();
     private Calendar allCalendarEntries;
+    private int JOB_CENTER_OPENED = Integer.MAX_VALUE;
 
     private JobCenter(Calendar allCalendarEntries) {
         this.allCalendarEntries = allCalendarEntries;
@@ -80,16 +82,23 @@ public class JobCenter {
     Worker getWorkerForJob(LocalDate day, JobDescription jobDescription) {
         logger.trace("starting worker search");
         Job job = new Job(jobDescription.getName());
-        Integer startOfJobCenter = roundOfJobsCounter.getOrDefault(jobDescription.getName(), 0);
-        roundOfJobsCounter.putIfAbsent(jobDescription.getName(), 1);
+        Integer startOfJobCenter = roundOfJobsCounter.getOrDefault(jobDescription.getName(), JOB_CENTER_OPENED);
 
         List<Worker> workers = jobToWorker.getOrDefault(job, Collections.emptyList());
+        firstWorkerForReoundIteration.putIfAbsent(job, workers.get(0));
+        roundOfJobsCounter.putIfAbsent(jobDescription.getName(), 1);
 
-        if(workerToBeShuffled(startOfJobCenter)){
+        int startWithIx = 0;
+        if (workerToBeShuffled(startOfJobCenter)) {
             OptionalInt indexOpt = IntStream.range(0, workers.size())
-                    .filter(i -> jobDescription.getStartsWithWorker().equals(workers.get(i).name))
+                    .filter(i -> jobDescription.getEndsWithWorker().equals(workers.get(i).name))
                     .findFirst();
-            Collections.rotate(workers, (workers.size()-indexOpt.orElse(0)));
+            if (startWithIx == workers.size() || !indexOpt.isPresent()) {
+                startWithIx = 0;
+            } else {
+                startWithIx = indexOpt.getAsInt() + 1;
+            }
+            Collections.rotate(workers, (workers.size() - startWithIx));
 
             jobToWorker.put(job, workers);
         }
@@ -99,6 +108,12 @@ public class JobCenter {
                 .filter(worker -> !worker.hasJobDone(job))
                 .min(Comparator.comparing(worker -> worker.hasJobDone(job)));
 
+        logger.info("Round over, starting over next one: {}", job);
+        if (maybeWorker.isPresent()) {
+            if (maybeWorker.get().getName().equals(firstWorkerForReoundIteration.get(job).getName())) {
+                roundOfJobsCounter.compute(jobDescription.getName(), (k, v) -> v == null ? 1 : v + 1);
+            }
+        }
         if (maybeWorker.isPresent()) {
             if (maybeWorker.get().isOnHoliday(day)) {
                 // on vacation, mark done and ask again (keep same order of list)
@@ -114,10 +129,8 @@ public class JobCenter {
                     && workers
                     .stream().anyMatch(worker -> !worker.isOnHoliday(day))) {
 
-                logger.info("Round over, starting over next one: {}", job);
-                roundOfJobsCounter.compute(jobDescription.getName(), (k, v) -> v == null ? 1 : v + 1);
-
                 jobToWorker.get(job).forEach(worker -> worker.resetJobDone(job));
+
                 return getWorkerForJob(day, jobDescription);
             } else {
                 try {
@@ -134,7 +147,7 @@ public class JobCenter {
     }
 
     private boolean workerToBeShuffled(Integer startOfJobCenter) {
-        return startOfJobCenter == 0;
+        return startOfJobCenter == JOB_CENTER_OPENED;
     }
 
     private void addWorkers(List<Worker> workers) {
