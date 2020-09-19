@@ -37,6 +37,10 @@ render:
 view:
 	qpdfview /var/tmp/schedule/allEvents.pdf
 
+mv:
+	mv /var/tmp/schedule/allEvents.pdf $(HOME)/windows/kochplan.pdf
+
+
 clean: 
 	mkdir -p /var/tmp/schedule/
 	rm /var/tmp/schedule/*
