@@ -1,7 +1,7 @@
 apply plugin: 'java'
 apply plugin: "idea"
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
 repositories {
     mavenCentral()
@@ -88,9 +88,6 @@ allprojects {
 //    }
 //}
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.1'
-}
 
 buildscript {
     repositories {
