@@ -8,7 +8,7 @@ fname=FeiertageBayern.ics
 # rm -f ${fname}
 rm -f ${calendarFile}
 # curl -s -o $fname https://calendar.google.com/calendar/ical/dbch66ql3ee9tm0sr97hrav20c%40group.calendar.google.com/public/basic.ics
-urlName="feiertage_bayern_2019.ics"
+urlName="feiertage_bayern_2021.ics"
 fname=$(basename 'http://de-kalender.de/downloads/'${urlName})
 test -f ${fname} || curl -s -o $fname 'http://de-kalender.de/downloads/'${urlName}
 # http://de-kalender.de/downloads/feiertage_bayern_2020.ics

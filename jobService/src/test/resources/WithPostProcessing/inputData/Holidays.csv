@@ -1,6 +1,16 @@
 dateStart,dateEnd,name,shopsAreOpen
+01.01.2021,01.01.2021,Neujahr
+06.01.2021,06.01.2021,Heilige Drei Könige
+02.04.2021,02.04.2021,Karfreitag
+05.04.2021,05.04.2021,Ostermontag
+13.05.2021,13.05.2021,Christi Himmelfahrt
+14.05.2021,14.05.2021,geschlossen wegen Brückentag
+24.05.2021,24.05.2021,Pfingstmontag
+03.06.2021,03.06.2021,Fronleichnam
+04.06.2021,04.06.2021,geschlossen wegen Brückentag
+01.11.2021,01.11.2021,Allerheiligen
 23.08.2021,10.09.2021,Sommerferien
-28.06.2021,28.07.2021,Bauernhof
+28.06.2021,02.07.2021,Bauernhof
 24.07.2021,24.07.2021,Sommerfest,1
 22.04.2021,22.04.2021,Ausflugstag,1
 11.03.2021,11.03.2021,Ausflugstag,1
