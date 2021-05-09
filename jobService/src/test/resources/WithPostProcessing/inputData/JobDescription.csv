@@ -1,3 +1,0 @@
-name,startDayOfWeek (mo=1 ... sun=7),duration,begin,end,infoInDayOfWeek (off=0 mo=1 ... sun=7),reminder(off=0 on=1),specialHolidayNames(keyWord-keyWord),endsWith('' to be empty)
-Frühstück,1, 5,21.02.2021,23.08.2021,7,1,Bauernhof,Carina+Jürgen
-Mittagessen,1 2 3 4 5, 1,21.02.2021,23.08.2021,0,1,Ausflugstag-Märchenwald-Weihnachtsfeier-Sommerfest-Laternenfest,Birgit+Raoul
