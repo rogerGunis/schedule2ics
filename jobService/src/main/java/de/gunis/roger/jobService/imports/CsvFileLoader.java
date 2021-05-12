@@ -105,12 +105,11 @@ public class CsvFileLoader {
         logger.info("Loading {}", inputFilePath);
         List<Worker> inputList = new ArrayList<>();
         try (
-                InputStream inputFS = new FileInputStream(new File(inputFilePath));
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
+            InputStream inputFS = new FileInputStream(inputFilePath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
             inputList = streamWithoutHeader(br).map(mapToWorker).collect(Collectors.toList());
-            br.close();
         } catch (IOException e) {
             logger.warn("Exception" + e);
         }
@@ -120,8 +119,8 @@ public class CsvFileLoader {
     public List<JobDescription> importJobDescriptionFromFile(String inputFilePath) {
         List<JobDescription> inputList = new ArrayList<>();
         try (
-                InputStream inputFS = new FileInputStream(new File(inputFilePath));
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
+            InputStream inputFS = new FileInputStream(inputFilePath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputFS))
         ) {
             // skip the header of the csv
             inputList = streamWithoutHeader(br).map(mapToJobDescription).collect(Collectors.toList());
