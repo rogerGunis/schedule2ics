@@ -30,8 +30,8 @@ before_deploy:
 - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 - git push -q https://${BLUB}@github.com/rogerGunis/schedule2ics --tags
 after_deploy:
-- test -f postProcess/${CALENDAR} && jobService/src/main/resources/WithPostProcessing/bin/IcsFileSync.sh
-  postProcess/${CALENDAR}
+- test -f /var/tmp/schedule/${CALENDAR} && jobService/src/main/resources/WithPostProcessing/bin/IcsFileSync.sh
+  /var/tmp/schedule/${CALENDAR}
 deploy:
   skip_cleanup: true
   provider: releases
@@ -41,7 +41,7 @@ deploy:
   file_glob: true
   file:
   - postProcess.zip
-  - postProcess/allEvents.pdf
+  - /var/tmp/schedule/allEvents.pdf
   on:
     repo: rogerGunis/schedule2ics
 branches:
