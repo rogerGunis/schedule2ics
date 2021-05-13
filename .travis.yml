@@ -23,6 +23,10 @@ after_success:
 - java -jar -DACCOUNT_USER=$ACCOUNT_USER ${DEPLOYER_JAR_FILE:-} --icsDirectory /var/tmp/schedule/
   --apiKey icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json
   -log INFO
+- make geschwisterTag
+- make createPdf
+- zip -r postProcess.zip /var/tmp/schedule
+- cp /var/tmp/schedule/allEvents.pdf .
 before_deploy:
 - git config --global user.email "builds@travis-ci.com"
 - git config --global user.name "Travis CI"
@@ -30,8 +34,8 @@ before_deploy:
 - git tag $GIT_TAG -a -m "Generated tag from TravisCI for build $TRAVIS_BUILD_NUMBER"
 - git push -q https://${BLUB}@github.com/rogerGunis/schedule2ics --tags
 after_deploy:
-- test -f postProcess/${CALENDAR} && jobService/src/main/resources/WithPostProcessing/bin/IcsFileSync.sh
-  postProcess/${CALENDAR}
+- test -f /var/tmp/schedule/${CALENDAR} && jobService/src/main/resources/WithPostProcessing/bin/IcsFileSync.sh
+  /var/tmp/schedule/${CALENDAR}
 deploy:
   skip_cleanup: true
   provider: releases
@@ -41,7 +45,7 @@ deploy:
   file_glob: true
   file:
   - postProcess.zip
-  - postProcess/allEvents.pdf
+  - allEvents.pdf
   on:
     repo: rogerGunis/schedule2ics
 branches:

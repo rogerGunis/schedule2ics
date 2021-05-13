@@ -40,6 +40,7 @@ geschwisterTag:
 createPdf:
 	bash /var/tmp/schedule/allEvents.sh
 	
+viewPdf:
 	pdftk /var/tmp/schedule/allEvents.pdf  cat 3-end output /var/tmp/schedule/allEvents.cut.pdf
 	
 pdf: compile build2 rmPdf geschwisterTag createPdf view
@@ -59,10 +60,10 @@ build2:
   --holidays ./jobService/src/main/resources/WithPostProcessing/inputData/Holidays.csv -log ALL --withPostprocessing
 
 travis: compile build2 geschwisterTag createPdf
-	zip -r postProcess.zip postProcess
+	zip -r postProcess.zip /var/tmp/schedule
 	mkdir -p .store
 	java -jar -DACCOUNT_USER=$$ACCOUNT_USER $$(find . -name "icalToGoogleDeployment*.jar") \
-	--icsDirectory postProcess \
+	--icsDirectory /var/tmp/schedule \
 	--apiKey icalToGoogleDeployment/src/test/resources/client_secrets_apiKey.json \
 	-log INFO
 
