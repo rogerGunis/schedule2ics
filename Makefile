@@ -22,19 +22,19 @@ rmPdf:
 	test -f /var/tmp/schedule/allEvents.pdf && mv /var/tmp/schedule/allEvents.pdf /var/tmp/schedule/allEvents.previous.pdf || true
 
 geschwisterTag:
-	$(call geschwistertag,1,Lynn+Nick)
-	$(call geschwistertag,1,Birgit+Raoul)
-	$(call geschwistertag,1,Doris+Jerome)
-	$(call geschwistertag,1,Lynn+Nick)
-	$(call geschwistertag,1,Birgit+Raoul)
-	$(call geschwistertag,1,Doris+Jerome)
-	$(call geschwistertag,1,Lynn+Nick)
-	$(call geschwistertag,1,Birgit+Raoul)
-	$(call geschwistertag,1,Doris+Jerome)
-	$(call geschwistertag,1,Lynn+Nick)
-	$(call geschwistertag,1,Birgit+Raoul)
-	$(call geschwistertag,1,Doris+Jerome)
-	
+	$(call geschwistertag,1,Carina+Jürgen)
+	$(call geschwistertag,1,Nina+Moritz)
+	$(call geschwistertag,1,Sarah+Michi)
+	$(call geschwistertag,1,Carina+Jürgen)
+	$(call geschwistertag,1,Nina+Moritz)
+	$(call geschwistertag,1,Sarah+Michi)
+	$(call geschwistertag,1,Carina+Jürgen)
+	$(call geschwistertag,1,Nina+Moritz)
+	$(call geschwistertag,1,Sarah+Michi)
+	$(call geschwistertag,1,Carina+Jürgen)
+	$(call geschwistertag,1,Nina+Moritz)
+	$(call geschwistertag,1,Sarah+Michi)
+
 	! egrep ".*summary.*Geschwistertag[1-2]" /var/tmp/schedule/allEvents.html
 
 createPdf:

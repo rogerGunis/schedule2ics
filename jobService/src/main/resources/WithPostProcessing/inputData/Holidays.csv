@@ -1,4 +1,17 @@
 dateStart,dateEnd,name,shopsAreOpen
+06.01.2022,06.01.2022,Heilige Drei Könige
+07.01.2022,07.01.2022,geschlossen wegen Brückentag
+15.04.2022,15.04.2022,Karfreitag
+18.04.2022,18.04.2022,Ostermontag
+26.05.2022,26.05.2022,Christi Himmelfahrt
+27.05.2022,27.05.2022,geschlossen wegen Brückentag
+06.06.2022,06.06.2022,Pfingstmontag
+16.06.2022,16.06.2022,Fronleichnam
+17.06.2022,17.06.2022,geschlossen wegen Brückentag
+03.10.2022,03.10.2022,Tag der Deutschen Einheit
+31.10.2022,31.10.2022,geschlossen wegen Brückentag
+01.11.2022,01.11.2022,Allerheiligen
+26.12.2022,26.12.2022,2. Weihnachtstag
 01.01.2021,01.01.2021,Neujahr
 06.01.2021,06.01.2021,Heilige Drei Könige
 02.04.2021,02.04.2021,Karfreitag
@@ -8,6 +21,7 @@ dateStart,dateEnd,name,shopsAreOpen
 24.05.2021,24.05.2021,Pfingstmontag
 03.06.2021,03.06.2021,Fronleichnam
 04.06.2021,04.06.2021,geschlossen wegen Brückentag
+24.12.2021,08.01.2022,Weihnachten
 01.11.2021,01.11.2021,Allerheiligen
 23.08.2021,10.09.2021,Sommerferien
 28.06.2021,02.07.2021,Bauernhof
