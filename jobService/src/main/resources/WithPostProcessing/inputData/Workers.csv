@@ -1,21 +1,19 @@
-name,jobs,Holidays
-Geschwistertag1,Mittagessen,
-Caro+Basti,Frühstück Mittagessen,
-Martina+Roger,Frühstück Mittagessen,
-Lynn+Nick,Frühstück Mittagessen,
+name,jobs,Toggle,Holidays
+Geschwistertag1,Mittagessen,1,
+Caro+Basti,Frühstück Mittagessen,0,
+Martina+Roger,Frühstück Mittagessen,0,
+Lynn+Nick,Frühstück Mittagessen,0,
+Jana+Elias,Frühstück,0
+Birgit+Raoul,Frühstück,0
+Doris+Jerome,Frühstück Mittagessen,0,
 # G
-Jana+Elias,Frühstück,
-# G
-Birgit+Raoul,Frühstück,
-Doris+Jerome,Frühstück Mittagessen,
-# G
-Carina+Jürgen,Frühstück Mittagessen,
+Carina+Jürgen,Frühstück Mittagessen,0,
 # G Frida, Benno
-Nina+Moritz,Frühstück Mittagessen,
+Nina+Moritz,Frühstück Mittagessen,0,
 # G
-Sarah+Michi,Frühstück,
-Julia+Sam,Frühstück Mittagessen,
+Sarah+Michi,Frühstück,0
+Julia+Sam,Frühstück Mittagessen,0,
 # Luisa, 28.9
-Franzi+Niklas,Frühstück Mittagessen,11.10.2021-22.11.2021
+Franzi+Niklas,Frühstück Mittagessen,0,
 # Nael, 9.11
-Salima+Frido,Frühstück Mittagessen,
+Salima+Frido,Frühstück Mittagessen,0,

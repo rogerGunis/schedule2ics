@@ -25,7 +25,7 @@ public class CsvFileLoaderTest {
 
     // name, jobs (separated by space), vacation settings
     // only one job proposal (diving) possible
-    String workerCsvLineExample = "Batman, drive rescue(diving), 12.12.2017-13.12.2017 14.12.2017 - 15.12.2017";
+    String workerCsvLineExample = "Batman, drive rescue(diving), 0, 12.12.2017-13.12.2017 14.12.2017 - 15.12.2017";
 
     // name, startDayOfWeek (mo=1,...,sun=7),duration, begin, end, moveInformationToDayOfWeek (off=0, mo=1,...,sun=7), special
     String jobDescriptionCsvLineExample = "rescue, 1, 7, 01.01.2017, 01.01.2017, 0, 1, 1,''";

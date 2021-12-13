@@ -54,7 +54,7 @@ public class JobCenterTest {
         Job cleaning = new Job("cleaning");
         Worker worker = new Worker("John",
                 Stream.of(cleaning).collect(Collectors.toSet()),
-                Stream.of(new Holiday(LocalDate.now(), LocalDate.now(), "blub")).collect(Collectors.toList()));
+                Stream.of(new Holiday(LocalDate.now(), LocalDate.now(), "blub")).collect(Collectors.toList()), 0);
         jobCenter.addWorker(worker);
         Worker workerForJob = jobCenter.getWorkerForJob(LocalDate.now(), jobCleaning);
 
@@ -97,7 +97,7 @@ public class JobCenterTest {
         LocalDate newYear = LocalDate.of(2017, 1, 1);
         Worker john = new Worker("John" + "",
                 Stream.of(cleaning).collect(Collectors.toSet()),
-                Stream.of(new Holiday(newYear, newYear, "John is on Holiday@NewYear")).collect(Collectors.toList()));
+                Stream.of(new Holiday(newYear, newYear, "John is on Holiday@NewYear")).collect(Collectors.toList()), 0);
         Worker jim = createWorker("Jim", cleaning);
         Worker tom = createWorker("Tom", cleaning);
         jobCenter.addWorker(john);
@@ -115,6 +115,6 @@ public class JobCenterTest {
     Worker createWorker(String name, Job cleaning) {
         return new Worker(name,
                 Stream.of(cleaning).collect(Collectors.toSet()),
-                null);
+                null, 0);
     }
 }

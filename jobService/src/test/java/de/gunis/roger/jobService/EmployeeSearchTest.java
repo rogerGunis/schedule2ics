@@ -26,10 +26,10 @@ public class EmployeeSearchTest {
         List<Worker> workers = Stream.of(
                 new Worker("asdf1",
                         Stream.of(new Job("help")).collect(Collectors.toSet()),
-                        null),
+                        null, 0),
                 new Worker("asdf2",
                         Stream.of(new Job("help")).collect(Collectors.toSet()),
-                        null)
+                        null, 0)
         ).collect(Collectors.toList());
 
         List<JobDescription> jobDescriptions = Stream.of(

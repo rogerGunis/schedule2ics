@@ -115,7 +115,7 @@ public class JobCenter {
             }
         }
         if (maybeWorker.isPresent()) {
-            if (maybeWorker.get().isOnHoliday(day)) {
+            if (maybeWorker.get().isOnHoliday(day) || (maybeWorker.get().hasToggledState() == 1 && roundOfJobsCounter.get(jobDescription.getName()) % 2 == 0)) {
                 // on vacation, mark done and ask again (keep same order of list)
                 // some kind of business logic
                 maybeWorker.get().doJob(job);

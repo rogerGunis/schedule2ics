@@ -50,24 +50,30 @@ public class CsvFileLoader {
                 new HashSet<>(Arrays.asList(onEmptyWeeksCheckReasonOfHoliday)), endsWith);
     };
     static final Function<String, Worker> mapToWorker = line -> {
-        String[] p = line.split(",");// a CSV has comma separated lines
+//        int name = 0;
+//        int jobs = 1;
+//        int toggle = 2;
+//        int holidays = 3;
+        try {
+            String[] p = line.split(",");// a CSV has comma separated lines
 
-        Set<Job> jobs = Arrays.stream(p[1].split("\\s+")).map(job -> {
-            if (job.matches(".*\\(.*")) {
-                String jobProposal = job;
-                jobProposal = jobProposal.replaceAll(".*\\(|\\)", "");
-                job = job.replaceAll("\\(.*", "");
-                return new Job(job, jobProposal);
-            } else {
-                return new Job(job);
-            }
-        }).collect(Collectors.toSet());
+            Set<Job> jobs = Arrays.stream(p[1].split("\\s+")).map(job -> {
+                if (job.matches(".*\\(.*")) {
+                    String jobProposal = job;
+                    jobProposal = jobProposal.replaceAll(".*\\(|\\)", "");
+                    job = job.replaceAll("\\(.*", "");
+                    return new Job(job, jobProposal);
+                } else {
+                    return new Job(job);
+                }
+            }).collect(Collectors.toSet());
 
-        List<Holiday> vacations = null;
-        List<Worker> group = null;
-        String nameOfWorker = p[0];
-        if (p.length >= 3) {
-            vacations = Arrays.stream(trimDateRange.apply(trimLine.apply(p[2])).split("\\s+"))
+            List<Holiday> vacations = null;
+            List<Worker> group = null;
+            String nameOfWorker = p[0];
+            int toggleTurnus = Integer.parseInt(p[2]);
+            if (p.length >= 4) {
+                vacations = Arrays.stream(trimDateRange.apply(trimLine.apply(p[3])).split("\\s+"))
                     .map(possibleDates -> {
                         String[] dates = possibleDates.split("-");
                         if (dates.length == 1) {
@@ -79,9 +85,14 @@ public class CsvFileLoader {
                         return new Holiday(dateOf(dates[0]), dateOf(dates[1]), "Vacation: " + nameOfWorker);
                     })
                     .collect(Collectors.toList());
+            }
+            return new Worker(nameOfWorker, jobs, vacations, toggleTurnus);
+        }
+        catch (Exception e){
+            logger.error("ERROR on line {}", line);
+            throw new RuntimeException(e);
         }
 
-        return new Worker(nameOfWorker, jobs, vacations);
     };
     static final Function<String, Holiday> mapToHoliday = line -> {
         String[] p = line.split(",");

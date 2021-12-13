@@ -26,12 +26,19 @@ public class Worker implements ICalendarAccess {
     private List<Holiday> vacations;
     private Set<Job> jobs = new HashSet<>();
     private Map<Job, Boolean> hasJobDone = new HashMap<>();
+
+    public int hasToggledState() {
+        return toggleTurnus;
+    }
+
+    private int toggleTurnus;
     private UidGenerator ug = null;
 
-    public Worker(String name, Set<Job> jobs, List<Holiday> vacations) {
+    public Worker(String name, Set<Job> jobs, List<Holiday> vacations, int toggleTurnus) {
         this.name = name;
         this.jobs = jobs;
         this.vacations = validate(vacations);
+        this.toggleTurnus = toggleTurnus;
 
         calendar = new net.fortuna.ical4j.model.Calendar();
         calendar.getProperties().add(new ProdId("-//" + name + "//iCal4j 1.0//EN"));
@@ -132,7 +139,7 @@ public class Worker implements ICalendarAccess {
     }
 
     public Worker clone(){
-        return new Worker(name,jobs,vacations);
+        return new Worker(name,jobs,vacations, 0);
     }
 
     @Override
