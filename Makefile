@@ -49,6 +49,8 @@ createPdf:
 viewPdf:
 	pdftk /var/tmp/schedule/allEvents.pdf  cat 3-end output /var/tmp/schedule/allEvents.cut.pdf
 	
+pdfonly: compile build2 rmPdf geschwisterTag createPdf
+
 pdf: compile build2 rmPdf geschwisterTag createPdf view
 
 render:
