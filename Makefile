@@ -60,7 +60,7 @@ view:
 	test -f /var/tmp/schedule/allEvents.pdf && qpdfview /var/tmp/schedule/allEvents.pdf
 
 mv:
-	mv /var/tmp/schedule/allEvents.pdf $(HOME)/windows/kochplan.pdf
+	mv /var/tmp/schedule/allEvents.pdf $(HOME)/Downloads/kochplan.pdf
 
 build2:
 	java -jar $$(find . -name "jobService.jar") --workers $$(find jobService/src/main -name "Workers.csv") --outputFilePath /var/tmp/schedule/ \
