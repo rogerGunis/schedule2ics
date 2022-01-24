@@ -5,6 +5,7 @@ env:
     CALENDAR: ${{ secrets.CALENDAR }}
 jobs:
   pdf-artifacts:
+    environment: POST_PROCESSING
     runs-on: ubuntu-latest
     steps:
       - name: installation
