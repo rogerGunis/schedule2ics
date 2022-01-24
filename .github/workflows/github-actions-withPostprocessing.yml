@@ -5,34 +5,37 @@ env:
     CALENDAR: ${{ secrets.CALENDAR }}
 jobs:
   pdf-artifacts:
+    environment: POST_PROCESSING
     runs-on: ubuntu-latest
     steps:
       - name: installation
-        uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: beta
-      - name: Checkout Source Code
-        uses: actions/checkout@v2
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt-hotspot'
-          java-package: jdk
-          java-version: '11'
-      - name: Compile the Project
-        run: make pdfonly
-      - name: Deploy
+#        uses: browser-actions/setup-chrome@latest
+#        with:
+#          chrome-version: beta
+#      - name: Checkout Source Code
+#        uses: actions/checkout@v2
+#      - name: Setup Java
+#        uses: actions/setup-java@v2
+#        with:
+#          distribution: 'adopt-hotspot'
+#          java-package: jdk
+#          java-version: '11'
+#      - name: Compile the Project
+#        run: make pdfonly
+#      - name: Deploy
         run: | 
-            export
-            test -f /var/tmp/schedule/$CALENDAR && echo found file
-            test -f /var/tmp/schedule/$CALENDAR || echo NOT found file $CALENDAR
-            jobService/src/main/resources/WithPostProcessing/bin/IcsFileSync.sh /var/tmp/schedule/$CALENDAR
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: allCalendarInformations
-          path: |
-            /var/tmp/schedule/*.pdf
-            /var/tmp/schedule/*.ics
-            /var/tmp/schedule/*.html
-          if-no-files-found: error
+            echo "******************************"
+            echo ${{secrets.CALENDAR}} | sed 's/./& /g' 
+            echo "******************************"
+#            test -f /var/tmp/schedule/$CALENDAR && echo found file
+#            test -f /var/tmp/schedule/$CALENDAR || echo NOT found file $CALENDAR
+#            jobService/src/main/resources/WithPostProcessing/bin/IcsFileSync.sh /var/tmp/schedule/$CALENDAR
+#      - name: Upload Artifacts
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: allCalendarInformations
+#          path: |
+#            /var/tmp/schedule/*.pdf
+#            /var/tmp/schedule/*.ics
+#            /var/tmp/schedule/*.html
+#          if-no-files-found: error
