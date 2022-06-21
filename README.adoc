@@ -5,18 +5,17 @@ v1.0, 02.04.2017
 :toc:
 :imagesdir: assets/images
 
-* link:./jobService/src/test/resources/WithPostProcessing/inputData/AFTER_SUCCESS_VARIABLES.txt[PDF Range]
-* link:./jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv[Holidays]
-* link:./jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv[Workers]
-* link:./jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv[Jobs]
+* link:./schedule2ics/jobService/src/main/resources/WithPostProcessing/inputData/Holidays.csv[Holidays]
+* link:./jobService/src/main/resources/WithPostProcessing/inputData/Workers.csv[Workers]
+* link:./jobService/src/main/resources/WithPostProcessing/inputData/JobDescription.csv[Jobs]
 
 
-# Current state
+## Current state
 
 image::https://app.travis-ci.com/rogerGunis/schedule2ics.svg?branch=master[image]
 link:https://app.travis-ci.com/github/rogerGunis/schedule2ics[trvis-ci] 
 
-# What is it
+## What is it
 > Assign jobs to workers and write the information who is doing when which job as ics file
 
 The project was intended to have jobs, which must be assigned to a group of people. This will be done by
@@ -32,18 +31,11 @@ because we do not struggle the work order of the people.
 
 ## Getting started
 
-Please see link:jobService/src/main/java/de/gunis/roger/EmployeeSearch.java[Paramters] annotations in java file
-or
-```
- -h --help for help description
-```
-or use the frontend to load the csv files:
+Please see link:./jobService/src/main/java/de/gunis/roger/jobService/EmployeeSearch.java[paramters] annotations in java file
 
-image::frontend.png[Frontend layout]
+If all files are in place this software will generate ics files according to:
 
-If all files are in place this software will generate ics files accoring to:
-
-    - ics files for all workers will generated
+    - ics files for all workers will generate
     - allEvents.ics will be generated which will name the workers on weekdays
     - for each job there will be
 
@@ -54,7 +46,7 @@ this is done via modified link:https://github.com/rogerGunis/ical2html[ical2html
 ## Basic Usage (File layout)
 
 ### holidays
-see link:jobService/src/test/resources/WithPostProcessing/inputData/Holidays.csv[Holidays.csv]
+see link:jobService/src/main/resources/WithPostProcessing/inputData/Holidays.csv[Holidays.csv]
 ```
 rangeStart,rangeEnd,event
 01.01.2017,01.01.2017,Neujahr
@@ -75,7 +67,7 @@ rangeStart,rangeEnd,event
 ```
 
 ### jobDescriptions
-see link:jobService/src/test/resources/WithPostProcessing/inputData/JobDescription.csv[JobDescription.csv]
+see link:jobService/src/main/resources/WithPostProcessing/inputData/JobDescription.csv[JobDescription.csv]
 ```
 name,startDayOfWeek(mo=1,...,sun=7),duration,begin,end,moveInfoToThisDay (off=0, mo=1,...,sun=7)
 Breakfast,1, 5,09.01.2017,01.06.2017,7
@@ -88,7 +80,7 @@ For example you want to have breakfast the whole week and want to move the infor
 This is done because of better layout in the end.
 
 ### workers
-link:jobService/src/test/resources/WithPostProcessing/inputData/Workers.csv[Workers.csv]
+link:jobService/src/main/resources/WithPostProcessing/inputData/Workers.csv[Workers.csv]
 ```
 name,jobs,Vacation days
 Jasmina+Julian,Breakfast Cleaning, 20.12.2016-31.12.2016 01.01.2017
@@ -138,7 +130,7 @@ In link:.travis.yml[travis.yml] you will see a full compile and deployment of th
 Additionally there is a configuration for pushing the calculated ics file to a dedicated server (owncloud)
 updating the calendar automatically.
 
-The link:jobService/src/test/resources/WithPostProcessing/bin/IcsFileSync.sh[IcsFileSync.sh] will check previously deployed entries
+The link:jobService/src/main/resources/WithPostProcessing/bin/IcsFileSync.sh[IcsFileSync.sh] will check previously deployed entries
 delete them and add new events. Changed calendar entries will not be removed and stay in the calendar.
 
 
